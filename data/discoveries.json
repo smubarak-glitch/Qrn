@@ -3,8 +3,8 @@
   "id": "book-order",
   "category": "Big picture",
   "title": "The book runs long to short, not first to last",
-  "blurb": "After the short opening prayer, the surahs are arranged roughly from longest to shortest. That turns the order of revelation almost upside down: 9 of the 10 earliest surahs sit in the last 6% of the book. Only Al-Fatiha, the opening, is at the front.",
-  "why": "Reading from page one, you meet the late Medinan surahs first and the very first revelations last. The book is arranged for recitation and use, not as a history. To follow the message as it unfolded, switch the grid to revelation order.",
+  "blurb": "After the short opening prayer, the surahs are arranged roughly from longest to shortest. That partly reverses the order of revelation: the earliest surahs gather at the end, and 9 of the 10 earliest sit in the last 6% of the book. Only Al-Fatiha, the opening, is at the front.",
+  "why": "Reading from page one, you meet the long Medinan surahs first and the very first revelations last. The book is not arranged as a history. To follow the message as it unfolded, switch the grid to revelation order.",
   "series": [
    {
     "label": "10 earliest surahs",
@@ -50,8 +50,8 @@
   "id": "rhyme",
   "category": "Big picture",
   "title": "Three in four neighbouring verses rhyme",
-  "blurb": "In 74% of cases a verse ends on the same letter as the verse before it. If endings were scattered at random it would be about 30%. Almost half of all verses (3,052 of 6,236) end in -un or -in, and all 55 verses of Surah 54 end in r.",
-  "why": "The Quran is rhymed prose, meant to be heard. Rhyme marks where a verse ends, binds a passage together and helps memorisation, and a change of rhyme often signals a new section. Meccan surahs rhyme more tightly (77%) than Medinan ones (65%).",
+  "blurb": "In 73% of cases a verse ends on the same letter as the verse before it. If endings were scattered at random it would be about 30%. Almost half of all verses (3,052 of 6,236) end in -un or -in, and all 55 verses of Surah 54 end in r.",
+  "why": "The Quran is meant to be heard, and its verse endings rhyme (classical scholars called them fawasil, 'verse endings', rather than ordinary rhymed prose). Rhyme marks where a verse ends, binds a passage together and helps memorisation, and a change of rhyme often signals a new section. Meccan surahs rhyme more tightly (76%) than Medinan ones (65%).",
   "series": [
    {
     "label": "Ends in -un / -in",
@@ -70,8 +70,8 @@
   "id": "mystery-letters",
   "category": "Big picture",
   "title": "The mystery letters introduce the Book",
-  "blurb": "29 surahs open with letters read one by one, such as Alif Lam Mim. In 23 of them the next words are about the Book or its revelation: 'This is the Book about which there is no doubt' (2:2). Among the other 85 surahs, only 17 start that way.",
-  "why": "No one knows for sure what the letters mean; it is one of the oldest puzzles in the Quran. But they are not placed at random. They work like a heading for scripture, introducing the Book 79% of the time against 20% elsewhere, which fits the classical view that they point to the text itself.",
+  "blurb": "29 surahs open with letters read one by one, such as Alif Lam Mim. In 23 of them the next words are about the Book or its revelation: 'This is the Book about which there is no doubt' (2:2). Among the other 85 surahs, only 14 start that way.",
+  "why": "No one knows for sure what the letters mean; it is one of the oldest puzzles in the Quran. But they are not placed at random. They work like a heading for scripture, introducing the Book 79% of the time against 16% elsewhere, which fits one classical view: that the letters point to the text itself.",
   "series": [
    {
     "label": "Book words in verses 1-2",
@@ -88,15 +88,15 @@
    "unit": "verses",
    "shade": "surahs"
   },
-  "method": "Book words are the roots k-t-b (write, book), n-z-l (send down), q-r-' (recite) and w-h-y (reveal) in the first two verses of a surah. Hits: 23 of the 29 letter surahs (79%), 17 of the other 85 (20%) and 10 of the other 60 Meccan surahs (17%). The six without are 3, 19, 29, 30, 42 and 68; 3:3 and 42:3 speak of revelation one verse later. The letters are the 30 words the corpus tags INL (Surah 42 has two letter verses); they use 14 different letters, half the alphabet.",
+  "method": "Book words are the roots k-t-b (write, book), n-z-l (send down), q-r-' (recite) and w-h-y (reveal) in the first two verses of a surah. Hits: 23 of the 29 letter surahs (79%), each one a statement about the Book. Of the other 85 surahs, 17 have such a word that early, but in 3 it is not about revelation (34:2, what descends from the sky; 59:2 and 98:1, the People of the Scripture), which leaves 14 (16%). The six letter surahs without a hit are 3, 19, 29, 30, 42 and 68; 3:3 and 42:3 speak of revelation one verse later. The letters are the 30 words the corpus tags INL (Surah 42 has two letter verses); they use 14 different letters, half the alphabet.",
   "interest": 5
  },
  {
   "id": "refrains",
   "category": "Big picture",
   "title": "Refrains: lines that come back again and again",
-  "blurb": "265 verses repeat word for word somewhere else in the Quran, not counting the opening letters. Many are refrains: 'Which of the favours of your Lord would you deny?' comes 31 times in Surah 55, and 'Woe, that Day, to the deniers' 10 times in Surah 77. 214 of the 265 are Meccan.",
-  "why": "Refrains are a mark of texts made to be recited aloud. They give the listener a beat, show where one section ends and the next begins, and drive the point home. Their weight in the Meccan surahs fits the public, spoken preaching of that period.",
+  "blurb": "265 verses repeat word for word somewhere else in the Quran, not counting the opening letters. Many are refrains: 'So which of the favors of your Lord would you deny?' comes 31 times in Surah 55, and 'Woe, that Day, to the deniers' 10 times in Surah 77. 214 of the 265 are Meccan.",
+  "why": "Refrains are a mark of texts made to be recited aloud. They give the listener a beat, show where one section ends and the next begins, and drive the point home. They lean somewhat to the Meccan surahs, the years of public, spoken preaching: 4.6% of Meccan verses repeat elsewhere, against 3.1% of Medinan ones.",
   "series": [
    {
     "label": "Surah 55 refrain",
@@ -118,7 +118,7 @@
    "unit": "verses",
    "shade": "surahs"
   },
-  "method": "Every verse's plain text, without vowel marks, was compared with every other verse: 280 verses share their exact text with at least one other, and 265 when the opening-letter verses (Alif Lam Mim, Ha Mim, Ta Sin Mim) are left out. The Surah 77 line occurs once more at 83:10. Surah 26 closes its opening and each of its seven prophet stories with the same two verses (26:8-9, 67-68, 103-104, 121-122, 139-140, 158-159, 174-175 and 190-191).",
+  "method": "Every verse's plain text, without vowel marks, was compared with every other verse: 280 verses share their exact text with at least one other, and 265 when the opening-letter verses (Alif Lam Mim, Ha Mim, Ta Sin Mim) are left out. The Surah 77 line occurs once more at 83:10. Surah 26 closes its opening and each of its seven prophet stories with the same two lines (26:8-9, 67-68, 103-104, 121-122, 139-140, 158-159, 174-175 and 190-191).",
   "interest": 4
  },
  {
@@ -126,7 +126,7 @@
   "category": "Big picture",
   "title": "The earliest surahs use the rarest words",
   "blurb": "399 of the Quran's 1,651 word roots are used only once. The 38 earliest surahs have 18 of these one-time words per 1,000 words; later surahs have about 4. The hoopoe (27:20), the elephant (105:1) and Ramadan (2:185) are among them.",
-  "why": "The first revelations pack in vivid, unusual words, many of them picturing the end of the world. That is part of why they are the hardest to translate and the most admired for their style. Later surahs draw on a settled, repeated vocabulary as the message and the community take shape.",
+  "why": "The first revelations pack in vivid, unusual words, many of them picturing the end of the world. That is part of why they are among the hardest passages to translate. Later surahs draw on a settled, repeated vocabulary as the message and the community take shape.",
   "series": [
    {
     "label": "Roots used only once",
@@ -165,7 +165,7 @@
    "shade": "type",
    "order": "revelation"
   },
-  "method": "All words used 20 times or more were ranked by how strongly they lean toward one period (Dunning log-likelihood). These twelve are among the strongest that are not names or grammar words: the Medinan six rank in the top 13 of 232 Medinan-leaning words, the Meccan six in the top 32 of 268. Exact dictionary forms keep 'he created' (khalaqa) apart from 'creation', 'fight' (qatala, form III) apart from 'kill', and 'blame' (junah) apart from 'wing' (janah). Meccan: 430 of 491. Medinan: 247 of 271. Medinan surahs hold 29,990 of the 77,429 words.",
+  "method": "All words used 20 times or more were ranked by how strongly they lean toward one period (Dunning log-likelihood). These twelve are among the strongest that are not names or grammar words: the Medinan six rank in the top 13 of 232 Medinan-leaning words, the Meccan six in the top 32 of 268. Exact dictionary forms keep 'he created' (khalaqa) apart from 'creation', 'fight' (qātala) apart from 'kill' (qatala), and 'blame' (junah) apart from 'wing' (janah). Meccan: 430 of 491. Medinan: 247 of 271. Medinan surahs hold 29,990 of the 77,429 words.",
   "interest": 5
  },
  {
@@ -217,7 +217,7 @@
    "shade": "type",
    "order": "revelation"
   },
-  "method": "'Be patient' is any command from the root s-b-r. 'Fight' is the verb qatala (form III, 'to fight') and the noun qital. Per 1,000 words by revelation-order third, 'be patient' falls from 1.6 to 0.4 and 0.2, while fighting goes 0.2, 0 and 2.0. The verb 'to kill' is less one-sided (62 of 97 Medinan) because Meccan stories, such as Moses and Pharaoh, use it.",
+  "method": "'Be patient' is any command from the root s-b-r. 'Fight' is the verb qātala ('to fight') and the noun qitāl. Per 1,000 words by revelation-order third, 'be patient' falls from 1.6 to 0.4 and 0.2, while fighting goes 0.2, 0 and 2.0. Words for killing are less one-sided (62 of 97 Medinan) because Meccan stories, such as Moses and Pharaoh, use them.",
   "interest": 5
  },
  {
@@ -234,8 +234,8 @@
    },
    {
     "label": "Lord (rabb)",
-    "q": "lemma:رب",
-    "count": 977
+    "q": "lemma:=رَبّ",
+    "count": 975
    }
   ],
   "view": {
@@ -243,14 +243,14 @@
    "shade": "none",
    "order": "revelation"
   },
-  "method": "Every word of the lemma Allah and of the lemma rabb ('Lord', in forms such as 'your Lord' and 'our Lord'). Per 1,000 words by revelation-order third: Allah 7.9, 21.6 and 54.1; Lord 16.3, 16.6 and 7.4. The 29 surahs without Allah hold 2,961 words, and 19 of them use 'Lord'. The basmala at the head of each surah is not part of the numbered text and is not counted.",
+  "method": "Every word of the lemma Allah and of the lemma rabb ('Lord', in forms such as 'your Lord' and 'our Lord'; the exact form leaves out rubama 'perhaps' in 15:2 and riba 'usury' in 30:39). Per 1,000 words by revelation-order third: Allah 7.9, 21.6 and 54.1; Lord 16.3, 16.6 and 7.4. The 29 surahs without Allah hold 2,961 words, and 19 of them use 'Lord'. The basmala at the head of each surah is not part of the numbered text and is not counted.",
   "interest": 5
  },
  {
   "id": "questions-to-conditions",
   "category": "Mecca & Medina",
   "title": "Questions give way to 'if'",
-  "blurb": "The earliest surahs ask 22 questions per 1,000 words: 'Have We not made the earth a resting place?' (78:6). In the last third that falls to 9, while 'if' and 'whoever' clauses rise from 5 to 18 per 1,000.",
+  "blurb": "The earliest surahs use 22 question words per 1,000 words: 'Did He not find you an orphan and give [you] refuge?' (93:6). In the last third that falls to 9, while 'if' and 'whoever' clauses rise from 5 to 18 per 1,000.",
   "why": "Questions are how you persuade a doubting listener: they make the audience supply the answer. Conditions are how you write rules: if this happens, do that. The swap mirrors the move from preaching to governing.",
   "series": [
    {
@@ -277,7 +277,7 @@
   "category": "Mecca & Medina",
   "title": "The laws come late, and fill little space",
   "blurb": "Words for six core legal topics, marriage, divorce, fasting, pilgrimage, retaliation and bequests, appear 74 times in 53 verses: under 1% of the Quran's 6,236 verses. 72 of the 74 are in Medinan surahs, and 24 of the 53 verses are in Surah 2.",
-  "why": "The Quran is sometimes pictured as mainly a law book. By verse count it is not, and the law it does contain arrives after the community settled in Medina and needed rules. The two Meccan uses are inside stories: Maryam's vow of a fast (19:26) and the marriage offered to Moses (28:27).",
+  "why": "The Quran is sometimes pictured as mainly a law book. Classical scholars counted about 500 legal verses, under a tenth of the text, and most of its detailed law arrives after the community settled in Medina and needed rules. The two Meccan uses are inside stories: Maryam's vow of a fast (19:26) and the marriage offered to Moses (28:27).",
   "series": [
    {
     "label": "Law words",
@@ -297,7 +297,7 @@
   "id": "oaths-and-calls",
   "category": "Mecca & Medina",
   "title": "Oaths open Meccan surahs, calls open Medinan ones",
-  "blurb": "17 surahs begin with an oath, such as 'By the dawn' or 'I swear by this city', and every one is Meccan. 10 begin with a call, 'O mankind', 'O Prophet' or 'O you who believe', and 8 of those are Medinan.",
+  "blurb": "17 surahs begin with an oath, such as 'By the dawn' or 'I swear by this city', and every one is Meccan. 10 begin with a call such as 'O mankind', 'O Prophet' or 'O you who believe', and 8 of those are Medinan.",
   "why": "An oath calls the sky, the sun and time itself as witnesses: the voice of someone persuading a doubtful crowd. A call to 'you who believe' needs a community of believers to speak to. A surah's first words are a good clue to when it came.",
   "series": [
    {
@@ -322,7 +322,7 @@
   "id": "o-you-who-believe",
   "category": "Mecca & Medina",
   "title": "'O you who believe': 89 times, all in Medina",
-  "blurb": "Every one of the 89 verses that call 'O you who believe' is in a Medinan surah, and so are all 13 that say 'O Prophet'. Meccan surahs use wider calls, like 'O mankind', or the 'O my people' of earlier prophets (45 of its 49 uses).",
+  "blurb": "Every one of the 89 verses that call 'O you who believe' is in a Medinan surah, and so are all 13 that say 'O Prophet'. 'O mankind' is used in both periods, while 'O my people', the call of earlier prophets in their stories, is Meccan (45 of its 49 uses).",
   "why": "You can only address 'you who believe' once there is a community of believers. These calls usually introduce an instruction, and they appear exactly where the community took shape. 'O Prophet' likewise belongs to the years when Muhammad led a city.",
   "series": [
    {
@@ -346,15 +346,15 @@
    "shade": "type",
    "order": "revelation"
   },
-  "method": "'O you who believe' and 'O Prophet' are the Saheeh International phrases; both lists were checked against the Arabic and match the verses where ya ayyuha is followed by alladhina amanu (89) or al-nabi (13). 'O my people' is the word qawm with the vocative tag; its 4 Medinan uses are all Moses speaking (2:54, 5:20, 5:21, 61:5). 'O mankind' is split: 10 Meccan, 11 Medinan.",
+  "method": "The searches use Saheeh International's wording, 'O you who have believed' and 'O Prophet'; both lists were checked against the Arabic and match the verses where ya ayyuha is followed by alladhina amanu (89) or al-nabi (13). 'O my people' is the word qawm with the vocative tag; its 4 Medinan uses are all Moses speaking (2:54, 5:20, 5:21, 61:5). 'O mankind' is split: 10 Meccan, 11 Medinan.",
   "interest": 4
  },
  {
   "id": "people-of-the-book",
   "category": "Mecca & Medina",
   "title": "From Israel's past to the People of the Book",
-  "blurb": "Israel is named 43 times, nearly always as 'the Children of Israel', and 26 of those are Meccan, inside the story of Moses. But 30 of the 31 verses about 'the People of the Book' are Medinan, as are all 14 mentions of Christians, 19 of the 21 mentions of Jews and 21 of the 25 mentions of Jesus.",
-  "why": "In Mecca, Jews and Christians appear mostly as history: the people Moses led out of Egypt. In Medina the Prophet lived beside Jewish tribes and dealt with Christians, and the text turns to arguing with them directly. The words show when these communities became neighbours rather than stories.",
+  "blurb": "Israel is named 43 times, nearly always as 'the Children of Israel', and 26 of those are Meccan, most of them (19) in the story of Moses. But 30 of the 31 verses about 'the People of the Book' are Medinan, as are all 14 mentions of Christians, 19 of the 21 mentions of Jews and 21 of the 25 mentions of Jesus.",
+  "why": "In Mecca, the Children of Israel appear mostly as history, the people Moses led out of Egypt, and Christians are not named at all. In Medina the Prophet lived beside Jewish tribes and dealt with Christians, and the text turns to arguing with them directly. The words show when these communities became neighbours rather than stories.",
   "series": [
    {
     "label": "Israel",
@@ -461,7 +461,7 @@
   "category": "Words & meaning",
   "title": "Prayer and charity go together",
   "blurb": "Zakah, the obligatory charity, is named in 32 verses, and 26 of them also name prayer, always first: 'establish prayer and give zakah'. Prayer appears in 78 verses, so it often stands alone, but zakah rarely does.",
-  "why": "Worship of God and care for the poor are presented as one pair of duties, not two separate ones. That link is why zakah stands beside prayer among the five pillars of Islam.",
+  "why": "Worship of God and care for the poor are presented as one pair of duties, not two separate ones. The pairing is echoed in the five pillars of Islam, where zakah stands beside prayer.",
   "series": [
    {
     "label": "Prayer + zakah",
@@ -489,8 +489,8 @@
   "id": "signs-for-thinkers",
   "category": "Words & meaning",
   "title": "Signs for people who think",
-  "blurb": "28 verses say that something in nature or history holds 'signs for a people' who give thought, reason, believe or listen, and 25 of them are Meccan. The noun for reason never appears: all 49 uses of the root 'aql are verbs, 13 of them the question 'Will you not reason?'",
-  "why": "The Quran points to rain, stars, night and day as evidence and asks the listener to draw the conclusion. Reason is something you do, not something you have. It is an argument from observation, aimed at people still to be convinced.",
+  "blurb": "28 verses say that something in nature or history holds 'signs for a people' who give thought, reason, believe or listen, and 25 of them are Meccan. The noun 'aql, reason, never appears: all 49 uses of its root are verbs, 13 of them the question 'Will you not reason?'",
+  "why": "The Quran points to rain, stars, night and day as evidence and asks the listener to draw the conclusion. Its word for reason, 'aql, appears only as something people do. It is an argument from observation, aimed at people still to be convinced.",
   "series": [
    {
     "label": "'Signs for a people'",
@@ -512,7 +512,7 @@
    "unit": "verses",
    "shade": "type"
   },
-  "method": "The phrase search finds 'a sign for a people' and 'signs for a people' in the Saheeh International translation; what follows is 'who give thought' (7), 'who believe' (6), 'who reason' or 'use reason' (6), 'who listen' (3) and five others. The corpus tags all 49 words of the root '-q-l and all 18 of f-k-r as verbs; 'ar:=تعقلون has:\"ar:=افلا\"' finds the 13 'Will you not reason?'",
+  "method": "The phrase search finds 'a sign for a people' and 'signs for a people' in the Saheeh International translation; what follows is 'who give thought' (7), 'who believe' (6), 'who reason' or 'use reason' (6), 'who listen' (3) and six others ('who know' twice, and 'understand', 'are grateful', 'fear Allah' and 'remember' once each). The corpus tags all 49 words of the root '-q-l and all 18 of f-k-r as verbs; 'ar:=تعقلون has:\"ar:=افلا\"' finds the 13 'Will you not reason?'",
   "interest": 4
  },
  {
@@ -549,8 +549,8 @@
   "id": "one-is-god",
   "category": "Words & meaning",
   "title": "'One' is mostly about God",
-  "blurb": "The word wahid, 'one', appears 30 times, and 22 of them describe God: 'Your God is one God' (2:163). The other 8 count ordinary things: one kind of food, one gate, one water.",
-  "why": "Numbers in the Quran rarely measure quantity. 'One' is used above all to state its central teaching, that God is one.",
+  "blurb": "The word wahid, 'one', appears 30 times, and 22 of them describe God: 'Your god is one God' (16:22). The other 8 count ordinary things: one kind of food, one gate, one water.",
+  "why": "'One' is used less to count things than to state the Quran's central teaching, that God is one.",
   "series": [
    {
     "label": "One (wahid)",
@@ -567,13 +567,13 @@
    "unit": "words",
    "shade": "none"
   },
-  "method": "Every word of the lemma wahid, with each verse read. The 22 are exactly the verses where it stands with ilah (god) or with al-qahhar (the Prevailing). The other word for one, ahad (as in 'Say, He is God, One', 112:1), mostly means 'anyone' and is not counted.",
+  "method": "Every word of the lemma wahid, with each verse read. The 22 are exactly the verses where it stands with ilah (god) or with al-qahhar (the Prevailing). The other word for one, ahad (as in 112:1, 'Say, \"He is Allah, [who is] One\"'), mostly means 'anyone' and is not counted.",
   "interest": 4
  },
  {
   "id": "most-used-roots",
   "category": "Words & meaning",
-  "title": "The most used word families: God, say, Lord",
+  "title": "The most used word families: God, say, be, Lord",
   "blurb": "The root of God's name appears 2,851 times, more than any other. Next come 'say' (1,722), 'be' (1,390), 'Lord' (980), 'believe' (879) and 'know' (854). 'Lord' appears in 94 of the 114 surahs.",
   "why": "The top word families sum up the book: it is about God, and it is speech. 'Say' ranks second because so much of the Quran is dialogue: the Prophet is told what to say, and the words of prophets, angels and opponents are reported.",
   "series": [
@@ -683,7 +683,7 @@
   "category": "People & stories",
   "title": "Joseph's story is told whole, Moses' in pieces",
   "blurb": "Joseph (Yusuf) is named 27 times, and 25 of those are in Surah 12, which tells his story from beginning to end. Moses (Musa), named 136 times, more than anyone else, is spread across 34 surahs.",
-  "why": "Most Quranic stories are told in pieces, each retelling chosen to make a different point. Joseph's is the exception, and the surah itself calls it 'the best of stories' (12:3). To follow the life of Moses, you have to gather it from across the book.",
+  "why": "Most Quranic stories are told in pieces, each retelling chosen to make a different point. Joseph's is the exception, and the surah opens by promising 'the best of stories' (12:3), which many read as Joseph's own. To follow the life of Moses, you have to gather it from across the book.",
   "series": [
    {
     "label": "Yusuf (Joseph)",
@@ -707,7 +707,7 @@
   "id": "iblis-and-shaytan",
   "category": "People & stories",
   "title": "Iblis refuses, Shaytan tempts",
-  "blurb": "The name Iblis appears 11 times, and 8 of those verses tell how the angels bowed to Adam and Iblis refused. When the story moves on to the garden and the temptation, he is called al-Shaytan instead (2:36, 7:20, 20:120), a name used 64 times.",
+  "blurb": "The name Iblis appears 11 times, and 9 of those verses are in the scene where the angels bow to Adam and Iblis refuses. When the story moves on to the garden and the temptation, he is called al-Shaytan instead (2:36, 7:20, 20:120), a name used 64 times.",
   "why": "The two names follow two roles. Iblis is the proud individual who refuses God's command; Shaytan is the tempter at work in the world. The Quran switches names as the story switches scenes.",
   "series": [
    {
@@ -731,9 +731,9 @@
  {
   "id": "ancient-nations-order",
   "category": "People & stories",
-  "title": "Noah, 'Ad, Thamud, Lot: always in that order",
+  "title": "Noah, 'Ad, Thamud, Lot: usually in that order",
   "blurb": "'Ad and Thamud, two ancient Arabian peoples, are named together in 17 surahs, and 'Ad comes first in 15. Where Noah, 'Ad, Thamud and Lot all appear, 6 of 8 surahs name them in that order. 88% of the mentions of Noah, 'Ad and Thamud are in Meccan surahs.",
-  "why": "These stories follow a fixed pattern and sequence, like a timeline of warnings: each people rejected its prophet and was destroyed. Told mostly in Mecca, they were a pointed warning to the Prophet's own opponents.",
+  "why": "These stories follow a regular pattern and sequence, like a timeline of warnings: each people rejected its prophet and was destroyed. Told mostly in Mecca, they were a pointed warning to the Prophet's own opponents.",
   "series": [
    {
     "label": "Nuh (Noah)",
@@ -819,7 +819,7 @@
   "category": "People & stories",
   "title": "Mecca and Medina are named only in Medinan surahs",
   "blurb": "Mecca (as Makkah and Bakkah), Medina (with its old name Yathrib) and local sites such as Badr, Hunayn, the Ka'ba, Safa, Marwa and Arafat are named 14 times, all in Medinan surahs. Egypt and Sinai, the scenes of Moses' story, are named only in Meccan ones.",
-  "why": "In Mecca, the named places belong to stories set far away and long ago. In Medina, the text names the places where the community lives, fights and makes pilgrimage. Place names show when the Quran began to speak about its own setting.",
+  "why": "In Meccan surahs, almost all named places belong to stories set far away and long ago. In Medina, the text names the places where the community lives, fights and makes pilgrimage. Place names show when the Quran began to speak about its own setting.",
   "series": [
    {
     "label": "Makkah, Madinah & more",
@@ -841,7 +841,7 @@
    "unit": "words",
    "shade": "type"
   },
-  "method": "Counted proper-noun words with the lemmas listed in each query; the indefinite misr 'a settlement' in 2:61 is not tagged as a name. The common noun al-madina ('the city') is used 10 more times for other towns, all in Meccan surahs, and is not counted. Meccan surahs refer to Makkah without naming it, as 'the Mother of Cities' (6:92, 42:7) and 'this secure city' (95:3).",
+  "method": "Counted proper-noun words with the lemmas listed in each query; the indefinite misr 'a settlement' in 2:61 is not tagged as a name. The common noun al-madina ('the city') is used 10 more times for other towns, all in Meccan surahs, and is not counted. Meccan surahs refer to Makkah without naming it, as 'the Mother of Cities' (6:92, 42:7) and 'this secure city' (95:3). The Sacred Mosque (al-masjid al-haram) is a phrase, not a tagged name, and is not counted; 14 of its 15 mentions are Medinan, the exception being the night journey of 17:1.",
   "interest": 4
  },
  {
@@ -878,7 +878,7 @@
   "category": "Nature",
   "title": "Many heavens, one earth",
   "blurb": "The word ard (earth) appears 461 times and is never plural, while sama' (sky, heaven) is plural in 190 of its 310 uses. The plural samawat appears in 188 verses, and 181 of them also name the earth. In 173 of those 181 verses the heavens come first.",
-  "why": "The Quran pictures the heavens in layers, the 'seven heavens', while the earth stays one. Together, 'the heavens and the earth' is its standard phrase for the whole universe.",
+  "why": "The Quran pictures the heavens in layers, the 'seven heavens', while the word for earth stays singular. Together, 'the heavens and the earth' is its standard phrase for the whole universe.",
   "series": [
    {
     "label": "Heavens (samawat)",
@@ -993,8 +993,8 @@
   "id": "six-days",
   "category": "Numbers",
   "title": "Six is only used for the days of creation",
-  "blurb": "The number six appears 7 times, always for the six days in which the heavens and the earth were created. Five of those verses use identical words: 'in six days, then He rose over the Throne'.",
-  "why": "Creation in six days is shared with the Bible, but the Quran has no day of rest; instead it says 'and no weariness touched Us' (50:38). The number six is kept for this one story.",
+  "blurb": "The number six appears 7 times, always for the six days in which the heavens and the earth were created. Five of those verses use the same Arabic words: 'in six days and then established Himself above the Throne'.",
+  "why": "Creation in six days is shared with the Bible, but the Quran has no day of rest; instead it says 'and there touched Us no weariness' (50:38). The number six is kept for this one story.",
   "series": [
    {
     "label": "Six days",
@@ -1018,7 +1018,7 @@
   "category": "Numbers",
   "title": "Three hundred years, and nine more",
   "blurb": "The sleepers of the cave stayed 'three hundred years and exceeded by nine' (18:25). Three verses earlier, 18:22 reports people's guesses about how many they were: three, five or seven, with their dog the fourth, sixth or eighth, so the verse runs through every number from three to eight.",
-  "why": "Many readers take 'and nine more' as the gap between solar and lunar years: 300 solar years come to about 309 lunar years. The verse does not mention calendars, so this is a reading, but the arithmetic works.",
+  "why": "Many readers take 'and exceeded by nine' as the gap between solar and lunar years: 300 solar years come to about 309 lunar years. The verse does not mention calendars, so this is a reading, but the arithmetic works.",
   "claim": "300 solar years equal 309 lunar years, matching the 'three hundred years and nine' of 18:25.",
   "series": [
    {
