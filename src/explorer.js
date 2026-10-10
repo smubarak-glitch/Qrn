@@ -1589,7 +1589,9 @@
     const cards = $("cards");
     cards.replaceChildren();
     const list = sortedDiscoveries();
-    const first = window.matchMedia("(max-width: 640px)").matches ? 4 : 9;
+    // Two full rows at whatever column count the layout gives (four cards on a phone).
+    const cols = getComputedStyle(cards).gridTemplateColumns.split(" ").filter(Boolean).length || 1;
+    const first = window.matchMedia("(max-width: 640px)").matches ? 4 : cols * 2;
     const limit = cardsExpanded ? list.length : first;
     for (const d of list.slice(0, limit)) {
       const b = el("button", "card");

@@ -322,6 +322,47 @@ def check_discoveries() -> list[dict]:
     return items
 
 
+README_BEGIN = "<!-- DISCOVERIES:BEGIN -->"
+README_END = "<!-- DISCOVERIES:END -->"
+CATEGORY_ORDER = ["Numbers & time", "Famous claims", "People & places", "Nature & cosmos", "Structure",
+                  "Meccan & Medinan", "Pairs & echoes", "Themes & language"]
+VERDICT_WORDS = {"holds": "✓ holds", "partly": "≈ partly", "fails": "✕ does not hold"}
+
+
+def write_readme_discoveries(items: list[dict]) -> None:
+    """The README's discoveries section, generated so it always matches the page."""
+    if not items:
+        return
+    md = lambda t: t.replace("|", "\\|")  # noqa: E731
+    counts = {c: sum(1 for x in items if x["category"] == c) for c in CATEGORY_ORDER}
+    lines = [
+        "## Discoveries",
+        "",
+        f"The page ships with **{len(items)} discoveries**, saved searches with a short explanation: "
+        + ", ".join(f"{c} ({n})" for c, n in counts.items() if n) + ". "
+        "Each was found by a research pass over the data and re-checked by a separate pass that "
+        "tried to disprove it, and the build re-runs every count. Open one with "
+        "`index.html#<id>`, for example `index.html#claims-day-365`.",
+        "",
+        "### Popular number claims, tested",
+        "",
+        "| Claim | Verdict | What the data says |",
+        "|---|---|---|",
+    ]
+    for x in items:
+        if x["category"] == "Famous claims" and x.get("verdict"):
+            v = x["verdict"]
+            lines.append(f"| {md(v['claim'])} | {VERDICT_WORDS[v['result']]} | {md(v['note'])} |")
+    lines += ["", "### A few more", ""]
+    picks = [x for x in items if x["category"] not in ("Famous claims",) and x.get("interest", 0) >= 5]
+    for x in picks[:14]:
+        lines.append(f"- **{x['title']}** (`#{x['id']}`). {x['blurb']}")
+    readme = ROOT / "README.md"
+    text = readme.read_text(encoding="utf8")
+    if README_BEGIN in text and README_END in text:
+        readme.write_text(replace_between(text, README_BEGIN, README_END, "\n".join(lines) + "\n"), encoding="utf8")
+
+
 # --------------------------------------------------------------------------- page data
 
 
@@ -401,6 +442,8 @@ def main() -> None:
     month = month_study(data)
     write_month_outputs(month)
     discoveries = check_discoveries()
+
+    write_readme_discoveries(discoveries)
 
     if "--no-page" not in sys.argv:
         size = inject(page_payload(data, discoveries))

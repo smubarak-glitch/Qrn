@@ -4,7 +4,13 @@
   "category": "Numbers & time",
   "title": "Every mention of month",
   "blurb": "The Arabic word for month, shahr, appears 21 times in 17 verses. Twelve are the singular shahr, two are the dual shahrayn (two months) and seven are plurals.",
-  "series": [{"label": "Month (ش ه ر)", "q": "root:شهر", "count": 21}],
+  "series": [
+   {
+    "label": "Month (ش ه ر)",
+    "q": "root:شهر",
+    "count": 21
+   }
+  ],
   "method": "Every word from the root ش ه ر in the Quranic Arabic Corpus. In the Quran this root is only used for month. A spelling search of the Tanzil text for ش ه ر and ش ه و ر finds the same 21 words.",
   "interest": 5,
   "featured": true
@@ -15,11 +21,2797 @@
   "title": "Month, two months, months",
   "blurb": "The 21 mentions of month split by grammatical number: 12 singular, 2 dual and 7 plural. The singular shahr occurs exactly 12 times, and 9:36 says the number of months with Allah is twelve.",
   "series": [
-   {"label": "Month (singular)", "q": "root:شهر -tag:MD -tag:MP", "count": 12},
-   {"label": "Two months (dual)", "q": "root:شهر tag:MD", "count": 2},
-   {"label": "Months (plural)", "q": "root:شهر tag:MP", "count": 7}
+   {
+    "label": "Month (singular)",
+    "q": "root:شهر -tag:MD -tag:MP",
+    "count": 12
+   },
+   {
+    "label": "Two months (dual)",
+    "q": "root:شهر tag:MD",
+    "count": 2
+   },
+   {
+    "label": "Months (plural)",
+    "q": "root:شهر tag:MP",
+    "count": 7
+   }
   ],
   "method": "Words from the root ش ه ر, split by the corpus number tags: MD marks the dual shahrayn, MP the plurals ashhur and shuhur.",
   "interest": 4
+ },
+ {
+  "id": "claims-qul-qalu-332",
+  "category": "Famous claims",
+  "title": "\"Say!\" and \"They said\": 332 each",
+  "blurb": "The command قُلْ \"Say!\", addressed to one person, occurs 332 times. قَالُوا \"they said\" also occurs 332 times. Both counts include forms with a prefix such as و or ف attached in front.",
+  "series": [
+   {
+    "label": "Say! (qul)",
+    "q": "lemma:قال tag:IMPV tag:2MS",
+    "count": 332
+   },
+   {
+    "label": "They said (qalu)",
+    "q": "lemma:قال tag:PERF tag:3MP",
+    "count": 332
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type"
+  },
+  "verdict": {
+   "claim": "The word qul (say) appears 332 times, and qalu (they said) also appears 332 times.",
+   "result": "holds",
+   "note": "Holds when every occurrence of each verb form is counted, prefixes included. A search by spelling finds one more قل, at 4:7, but that is a different verb (qalla, 'is little') and is rightly left out."
+  },
+  "method": "Counted words of the lemma قال tagged imperative, 2nd person masculine singular (qul), and perfect, 3rd person masculine plural (qalu), in the Quranic Arabic Corpus. Checked the spellings: قل, وقل, فقل for the first, and قالوا, وقالوا, فقالوا, لقالوا for the second.",
+  "interest": 5
+ },
+ {
+  "id": "claims-man-woman-24",
+  "category": "Famous claims",
+  "title": "Man and woman: 24 each",
+  "blurb": "In the singular, رَجُل (a man) occurs 24 times, and امْرَأَة (a woman, often meaning 'wife') also occurs 24 times. Both counts include every prefix and suffix and leave out the dual forms 'two men' and 'two women'.",
+  "series": [
+   {
+    "label": "Man (rajul)",
+    "q": "lemma:رجل en:man,men -tag:MD",
+    "count": 24
+   },
+   {
+    "label": "Woman (imra'a)",
+    "q": "lemma:امرأت -tag:FD",
+    "count": 24
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "verdict": {
+   "claim": "Man (rajul) and woman (imra'a) are each mentioned 24 times.",
+   "result": "holds",
+   "note": "Holds for the singular word with any prefix or suffix. Adding the duals (5 'two men', 2 'two women') gives 29 and 26."
+  },
+  "method": "Man: words of lemma رجل glossed 'man' or 'men', minus duals. The gloss filter leaves out رِجْل 'foot' and رَجِل 'on foot', which share the spelling; the plural رِجَال 'men' is a separate lemma in the corpus. Woman: lemma امرأت (the corpus form of امرأة) minus duals, with every hit's spelling checked.",
+  "interest": 5
+ },
+ {
+  "id": "claims-angels-devils-88",
+  "category": "Famous claims",
+  "title": "Angels and devils: 88 each",
+  "blurb": "Counting singular, dual and plural together, the word for angel (مَلَك, مَلَائِكَة) occurs 88 times. The word for devil (شَيْطَان, شَيَاطِين) also occurs 88 times. The split is different: angels are mostly plural (73), while Shaitan is mostly singular (70).",
+  "series": [
+   {
+    "label": "Angels (malak)",
+    "q": "lemma:ملك en:angel*",
+    "count": 88
+   },
+   {
+    "label": "Devils (shaytan)",
+    "q": "lemma:شيطان",
+    "count": 88
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "verdict": {
+   "claim": "Angels and devils are each mentioned 88 times.",
+   "result": "holds",
+   "note": "Holds when singular, dual and plural are counted together. Plurals alone give 73 angels and 18 devils."
+  },
+  "method": "Angel: lemma ملك limited to words glossed 'angel' or 'angels'. This leaves out مَلِك 'king' and مُلْك 'dominion', which share the spelling, and matches the corpus lemma مَلَك exactly (88). Devil: every word of lemma شيطان, split with tag:MP to get the singular and plural shares.",
+  "interest": 5
+ },
+ {
+  "id": "claims-dunya-akhira-115",
+  "category": "Famous claims",
+  "title": "This world and the Hereafter: 115 each",
+  "blurb": "الدُّنْيَا (this world) occurs 115 times, and الآخِرَة (the Hereafter) also occurs 115 times. Each count covers every occurrence of the word, with any prefix.",
+  "series": [
+   {
+    "label": "This world (dunya)",
+    "q": "lemma:دنيا",
+    "count": 115
+   },
+   {
+    "label": "Hereafter (akhira)",
+    "q": "ar:اخره -tag:PRON",
+    "count": 115
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "verdict": {
+   "claim": "Dunya (this world) and akhira (the Hereafter) each appear 115 times.",
+   "result": "holds",
+   "note": "Holds when every occurrence of each word is counted. By meaning it is less tidy: 6 of the akhira words are glossed 'the last', and dunya sometimes means 'nearest', as in 'the nearest heaven' (37:6, 41:12, 67:5) and 'the near side' of the valley (8:42)."
+  },
+  "method": "This world: every word of lemma دنيا. Hereafter: every word spelled with آخرة, leaving out آخِرَهُ 'its end' in 3:72, which carries a pronoun; this matches every feminine singular word of the corpus lemma آخِر. Meanings were checked against the word-by-word glosses (en:last) and the verse translations.",
+  "interest": 5
+ },
+ {
+  "id": "claims-jesus-adam-25",
+  "category": "Famous claims",
+  "title": "Jesus and Adam: 25 each",
+  "blurb": "The name عِيسَى (Jesus) occurs 25 times, and آدَم (Adam) also occurs 25 times. They meet in one verse, 3:59: 'the example of Jesus to Allah is like that of Adam.' Jesus is named mostly in Medinan surahs (21 of 25) and Adam mostly in Meccan ones (17 of 25).",
+  "series": [
+   {
+    "label": "Jesus (Isa)",
+    "q": "lemma:عيسى",
+    "count": 25
+   },
+   {
+    "label": "Adam",
+    "q": "lemma:آدم",
+    "count": 25
+   },
+   {
+    "label": "Both: 3:59",
+    "q": "has:\"lemma:عيسى\" has:\"lemma:آدم\"",
+    "count": 1
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type"
+  },
+  "verdict": {
+   "claim": "Jesus (Isa) and Adam are each named 25 times.",
+   "result": "holds",
+   "note": "Holds for the personal names. Jesus is also called al-Masih (the Messiah) 11 times, which the claim does not count."
+  },
+  "method": "Every word of lemma عيسى and lemma آدم, prefixes and the vocative 'O' included. The shared verse was found with two has: terms, the Messiah count with lemma:مسيح, and the Meccan/Medinan split comes from the surah type.",
+  "interest": 5
+ },
+ {
+  "id": "claims-day-365",
+  "category": "Famous claims",
+  "title": "Day 365 times, days 30? It depends how you count",
+  "blurb": "The singular يَوْم (day) comes to exactly 365 only if you leave out يَوْمَئِذٍ 'on that day' (70) and the 10 forms with an attached pronoun ('their day', 'your day'). The plural أَيَّام (days) plus the dual يَوْمَيْن (two days) gives 30.",
+  "series": [
+   {
+    "label": "Day (yawm), singular",
+    "q": "lemma:يوم -lemma:إذ -tag:MP,FP,MD -tag:PRON",
+    "count": 365
+   },
+   {
+    "label": "Days (ayyam + dual)",
+    "q": "lemma:يوم tag:MP,FP,MD",
+    "count": 30
+   },
+   {
+    "label": "That day (yawma'idhin)",
+    "q": "lemma:يوم lemma:إذ",
+    "count": 70
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type"
+  },
+  "verdict": {
+   "claim": "Yawm (day) appears 365 times, and ayyam (days) appears 30 times.",
+   "result": "partly",
+   "note": "365 needs two exclusions: every singular gives 375, or 445 with yawma'idhin (475 for all forms). 'Days' is 27 for the plural alone and reaches 30 only when the 3 duals are added."
+  },
+  "method": "Lemma يوم, split by the corpus number tags (singular, dual, plural). يومئذ is one word in the corpus with the lemmas يوم and إذ, so -lemma:إذ removes it, and -tag:PRON removes يومهم and يومكم.",
+  "interest": 5
+ },
+ {
+  "id": "claims-sea-land-71",
+  "category": "Famous claims",
+  "title": "Sea 32, land 13: the 71% claim",
+  "blurb": "The claim sets sea against land as 32 to 13, which is 71% to 29%, close to the share of Earth's surface covered by water. The data gives 32 only for البحر with the article. It gives 13 only by adding يَبَسًا 'dry' (20:77, a dry path through the sea) to the 12 words for land.",
+  "series": [
+   {
+    "label": "Sea, al-bahr",
+    "q": "lemma:بحر tag:M tag:DET",
+    "count": 32
+   },
+   {
+    "label": "Land, al-barr + yabas",
+    "q": "lemma:بر en:land | lemma:يبس",
+    "count": 13
+   },
+   {
+    "label": "Sea, all forms",
+    "q": "lemma:بحر",
+    "count": 41
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "verdict": {
+   "claim": "'Sea' appears 32 times and 'land' 13 times, matching Earth's 71% water and 29% land.",
+   "result": "partly",
+   "note": "Holds only under that rule. Every singular sea word gives 33 against 12 land words (73%), and every form of بحر gives 41 (77%)."
+  },
+  "method": "Sea: lemma بحر, singular, with the definite article. The one indefinite بحر, 'a deep sea' in 24:40, is what drops out. Land: lemma بر glossed 'land' (this excludes بِرّ 'righteousness' and البَرّ 'the Most Kind'), plus lemma يبس.",
+  "interest": 5
+ },
+ {
+  "id": "claims-basmala-words-19",
+  "category": "Famous claims",
+  "title": "Basmala words as multiples of 19",
+  "blurb": "A well-known claim says each word of the basmala occurs a multiple of 19 times. ٱلرَّحْمَٰن (al-Rahman) does: 57 = 19 × 3. اللَّه (2,699) and رَحِيم (115) each come out one above a multiple of 19 (2,698 and 114).",
+  "series": [
+   {
+    "label": "al-Rahman",
+    "q": "lemma:رحمن",
+    "count": 57
+   },
+   {
+    "label": "Rahim (singular)",
+    "q": "lemma:رحيم -tag:MP",
+    "count": 115
+   },
+   {
+    "label": "Allah",
+    "q": "lemma:الله",
+    "count": 2699
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "verdict": {
+   "claim": "Allah appears 2,698 times (19 × 142), al-Rahman 57 (19 × 3), al-Rahim 114 (19 × 6) and ism (name) 19 times.",
+   "result": "partly",
+   "note": "Rahman holds. Allah and Rahim fit only after dropping 9:128-129, which hold one of each; Rashad Khalifa, who popularised the claim, rejected those verses, but they are in the standard text. Ism gives 19 only if بسم and 'his name' are skipped (27 singular forms in all)."
+  },
+  "method": "Every word of lemma الله, lemma رحمن and lemma رحيم, leaving out the plural رحماء in 48:29. ref:9:128-129 contains exactly one Allah (9:129) and one Rahim (9:128). Ism: lemma اسم tag:M gives 27, and dropping بسم (3) and اسمه (5) leaves 19.",
+  "interest": 4
+ },
+ {
+  "id": "claims-paradise-hell-77",
+  "category": "Famous claims",
+  "title": "Paradise and Hell: 77 each?",
+  "blurb": "جَهَنَّم (Hell) does occur 77 times. جَنَّة (garden, Paradise) occurs 147 times in all its forms, 68 times in the singular and 51 times as the name al-Jannah, so the pair does not match.",
+  "series": [
+   {
+    "label": "Hell (jahannam)",
+    "q": "lemma:جهنم",
+    "count": 77
+   },
+   {
+    "label": "Paradise, all forms",
+    "q": "lemma:جنة en:garden*,paradise",
+    "count": 147
+   },
+   {
+    "label": "Paradise, singular",
+    "q": "lemma:جنة en:garden*,paradise -tag:FP,FD",
+    "count": 68
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type"
+  },
+  "verdict": {
+   "claim": "Paradise (jannah) and Hell (jahannam) are each mentioned 77 times.",
+   "result": "fails",
+   "note": "Jahannam is 77, but jannah is 147 in all forms, 68 in the singular (70 counting two singulars the corpus tags as plural, at 56:89 and 57:21) and 51 as the name al-Jannah. Only the plural and dual 'gardens' come to 77, and that leaves out every singular 'Paradise'."
+  },
+  "method": "Lemma جنة limited to words glossed 'garden' or 'paradise'. This leaves out جِنَّة 'jinn, madness' and جُنَّة 'shield', which share the spelling. Singular means not tagged plural or dual; the proper-name count is lemma:جنة tag:PN, and plural plus dual is 79 by the corpus tags, or 77 without 56:89 and 57:21.",
+  "interest": 4
+ },
+ {
+  "id": "claims-life-death-145",
+  "category": "Famous claims",
+  "title": "Life and death: 145 each?",
+  "blurb": "The noun حَيَاة (life) occurs 76 times and مَوْت (death) 50 times. Counting every word from each root gives 189 and 165, so neither rule gives 145 for both.",
+  "series": [
+   {
+    "label": "Life (hayat)",
+    "q": "lemma:حياة",
+    "count": 76
+   },
+   {
+    "label": "Death (mawt)",
+    "q": "lemma:موت",
+    "count": 50
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "verdict": {
+   "claim": "Life (hayat) and death (mawt) are each mentioned 145 times.",
+   "result": "fails",
+   "note": "The nouns give 76 and 50, and the whole roots ح ي ي and م و ت give 189 and 165. Other splits do not match either: nouns from each root give 118 and 105, verbs 71 and 60."
+  },
+  "method": "Every word of lemma حياة and lemma موت. Root totals come from root:حيي and root:موت, split with pos:N and pos:V. Leaving out the name Yahya and the root's words for 'greeting', 'snake' and 'to be shy' (19 words) gives 170 for life, still neither 145 nor the 165 death words.",
+  "interest": 4
+ },
+ {
+  "id": "claims-zakat-baraka-32",
+  "category": "Famous claims",
+  "title": "Zakat and blessing: 32 each?",
+  "blurb": "The word زَكَاة (zakat, alms or purity) occurs 32 times, and all words from the root ب ر ك (blessing, blessed) also total 32. The noun بَرَكَة (blessing) on its own occurs only 3 times.",
+  "series": [
+   {
+    "label": "Zakat",
+    "q": "lemma:زكاة",
+    "count": 32
+   },
+   {
+    "label": "Root b-r-k (blessing)",
+    "q": "root:برك",
+    "count": 32
+   },
+   {
+    "label": "Root z-k-w",
+    "q": "root:زكو",
+    "count": 59
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type"
+  },
+  "verdict": {
+   "claim": "Zakat and barakah (blessing) each appear 32 times.",
+   "result": "partly",
+   "note": "It works only by mixing rules: one word (zakat) against a whole root (b-r-k). Counted the same way on both sides, root ز ك و gives 59 and the noun barakah gives 3."
+  },
+  "method": "Zakat: every word of lemma زكاة (2 of the 32 are glossed 'purity'). Blessing: every word from root برك (tabaraka, mubarak, baraka, barakat). The noun alone was checked with lemma:بركة.",
+  "interest": 4
+ },
+ {
+  "id": "claims-seven-heavens",
+  "category": "Famous claims",
+  "title": "Seven heavens, named seven times",
+  "blurb": "Exactly seven verses put 'seven' (sab') and 'heaven' (sama') together: 2:29, 17:44, 23:86, 41:12, 65:12, 67:3 and 71:15. Two more speak of seven 'above you' without the word sama': seven layers (23:17) and seven strong ones (78:12).",
+  "series": [
+   {
+    "label": "Seven heavens",
+    "q": "has:\"lemma:سبع\" has:\"lemma:سماء\"",
+    "count": 7
+   },
+   {
+    "label": "Seven 'above you'",
+    "q": "has:\"lemma:سبع\" has:\"lemma:فوق\"",
+    "count": 2
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "verdict": {
+   "claim": "The 'seven heavens' are mentioned 7 times.",
+   "result": "holds",
+   "note": "Counting the verses where sab' (seven) and sama' (heaven) appear together gives exactly 7, and the translation search tr:\"seven heavens\" finds the same 7. Adding 23:17 and 78:12, which speak of seven above you, gives 9."
+  },
+  "method": "Verses that contain a word of lemma سبع and a word of lemma سماء. The same 7 verses come back from tr:\"seven heavens\" in the Saheeh International translation; 23:17 and 78:12 were found by reading the other verses with tr:seven.",
+  "interest": 4
+ },
+ {
+  "id": "claims-basmala-19-letters",
+  "category": "Famous claims",
+  "title": "The basmala has 19 letters",
+  "blurb": "As written in the Uthmani script, بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ has 3 + 4 + 6 + 6 = 19 letters. In the numbered text it appears twice: as verse 1:1 and inside 27:30. 74:30 is the one verse that names the number nineteen.",
+  "series": [
+   {
+    "label": "Basmala verses",
+    "q": "has:\"ar:=بسم\" has:\"lemma:رحمن\" has:\"lemma:رحيم\"",
+    "count": 2
+   },
+   {
+    "label": "Nineteen (74:30)",
+    "q": "tr:nineteen",
+    "count": 1
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "verdict": {
+   "claim": "The basmala has 19 letters.",
+   "result": "holds",
+   "note": "Holds for the letters as written. The small alif over الرحمن is a mark, not a letter; spelling the word out as الرحمان with a full alif, as the plain spelling used for search here does, gives 20."
+  },
+  "method": "Letters counted from the Uthmani text of 1:1 and 27:30 in the data, skipping vowel marks and the small (dagger) alif. The two verses were found by searching for verses that contain بسم, الرحمن and الرحيم together; تسعة عشر (nineteen) occurs only in 74:30.",
+  "interest": 4
+ },
+ {
+  "id": "claims-year-19",
+  "category": "Famous claims",
+  "title": "Year: sana 7 plus sinin 12 makes 19",
+  "blurb": "سَنَة (year) occurs 7 times and its plural سِنِين (years) 12 times, 19 together. A second word for year, عَام, adds 9 more.",
+  "series": [
+   {
+    "label": "Year, sana",
+    "q": "lemma:سنة root:سنو",
+    "count": 7
+   },
+   {
+    "label": "Years, sinin",
+    "q": "lemma:سنين",
+    "count": 12
+   },
+   {
+    "label": "Year, 'am",
+    "q": "lemma:عام",
+    "count": 9
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "verdict": {
+   "claim": "The word sana (year) appears 19 times.",
+   "result": "holds",
+   "note": "Holds when singular and plural are counted together; the singular alone is 7. With عام included, the words for year total 28."
+  },
+  "method": "Lemma سنة limited to root سنو, which drops سُنَّة 'way' and سِنَة 'slumber' (they share the spelling), plus lemma سنين. Lemma عام was counted for comparison.",
+  "interest": 3
+ },
+ {
+  "id": "claims-iblis-refuge-11",
+  "category": "Famous claims",
+  "title": "Iblis 11, seeking refuge 11?",
+  "blurb": "إِبْلِيس (Iblis) is named 11 times. Words from the root ع و ذ (seeking refuge) occur 17 times, 15 of them verbs, and only 5 verses pair seeking refuge with Satan, so the pair does not match.",
+  "series": [
+   {
+    "label": "Iblis",
+    "q": "lemma:إبليس",
+    "count": 11
+   },
+   {
+    "label": "Refuge (root ع و ذ)",
+    "q": "root:عوذ",
+    "count": 17
+   },
+   {
+    "label": "Refuge + Satan, verses",
+    "q": "has:\"root:عوذ\" has:\"lemma:شيطان\"",
+    "count": 5
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "verdict": {
+   "claim": "Iblis is mentioned 11 times, and seeking refuge from him 11 times.",
+   "result": "fails",
+   "note": "Iblis is 11, but the refuge root gives 17, or 15 counting verbs only, and أعوذ 'I seek refuge' alone gives 7. Verses that pair refuge with Satan number 5 (3:36, 7:200, 16:98, 23:97, 41:36), so no natural rule gives 11."
+  },
+  "method": "Every word of lemma إبليس and of root عوذ. Verbs were counted with pos:V, the أعوذ forms with ar:اعوذ, and refuge-from-Satan verses with has: terms for root عوذ and lemma شيطان, with the spellings and glosses checked.",
+  "interest": 3
+ },
+ {
+  "id": "people-called-by-name",
+  "category": "People & places",
+  "title": "Prophets called by name, Muhammad never",
+  "blurb": "Earlier prophets are called by name with 'O' 53 times, and 'O Musa' alone accounts for 24. The callers include God, angels, followers and opponents. No verse says 'O Muhammad': he is addressed as 'O Prophet' or 'O Messenger' in 15 verses, all Medinan.",
+  "series": [
+   {
+    "label": "'O' + a prophet's name",
+    "q": "tag:VOC tag:PN lemma:آدم,إدريس,نوح,هود,صالح,إبراهيم,لوط,إسماعيل,إسحاق,يعقوب,يوسف,أيوب,شعيب,موسى,هارون,داود,سليمان,إلياس,اليسع,يونس,زكريا,يحيى,عيسى,محمد",
+    "count": 53
+   },
+   {
+    "label": "O Prophet / O Messenger",
+    "q": "tr:\"O Prophet\" | tr:\"O Messenger\"",
+    "count": 15
+   },
+   {
+    "label": "Muhammad and Ahmad",
+    "q": "tag:PN lemma:محمد,أحمد",
+    "count": 5
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type"
+  },
+  "verdict": {
+   "claim": "The name Muhammad appears only 4 times in the Quran",
+   "result": "holds",
+   "note": "Muhammad is named in 3:144, 33:40, 47:2 and 48:29. The related name Ahmad appears once, in 61:6, and all five are in Medinan surahs."
+  },
+  "method": "A call by name is a word the corpus tags as both vocative (VOC) and a proper noun with one of the 24 prophets' names it tags as proper nouns (all but Dhul-Kifl, who is never addressed). Names addressed without the particle يا, like Yusuf in 12:29 and 12:46, are not counted. The 15 'O Prophet' / 'O Messenger' verses match the Arabic يا أيها النبي (13) and يا أيها الرسول (2) exactly.",
+  "interest": 5
+ },
+ {
+  "id": "people-maryam-only-woman",
+  "category": "People & places",
+  "title": "Maryam, the only woman named",
+  "blurb": "Maryam is named 34 times, more often than her son Isa (25), and 23 of those are in the phrase 'son of Maryam'. Surah 19 bears her name but names her only 3 times, while Surah 5 names her 10 times.",
+  "series": [
+   {
+    "label": "Maryam (Mary)",
+    "q": "tag:PN lemma:مريم",
+    "count": 34
+   },
+   {
+    "label": "Isa (Jesus)",
+    "q": "tag:PN lemma:عيسى",
+    "count": 25
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type"
+  },
+  "verdict": {
+   "claim": "Maryam is the only woman mentioned by name in the Quran",
+   "result": "holds",
+   "note": "No other woman's name is tagged as a proper noun; women such as the wives of Nuh, Lut and Pharaoh (66:10-11) are described without names, just before Maryam is named in 66:12. The only other female figures named are the goddesses al-Lat, al-'Uzza and Manat (53:19-20)."
+  },
+  "method": "Counted proper-noun words with the lemma مريم. 'Son of Maryam' was counted wherever the word just before her name is ابن (23 of 34). All 106 proper-noun lemmas in the corpus were reviewed to look for other women's names.",
+  "interest": 5
+ },
+ {
+  "id": "people-yusuf-one-surah",
+  "category": "People & places",
+  "title": "Yusuf stays in Surah 12, Musa spreads to 34 surahs",
+  "blurb": "Yusuf is named 27 times, and 25 of those fall in Surah 12, between verses 4 and 99 of its 111 verses. Musa, named 136 times, more than any other prophet, is spread across 34 surahs.",
+  "series": [
+   {
+    "label": "Yusuf (Joseph)",
+    "q": "tag:PN lemma:يوسف",
+    "count": 27
+   },
+   {
+    "label": "Musa (Moses)",
+    "q": "tag:PN lemma:موسى",
+    "count": 136
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "method": "Counted every word the Quranic Arabic Corpus tags as a proper noun (PN) with the lemma يوسف or موسى, including forms with attached prefixes such as و and ل. The only two Yusuf mentions outside Surah 12 are 6:84 and 40:34, and the next most-named prophet after Musa is Ibrahim with 69.",
+  "interest": 5
+ },
+ {
+  "id": "people-twenty-five-prophets",
+  "category": "People & places",
+  "title": "25 prophets, 18 of them in four verses",
+  "blurb": "The 25 prophets named in the Quran are mentioned 510 times in all, and Musa accounts for 136 of those. Four verses of Surah 6 (6:83-86) name 18 of the 25, one after another.",
+  "series": [
+   {
+    "label": "All 25 prophets",
+    "q": "tag:PN lemma:آدم,إدريس,نوح,صالح,إبراهيم,لوط,إسماعيل,إسحاق,يعقوب,يوسف,أيوب,شعيب,موسى,هارون,داود,سليمان,إلياس,اليسع,يونس,زكريا,يحيى,عيسى,محمد | tag:PN lemma:هود -en:jews | ar:=الكفل",
+    "count": 510
+   },
+   {
+    "label": "List in 6:83-86",
+    "q": "tag:PN ref:6:83-86",
+    "count": 18
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "verdict": {
+   "claim": "25 prophets are mentioned by name in the Quran",
+   "result": "holds",
+   "note": "It holds for the traditional list of 25 when Dhul-Kifl (21:85, 38:48) is counted; the corpus does not tag his name as a proper noun, so it is matched by spelling. Hud's lemma also covers the word for 'Jews' (2:111, 2:135, 2:140), and those three are filtered out."
+  },
+  "method": "Each prophet was matched as a proper noun by lemma: Adam, Idris, Nuh, Hud, Salih, Ibrahim, Lut, Isma'il, Ishaq, Ya'qub, Yusuf, Ayyub, Shu'ayb, Musa, Harun, Dawud, Sulayman, Ilyas (including Il-Yasin, 37:130), al-Yasa', Yunus, Zakariya, Yahya, Isa and Muhammad, plus Dhul-Kifl by its spelling الكفل. Other names and titles, such as Isra'il, al-Masih and Ahmad, are not included. All 18 proper nouns in 6:83-86 are different prophets.",
+  "interest": 4
+ },
+ {
+  "id": "people-prophets-contemporaries",
+  "category": "People & places",
+  "title": "Three people of the Prophet's own time are named",
+  "blurb": "Apart from the Prophet himself (Muhammad 4 times, Ahmad once), only two people of his own time are named: Zayd in 33:37 and Abu Lahab in 111:1. Everyone else from those years, friend or opponent, is described but not named.",
+  "series": [
+   {
+    "label": "Muhammad and Ahmad",
+    "q": "tag:PN lemma:محمد,أحمد",
+    "count": 5
+   },
+   {
+    "label": "Zayd",
+    "q": "tag:PN lemma:زيد",
+    "count": 1
+   },
+   {
+    "label": "Abu Lahab",
+    "q": "ar:=لهب ref:111:1",
+    "count": 1
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type"
+  },
+  "method": "Reviewed all 106 proper-noun lemmas in the corpus. The other named individuals belong to earlier history, and groups such as Quraysh and the Romans were not counted as individuals. Abu Lahab ('father of flame') is a nickname the corpus does not tag as a proper noun, so it is matched by its spelling in 111:1.",
+  "interest": 4
+ },
+ {
+  "id": "people-ancient-nations-order",
+  "category": "People & places",
+  "title": "Nuh, 'Ad, Thamud, Lut: a repeating order",
+  "blurb": "The two ancient peoples 'Ad and Thamud are both named in 17 surahs, and in 15 of them 'Ad comes first. Nuh, 'Ad, Thamud and Lut are all named in 8 surahs, and in 6 of them (7, 11, 22, 26, 38 and 54) they first appear in that order.",
+  "series": [
+   {
+    "label": "Nuh (Noah)",
+    "q": "tag:PN lemma:نوح",
+    "count": 43
+   },
+   {
+    "label": "'Ad and Thamud",
+    "q": "tag:PN lemma:عاد,ثمود",
+    "count": 50
+   },
+   {
+    "label": "Lut (Lot)",
+    "q": "tag:PN lemma:لوط",
+    "count": 27
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "method": "Used proper-noun words with the lemmas نوح, عاد, ثمود and لوط, and compared the first mention of each name in every surah. Thamud comes before 'Ad only in surahs 50 and 69, and the two surahs that break the four-name order are 29 (Lut before 'Ad) and 50 (Thamud before 'Ad). Other names sometimes come in between, as Pharaoh does in 38:12.",
+  "interest": 4
+ },
+ {
+  "id": "people-iblis-shaytan",
+  "category": "People & places",
+  "title": "Iblis at the bowing, Shaytan in the garden",
+  "blurb": "The name Iblis appears 11 times, and 8 of those verses also mention bowing down (root س ج د), in the scene where the angels bow to Adam. When the story moves to the garden in surahs 2, 7 and 20, he is called al-Shaytan instead (2:36, 7:20, 20:120). That name is used 64 times.",
+  "series": [
+   {
+    "label": "Iblis",
+    "q": "tag:PN lemma:إبليس",
+    "count": 11
+   },
+   {
+    "label": "al-Shaytan",
+    "q": "tag:PN lemma:شيطان -tag:MP",
+    "count": 64
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "method": "Iblis means proper-noun words with the lemma إبليس, and tag:PN lemma:إبليس has:\"root:سجد\" gives the 8 in bowing verses; a ninth, 38:74, belongs to the same scene without the word. al-Shaytan means the singular proper noun الشيطان (all 64 are this definite form), with the plural 'the devils' left out.",
+  "interest": 4
+ },
+ {
+  "id": "people-isa-maryam-medinan",
+  "category": "People & places",
+  "title": "Isa and Maryam belong to the Medinan surahs",
+  "blurb": "Medinan surahs hold about 39% of the Quran's words, yet 61 of the 70 mentions of Isa, Maryam and 'the Messiah' fall in them. The prophets sent to the old nations (Nuh, Hud, Salih, Lut and Shu'ayb) lean the other way: 88 of their 97 mentions are in Meccan surahs.",
+  "series": [
+   {
+    "label": "Isa, Maryam, Messiah",
+    "q": "tag:PN lemma:عيسى,مريم,مسيح",
+    "count": 70
+   },
+   {
+    "label": "Nuh to Shu'ayb (5)",
+    "q": "tag:PN lemma:نوح,صالح,لوط,شعيب | tag:PN lemma:هود -en:jews",
+    "count": 97
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type"
+  },
+  "method": "Used proper-noun words with the lemmas عيسى, مريم and مسيح, compared with نوح, هود, صالح, لوط and شعيب. Hud excludes the 3 words meaning 'Jews'. Meccan/Medinan labels come from the dataset, where 29,990 of the 77,429 words are in Medinan surahs, and all 11 mentions of 'the Messiah' are Medinan.",
+  "interest": 4
+ },
+ {
+  "id": "people-places-arabia-egypt",
+  "category": "People & places",
+  "title": "Makkah and Madinah are named only in Medinan surahs",
+  "blurb": "Makkah is named once (48:24) and Bakkah once (3:96), Madinah 4 times and Yathrib once (33:13). All 14 mentions of these and the other local sites, Badr, Hunayn, the Ka'bah, Safa, Marwah and Arafat, are in Medinan surahs. Egypt (4 times) and Sinai (twice) are named only in Meccan surahs.",
+  "series": [
+   {
+    "label": "Makkah, Madinah & more",
+    "q": "tag:PN lemma:مكة,بكة,مدينة,يثرب,بدر,حنين,كعبة,صفا,مروة,عرفات",
+    "count": 14
+   },
+   {
+    "label": "Egypt (Misr)",
+    "q": "tag:PN lemma:مصر",
+    "count": 4
+   },
+   {
+    "label": "Sinai",
+    "q": "tag:PN lemma:سيناء,سينين",
+    "count": 2
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type"
+  },
+  "method": "Counted proper-noun words with the lemmas listed in each query; the indefinite misr 'a settlement' in 2:61 is not tagged as a name. The common noun al-madina ('the city') is used 10 more times for other towns, all in Meccan surahs, and is not counted. Meccan surahs refer to Makkah without naming it, as 'the Mother of Cities' (6:92, 42:7) and 'this secure city' (95:3).",
+  "interest": 4
+ },
+ {
+  "id": "people-musa-harun-pharaoh",
+  "category": "People & places",
+  "title": "Musa between his brother and Pharaoh",
+  "blurb": "Musa is named 136 times, Pharaoh 74 times and Musa's brother Harun 20 times. Every one of the 13 surahs that names Harun also names Musa. Pharaoh is more independent and turns up in 10 surahs where Musa is not named.",
+  "series": [
+   {
+    "label": "Musa (Moses)",
+    "q": "tag:PN lemma:موسى",
+    "count": 136
+   },
+   {
+    "label": "Harun (Aaron)",
+    "q": "tag:PN lemma:هارون",
+    "count": 20
+   },
+   {
+    "label": "Pharaoh (Fir'awn)",
+    "q": "tag:PN lemma:فرعون",
+    "count": 74
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "method": "Compared proper-noun words with the lemmas موسى, هارون and فرعون surah by surah. Harun shares a verse with Musa 12 times (tag:PN lemma:هارون has:\"lemma:موسى\"), and Pharaoh shares one with Musa in 15 verses. Harun's count includes 19:28, 'O sister of Harun', which is said to Maryam.",
+  "interest": 4
+ },
+ {
+  "id": "people-named-angels",
+  "category": "People & places",
+  "title": "Only five angels are named",
+  "blurb": "Angels are mentioned 88 times, but only five have names, which take up 7 words: Jibril 3 times, Mikal once beside him in 2:98, Harut and Marut at Babylon in 2:102, and Malik, who is called on from Hell in 43:77.",
+  "series": [
+   {
+    "label": "Jibril and Mikal",
+    "q": "tag:PN lemma:جبريل,ميكال",
+    "count": 4
+   },
+   {
+    "label": "Harut, Marut, Malik",
+    "q": "tag:PN lemma:هاروت,ماروت,مالك",
+    "count": 3
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "none"
+  },
+  "method": "Used proper-noun words with the lemmas جبريل, ميكال, هاروت, ماروت and مالك. Only 43:77 tags مالك as a proper noun, so 'Master' in 1:4 is not caught, and titles such as 'the angel of death' or 'the Holy Spirit' are not names. The 88 counts every form of مَلَك, as in the angels and devils finding.",
+  "interest": 3
+ },
+ {
+  "id": "people-namesake-surahs",
+  "category": "People & places",
+  "title": "Surahs named after people",
+  "blurb": "Nine surahs carry a person's name, and together they name their own namesake 43 times. Surah 12 names Yusuf 25 times, but Surah 14 names Ibrahim only once, though he is named 69 times in the whole Quran. Surah 10 also names Yunus just once, and Surah 47 names Muhammad once.",
+  "series": [
+   {
+    "label": "Namesake in own surah",
+    "q": "tag:PN lemma:عمران surah:3 | tag:PN lemma:يونس surah:10 | tag:PN lemma:هود surah:11 | tag:PN lemma:يوسف surah:12 | tag:PN lemma:إبراهيم surah:14 | tag:PN lemma:مريم surah:19 | tag:PN lemma:لقمان surah:31 | tag:PN lemma:محمد surah:47 | tag:PN lemma:نوح surah:71",
+    "count": 43
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "method": "For each surah named after a person (3 Imran, 10 Yunus, 11 Hud, 12 Yusuf, 14 Ibrahim, 19 Maryam, 31 Luqman, 47 Muhammad, 71 Nuh), counted proper-noun words with that name inside the surah itself. The per-surah counts are 2, 1, 5, 25, 1, 3, 2, 1 and 3; Ibrahim's 69 is tag:PN lemma:إبراهيم.",
+  "interest": 3
+ },
+ {
+  "id": "people-revelation-first-named",
+  "category": "People & places",
+  "title": "In revelation order, Pharaoh is the first person named",
+  "blurb": "Read in revelation order, the first person named is Pharaoh, in Surah 73, the third surah in that order. Ibrahim and Musa are first named together in 87:19, the eighth, while the name Muhammad first appears in Surah 3, which is 89th.",
+  "series": [
+   {
+    "label": "Pharaoh (Fir'awn)",
+    "q": "tag:PN lemma:فرعون",
+    "count": 74
+   },
+   {
+    "label": "Ibrahim and Musa",
+    "q": "tag:PN lemma:إبراهيم,موسى",
+    "count": 205
+   },
+   {
+    "label": "Muhammad and Ahmad",
+    "q": "tag:PN lemma:محمد,أحمد",
+    "count": 5
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Laid out the surahs in the dataset's (Tanzil) revelation order (96, 68, 73, 74, 1, 111, 81, 87, ...) and found the first proper noun that names a human; the name Allah (96:14) and names of places, groups and Hell are not counted. Abu Lahab (111:1, sixth) is named by a nickname that the corpus does not tag as a proper noun, and even counted he would come after Pharaoh.",
+  "interest": 3
+ },
+ {
+  "id": "nature-sun-moon-pair",
+  "category": "Nature & cosmos",
+  "title": "Sun and moon share 18 verses, sun first in 17",
+  "blurb": "The sun is named in 32 verses and the moon in 26, and 18 verses name both. In 17 of those 18 the sun comes first. Only 71:16 puts the moon ahead.",
+  "series": [
+   {
+    "label": "Sun (ش م س)",
+    "q": "root:شمس",
+    "count": 33
+   },
+   {
+    "label": "Moon (ق م ر)",
+    "q": "root:قمر",
+    "count": 27
+   },
+   {
+    "label": "Both in one verse",
+    "q": "has:\"root:شمس\" has:\"root:قمر\"",
+    "count": 18
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Counted every word from the roots ش م س and ق م ر. Every word from these roots means sun or moon. Then counted the verses that hold at least one of each, and read word order from the word positions in each of the 18 shared verses.",
+  "interest": 5
+ },
+ {
+  "id": "nature-namesake-creatures",
+  "category": "Nature & cosmos",
+  "title": "Bee, ant, spider, elephant: each in one verse",
+  "blurb": "Surahs 16, 27, 29 and 105 are named after the bee, the ant, the spider and the elephant. Each creature is named in a single verse, and that verse is inside its own surah. The fig of surah 95 is the same, and the cow is named 9 times, 5 of them in the story at 2:67-71 that gives Al-Baqara its name.",
+  "series": [
+   {
+    "label": "Four namesake creatures",
+    "q": "lemma:نحل | lemma:نمل,نمله | lemma:عنكبوت | lemma:فيل",
+    "count": 7
+   },
+   {
+    "label": "Fig (التين)",
+    "q": "lemma:تين",
+    "count": 1
+   },
+   {
+    "label": "Cow (بقرة)",
+    "q": "lemma:بقره,بقر",
+    "count": 9
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "method": "Counted the lemmas nahl (bee), naml and namla (ant), ankabut (spider), fil (elephant), tin (fig) and baqara/baqar (cow); using lemmas keeps out root-mates such as nihla (gift, 4:4) and anamil (fingertips, 3:119). Each of the first five occurs in exactly one verse (16:68, 27:18, 29:41, 105:1, 95:1), and each verse sits in the surah of the same name. The ant word appears 3 times in its verse and the spider twice.",
+  "interest": 5
+ },
+ {
+  "id": "nature-orbit-palindrome",
+  "category": "Nature & cosmos",
+  "title": "'Each in an orbit' reads the same backwards",
+  "blurb": "Two verses say the sun, moon, night and day each swim in an orbit (21:33, 36:40). These are the only places the word falak (orbit) appears. The phrase kullun fi falak is written ك ل ف ي ف ل ك, the same letters from either end.",
+  "series": [
+   {
+    "label": "kullun fi falak",
+    "q": "ref:21:33 ar:=كل,=في,=فلك | ref:36:40 ar:=وكل,=في,=فلك",
+    "count": 6
+   }
+  ],
+  "verdict": {
+   "claim": "The phrase 'kullun fi falak' (each in an orbit) is a palindrome in Arabic.",
+   "result": "holds",
+   "note": "It holds for the written letters once spaces and vowel marks are ignored, but not for the spoken vowels. In 36:40 the phrase begins with wa- (and), which falls outside the mirror."
+  },
+  "method": "Matched the exact plain spellings of the three words inside 21:33 and 36:40. Also checked that the lemma falak (orbit) occurs only in these two verses (query lemma:فلك ar:=فلك gives 2). Al-fulk (ship, 25 words) has the same letters but is a different word.",
+  "interest": 4
+ },
+ {
+  "id": "nature-heavens-earth",
+  "category": "Nature & cosmos",
+  "title": "The earth is never plural, the heavens often are",
+  "blurb": "The word ard (earth) appears 461 times and is never plural, while sama' (sky, heaven) is plural in 190 of its 310 uses. The plural samawat appears in 188 verses, and 181 of them also name the earth. In 173 of those 181 verses the heavens come first.",
+  "series": [
+   {
+    "label": "Heavens (samawat)",
+    "q": "ar:سماوات",
+    "count": 190
+   },
+   {
+    "label": "Earth (ard)",
+    "q": "lemma:أرض",
+    "count": 461
+   },
+   {
+    "label": "Heavens with earth",
+    "q": "has:\"ar:سماوات\" has:\"lemma:أرض\"",
+    "count": 181
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Heavens are the plural spelling سماوات, which gives 190 words, the same set as the lemma sama' with the plural tag (FP); the singular sama' has 120 words. Earth is the lemma ard, which also covers 'land', and none of its 461 words carries a plural tag. Order compares the first heavens word with the first earth word in each shared verse.",
+  "interest": 4
+ },
+ {
+  "id": "nature-darkness-light",
+  "category": "Nature & cosmos",
+  "title": "Darkness is always plural, light singular",
+  "blurb": "All 23 uses of the noun zulma (darkness) are the plural zulumat, 'darknesses', and all 43 uses of nur (light) are singular. The two appear together in 13 verses, and darkness comes first in 11 of them, as in 'He brings them out from darknesses into the light' (2:257).",
+  "series": [
+   {
+    "label": "Darkness (zulumat)",
+    "q": "lemma:ظلمه",
+    "count": 23
+   },
+   {
+    "label": "Light (nur)",
+    "q": "lemma:نور",
+    "count": 43
+   },
+   {
+    "label": "Both in one verse",
+    "q": "has:\"lemma:ظلمه\" has:\"lemma:نور\"",
+    "count": 13
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "verdict": {
+   "claim": "In the Quran darkness is always plural and light is always singular.",
+   "result": "holds",
+   "note": "Every word of the lemma zulma is tagged plural (FP), and no word of the lemma nur is plural. Rarer dark and light words were not counted: muzlim (dark, 2 words), the verb azlama (2:20) and diya' (radiance)."
+  },
+  "method": "Counted the lemmas zulma (darkness) and nur (light) and checked the corpus number tags on every word. Shared verses use has: with both lemmas, and order compares the first word of each; the two exceptions are 2:17 and 6:122.",
+  "interest": 4
+ },
+ {
+  "id": "nature-night-before-day",
+  "category": "Nature & cosmos",
+  "title": "Night comes before day in 40 of 42 verses",
+  "blurb": "Night (layl) and daytime (nahar) share 42 verses, and night is named first in 40 of them. The two exceptions are 11:114 and 28:72. Nine of the 42 also name the sun and the moon, and all nine are Meccan.",
+  "series": [
+   {
+    "label": "Night (layl)",
+    "q": "lemma:ليل",
+    "count": 84
+   },
+   {
+    "label": "Day (nahar)",
+    "q": "lemma:نهار",
+    "count": 57
+   },
+   {
+    "label": "Both in one verse",
+    "q": "has:\"lemma:ليل\" has:\"lemma:نهار\"",
+    "count": 42
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Counted the lemmas layl (night, including its plural layali) and nahar (daytime); yawm (day) and layla (a single night, 8 words) are different lemmas and were not counted. In every shared verse, compared the position of the first night word with the first day word. The nine four-way verses come from the query has:\"lemma:شمس\" has:\"lemma:قمر\" has:\"lemma:ليل\" has:\"lemma:نهار\".",
+  "interest": 4
+ },
+ {
+  "id": "nature-wind-rih-riyah",
+  "category": "Nature & cosmos",
+  "title": "Wind for punishment, winds for mercy?",
+  "blurb": "The plural 'winds' (riyah) appears 10 times and is never a punishment: 7 of those times the winds carry clouds, rain or good news. The singular 'wind' (rih) appears 19 times. Every punishing wind is singular, such as the screaming wind on 'Aad, but so are Solomon's wind and the scent of Joseph.",
+  "series": [
+   {
+    "label": "Winds (riyah), plural",
+    "q": "lemma:ريح tag:FP",
+    "count": 10
+   },
+   {
+    "label": "Wind (rih), singular",
+    "q": "lemma:ريح -tag:FP",
+    "count": 19
+   }
+  ],
+  "verdict": {
+   "claim": "In the Quran the singular rih (wind) brings punishment and the plural riyah (winds) brings mercy.",
+   "result": "partly",
+   "note": "The plural half holds, because none of the 10 plural uses is a punishment. The singular is used for every punishing wind, but also for good things: a fair sailing wind (10:22), Solomon's wind (21:81, 34:12, 38:36) and Joseph's scent (12:94)."
+  },
+  "method": "Counted the lemma rih and split it by the corpus plural tag (FP). All 10 plural words are al-riyah. Each of the 28 verses was read in the Saheeh International translation to sort the contexts; the 7 rain verses are 7:57, 15:22, 25:48, 27:63, 30:46, 30:48 and 35:9.",
+  "interest": 4
+ },
+ {
+  "id": "nature-female-creatures",
+  "category": "Nature & cosmos",
+  "title": "Bee, ant and spider are spoken of as female",
+  "blurb": "The bee gets three feminine commands in 16:68-69: 'take', 'eat' and 'follow'. The ant gets 'she said' (27:18) and the spider 'she takes' (29:41). All five verbs are feminine singular.",
+  "series": [
+   {
+    "label": "Feminine verbs",
+    "q": "ref:16:68-69 tag:2FS pos:V | ref:27:18 tag:3FS | ref:29:41 tag:3FS",
+    "count": 5
+   },
+   {
+    "label": "Bee, ant, spider",
+    "q": "lemma:نحل | lemma:نمل,نمله | lemma:عنكبوت",
+    "count": 6
+   }
+  ],
+  "verdict": {
+   "claim": "The Quran refers to the bee, the ant and the spider in the feminine.",
+   "result": "holds",
+   "note": "All five verbs whose subject is the bee, the ant or the spider are feminine singular, though Arabic grammar allows the feminine for these nouns whatever the animal's sex. When the ant speaks to the other ants, it uses the masculine plural ('enter', 27:18)."
+  },
+  "method": "Listed every verb in 16:68-69, 27:18 and 29:41 with its corpus person, gender and number tags. The query keeps the feminine singular ones (2FS, 3FS). The other verbs have other subjects (God, the drink, Solomon, people) or address the ants as a group.",
+  "interest": 4
+ },
+ {
+  "id": "nature-matar-rain",
+  "category": "Nature & cosmos",
+  "title": "Matar: the rain that falls as punishment",
+  "blurb": "Words from the root م ط ر (matar, rain) appear 15 times in 9 verses, and 8 of those verses are about punishment, 5 of them in the story of Lot's people. Life-giving rain is called ghayth (4 words, none of them a punishment) or water sent down from the sky (23 verses).",
+  "series": [
+   {
+    "label": "Matar (م ط ر)",
+    "q": "root:مطر",
+    "count": 15
+   },
+   {
+    "label": "Ghayth (غ ي ث)",
+    "q": "root:غيث",
+    "count": 4
+   },
+   {
+    "label": "Water sent from the sky",
+    "q": "has:\"lemma:ماء\" has:\"lemma:سماء\" has:\"root:نزل\"",
+    "count": 23
+   }
+  ],
+  "verdict": {
+   "claim": "In the Quran matar (rain) is used for punishment and ghayth for mercy.",
+   "result": "partly",
+   "note": "8 of the 9 matar verses are about punishment; the exception is 4:102, where rain is an excuse for soldiers to put down their arms at prayer. None of the 4 ghayth words is a punishment."
+  },
+  "method": "Counted every word from the roots م ط ر and غ ي ث, nouns and verbs, and read each verse in translation. The punishment verses are 7:84, 8:32, 11:82, 15:74, 25:40, 26:173, 27:58 and 46:24, and 7:84, 11:82, 15:74, 26:173 and 27:58 sit inside the story of Lot. The 23 water verses contain ma' (water), sama' (sky) and a word from ن ز ل (send down), and none of them is a punishment.",
+  "interest": 4
+ },
+ {
+  "id": "nature-mountains-rivers",
+  "category": "Nature & cosmos",
+  "title": "Mountains lean Meccan, rivers lean Medinan",
+  "blurb": "Meccan surahs hold 61% of the Quran's words, but they hold 33 of the 39 mountain words and 63 of the 73 words for sun, moon and stars. Rivers go the other way: 35 of the 54 river words are in Medinan surahs, 28 of them in the refrain 'gardens beneath which rivers flow'.",
+  "series": [
+   {
+    "label": "Mountains (jabal)",
+    "q": "lemma:جبل",
+    "count": 39
+   },
+   {
+    "label": "Rivers (nahr)",
+    "q": "lemma:نهر",
+    "count": 54
+   },
+   {
+    "label": "Sun, moon, stars",
+    "q": "root:شمس,قمر,نجم",
+    "count": 73
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Counted the lemmas jabal (mountain) and nahr (river), plus the roots ش م س, ق م ر and ن ج م, then split them by each surah's Meccan or Medinan label; nahar (daytime) is a different lemma. The 61% baseline is 47,439 of 77,429 words (query pos:N,V,P type:meccan). The 28 refrain words come from lemma:نهر tr:\"rivers flow\" type:medinan, and every one of those verses also names gardens.",
+  "interest": 4
+ },
+ {
+  "id": "nature-one-story-animals",
+  "category": "Nature & cosmos",
+  "title": "Animals that belong to a single story",
+  "blurb": "The she-camel (naqa) appears 7 times, and every time she is the sign sent to Thamud through the prophet Salih. The wolf appears 3 times, all in Joseph's story (12:13-17), where Jacob fears a wolf will eat him and the brothers later claim one did. The crow that shows Adam's son how to bury his brother (5:31) and Solomon's hoopoe (27:20) each appear in one verse.",
+  "series": [
+   {
+    "label": "She-camel (naqa)",
+    "q": "lemma:ناقه",
+    "count": 7
+   },
+   {
+    "label": "Wolf (dhi'b)",
+    "q": "lemma:ذئب",
+    "count": 3
+   },
+   {
+    "label": "Crow and hoopoe",
+    "q": "lemma:غراب,هدهد",
+    "count": 3
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "method": "Counted the lemmas naqa, dhi'b, ghurab and hudhud, then read every verse to confirm which story it belongs to. The she-camel verses are 7:73, 7:77, 11:64, 17:59, 26:155, 54:27 and 91:13, each inside a passage that names Thamud or Salih. The crow word appears twice in 5:31.",
+  "interest": 4
+ },
+ {
+  "id": "nature-colours",
+  "category": "Nature & cosmos",
+  "title": "Six colours, and red and blue only once",
+  "blurb": "Counting the roots of six basic colours gives 33 words. White leads with 11, five of them for the shining hand of Moses, then green with 8, black with 7 and yellow with 5. Red and blue appear once each: red in the white, red and black mountain streaks of 35:27, and blue in 20:102.",
+  "series": [
+   {
+    "label": "White (ب ي ض)",
+    "q": "root:بيض -lemma:بيض",
+    "count": 11
+   },
+   {
+    "label": "Black (س و د)",
+    "q": "root:سود -lemma:سيد",
+    "count": 7
+   },
+   {
+    "label": "Green, yellow, red, blue",
+    "q": "root:خضر,صفر,زرق | lemma:حمر",
+    "count": 15
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "method": "White counts the root ب ي ض without the one word for eggs (37:49). Black counts the root س و د without sayyid (master, 3 words). The third series is the roots خ ض ر (8), ص ف ر (5) and ز ر ق (1) plus the word humr (red, 1); shades such as mudhammatan (dark green, 55:64), gharabib (intensely black, 35:27) and faqi' (bright, 2:69) are separate words and were not counted.",
+  "interest": 3
+ },
+ {
+  "id": "nature-date-palm",
+  "category": "Nature & cosmos",
+  "title": "The date palm leads the Quran's orchard",
+  "blurb": "The word nakhl (date palm) appears in 20 verses, more than any other fruit plant. Grapes come next with 11 verses, and 9 of them also name the date palm. All 3 pomegranate verses (6:99, 6:141, 55:68) name it too.",
+  "series": [
+   {
+    "label": "Date palm (ن خ ل)",
+    "q": "root:نخل",
+    "count": 20
+   },
+   {
+    "label": "Grapes (ع ن ب)",
+    "q": "root:عنب",
+    "count": 11
+   },
+   {
+    "label": "Olive, pomegranate, fig",
+    "q": "root:زيت,رمن,تين",
+    "count": 11
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Counted the words from the roots ن خ ل, ع ن ب, ز ي ت, ر م ن and ت ي ن; every word from these roots names the plant or its fruit, and ز ي ت also includes the olive oil in 24:35. Shared verses were counted with has: pairs, for example has:\"root:عنب\" has:\"root:نخل\" (9) and has:\"root:رمن\" has:\"root:نخل\" (3). Palms named with other words, such as lina (59:5), were not counted.",
+  "interest": 3
+ },
+ {
+  "id": "structure-rahman-refrain",
+  "category": "Structure",
+  "title": "One line repeated 31 times in Surah 55",
+  "blurb": "In Surah 55, Ar-Rahman, the verse \"So which of the favors of your Lord would you deny?\" comes 31 times in 78 verses, from 55:13 to 55:77. After its first appearance it returns every second or third verse. No other verse in the Quran is repeated as often.",
+  "series": [
+   {
+    "label": "Refrain (55:13)",
+    "q": "tr:\"which of the favors of your Lord would you deny\"",
+    "count": 31
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "surahs"
+  },
+  "method": "A phrase search of the Saheeh International translation, which renders all 31 the same way; the Arabic, فبأي آلاء ربكما تكذبان, is identical in each, and the word تكذبان occurs nowhere else (ar:=تكذبان also gives 31). Grouping all 6,236 verses by their exact Arabic text, the next most repeated verse occurs 11 times.",
+  "interest": 5
+ },
+ {
+  "id": "structure-basmala-114",
+  "category": "Structure",
+  "title": "The basmala: 114 times, but not in Surah 9",
+  "blurb": "\"In the name of Allah, the Entirely Merciful, the Especially Merciful\" heads every surah except Surah 9, and appears once more inside 27:30, in Solomon's letter to the Queen of Sheba. That makes 114, one for each surah. Only in Surah 1 is it a numbered verse, so the grid shows just two: 1:1 and 27:30.",
+  "series": [
+   {
+    "label": "Basmala in a verse",
+    "q": "has:\"ar:=بسم\" has:\"ar:=الرحيم\"",
+    "count": 2
+   },
+   {
+    "label": "Surah 9 opens without it",
+    "q": "ref:9:1",
+    "count": 1
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "surahs"
+  },
+  "verdict": {
+   "claim": "The basmala appears 114 times, once for every surah: the one missing from Surah 9 turns up inside Surah 27.",
+   "result": "holds",
+   "note": "The count holds when the unnumbered surah headings are counted: the Tanzil text has the basmala before verse 1 of 112 surahs, as verse 1:1, and inside 27:30, 114 in all, with Surah 9 the only surah without it. Pairing the 27:30 basmala with the missing one is a reading, not something the text states."
+  },
+  "method": "Verses containing both the exact words بسم and الرحيم: only 1:1 and 27:30 (11:41 has بسم but not الرحيم). The headings were counted in the Tanzil plain text, where 113 first verses begin with the basmala (Surah 1 plus 112 headings) and the only other occurrence is 27:30.",
+  "interest": 5
+ },
+ {
+  "id": "structure-disconnected-letters",
+  "category": "Structure",
+  "title": "14 letters that open 29 surahs",
+  "blurb": "Twenty-nine surahs open with letters recited one by one, such as Alif Lam Mim; Surah 42 has two such verses, so there are 30 in all. Together they use 14 different letters, exactly half the 28-letter alphabet, in 14 different combinations. The seven surahs that open with Ha Mim stand in an unbroken row, 40 to 46.",
+  "series": [
+   {
+    "label": "Ha Mim",
+    "q": "tag:INL ar:=حم",
+    "count": 7
+   },
+   {
+    "label": "Other letter openings",
+    "q": "tag:INL -ar:=حم",
+    "count": 23
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "surahs"
+  },
+  "verdict": {
+   "claim": "The disconnected letters use 14 letters, half the Arabic alphabet, in 14 combinations, at the head of 29 surahs.",
+   "result": "holds",
+   "note": "30 letter groups (corpus tag INL) open 29 surahs. They use 14 distinct letters and form 14 distinct combinations, whether Ha Mim and Ayn Sin Qaf in 42:1-2 count as one group or two."
+  },
+  "method": "Words with the Quranic Arabic Corpus tag INL (disconnected letters): 30, every one at the start of verse 1, plus 42:2. Distinct letters and combinations counted from their spellings. In 24 of the 29 surahs, one of the first two verses (three for Surah 42) has a word from the roots ك ت ب, ق ر أ, ن ز ل or و ح ي (book, recite, send down, reveal).",
+  "interest": 5
+ },
+ {
+  "id": "structure-middle-word",
+  "category": "Structure",
+  "title": "The middle word of the Quran",
+  "blurb": "Counting all 77,429 words, the middle one is the 38,715th: la-ttakhadhta, \"you could have taken\", in 18:77, as Moses speaks to al-Khidr. It falls just after the start of juz 16, the halfway mark of the 30 parts, on page 302 of 604. By verse count the middle comes much later, between 26:186 and 26:187, because the second half by words holds 4,019 verses to the first half's 2,217.",
+  "series": [
+   {
+    "label": "Middle word (18:77)",
+    "q": "ar:=لاتخذت",
+    "count": 1
+   },
+   {
+    "label": "wal-yatalattaf (18:19)",
+    "q": "ar:=وليتلطف",
+    "count": 1
+   },
+   {
+    "label": "Middle verses",
+    "q": "ref:26:186-187",
+    "count": 2
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "juz"
+  },
+  "verdict": {
+   "claim": "The middle of the Quran is the word wal-yatalattaf (\"let him be cautious\") in 18:19.",
+   "result": "fails",
+   "note": "No count in this data puts it there: by words the middle is in 18:77, 894 words later, and by letters it falls between 18:70 and 18:76, depending on the spelling used and whether doubled letters count twice. The claim is right that the middle lies in Surah 18."
+  },
+  "method": "Words follow the Quranic Arabic Corpus tokenisation (77,429 words, so word 38,715 is the exact middle); juz 16 starts at 18:75 after 38,671 words, and page 302 also starts at 18:75. Verses follow the standard Kufan count of 6,236, so verses 3,118 and 3,119 share the middle. Letter midpoints were checked on the Uthmani and the modern plain spelling, with and without counting doubled (shadda) and small superscript letters.",
+  "interest": 5
+ },
+ {
+  "id": "structure-surah-length-order",
+  "category": "Structure",
+  "title": "Surahs run from longest to shortest",
+  "blurb": "After the short opening surah, the surahs are arranged roughly from longest to shortest. Al-Baqarah alone holds 6,116 of the 77,429 words, about 8%, while the 37 surahs of the last juz share 2,308 words between them. Each dot marks the start of a verse, so the dots crowd together where verses are short.",
+  "series": [
+   {
+    "label": "Al-Baqarah verses",
+    "q": "surah:2",
+    "count": 286
+   },
+   {
+    "label": "Last juz verses",
+    "q": "juz:30",
+    "count": 564
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "method": "Word counts per surah from the corpus tokenisation. The rank correlation between a surah's number and its word count is -0.93 (-0.97 leaving out Surah 1), though 49 surahs are longer than the one before them. Juz 30 covers surahs 78 to 114 exactly (surah:78-114 gives the same 564 verses).",
+  "interest": 4
+ },
+ {
+  "id": "structure-verse-length-revelation",
+  "category": "Structure",
+  "title": "Verses grow longer over the revelation",
+  "blurb": "Verses in Meccan surahs average 10.3 words, those in Medinan surahs 18.5. Laid out in revelation order and shaded by length, the grid brightens toward the bottom. Of the 43 verses with 50 or more words, 41 are Medinan; the other two, 73:20 and 74:31, sit in the third and fourth surahs of the traditional order, among verses of only a few words.",
+  "series": [
+   {
+    "label": "Long early verses",
+    "q": "ref:73:20,74:31",
+    "count": 2
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "length",
+   "order": "revelation"
+  },
+  "method": "47,439 words in 4,613 Meccan verses and 29,990 words in 1,623 Medinan verses, using the Meccan/Medinan label and revelation order the data gives each whole surah (Tanzil), so a single verse that commentators date differently still counts with its surah. 73:20 has 78 words while the other 19 verses of Surah 73 average about 6; 74:31 has 57 while the rest of Surah 74 averages under 4.",
+  "interest": 4
+ },
+ {
+  "id": "structure-qamar-rhyme",
+  "category": "Structure",
+  "title": "Surah 54: one rhyme, one question",
+  "blurb": "All 55 verses of Surah 54, Al-Qamar, end on the letter ra (ر), the longest surah to keep a single end letter throughout. Six of them close with the question \"so is there any who will remember?\" Across the whole Quran, half of all verses (3,124 of 6,236) end on nun (ن).",
+  "series": [
+   {
+    "label": "Verse endings (ر)",
+    "q": "surah:54 at:last",
+    "count": 55
+   },
+   {
+    "label": "Any who will remember?",
+    "q": "tr:\"is there any who will remember\"",
+    "count": 6
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "rhyme"
+  },
+  "method": "The rhyme letter is the last letter of each verse's last word, as the rhyme shading draws it. Every one of the 55 final words in Surah 54 ends in ر; the other surahs that keep one end letter throughout are shorter (the next longest is Surah 76 with 31). The six questions all end with مدكر (ar:=مدكر also gives 6).",
+  "interest": 4
+ },
+ {
+  "id": "structure-shuara-refrain",
+  "category": "Structure",
+  "title": "Surah 26: the same two verses close each story",
+  "blurb": "Surah 26 tells of seven prophets in turn: Moses, Abraham, Noah, Hud, Salih, Lot and Shu'ayb. The opening and each story end with the same pair: \"Indeed in that is a sign, but most of them were not to be believers\" and \"your Lord, He is the Exalted in Might, the Merciful\". Each line comes 8 times, always side by side.",
+  "series": [
+   {
+    "label": "A sign, most not believe",
+    "q": "tr:\"most of them were not to be believers\"",
+    "count": 8
+   },
+   {
+    "label": "Exalted in Might",
+    "q": "surah:26 tr:\"He is the Exalted in Might\"",
+    "count": 8
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "surahs"
+  },
+  "method": "Phrase searches of the Saheeh International translation; the pairs are 26:8-9, 67-68, 103-104, 121-122, 139-140, 158-159, 174-175 and 190-191. The second line is word-for-word identical in Arabic all 8 times; the first is identical 6 times and follows a short clause in 26:139 and 26:158. The prophets' call \"So fear Allah and obey me\" is a third refrain, also 8 times, from 26:108 to 26:179.",
+  "interest": 4
+ },
+ {
+  "id": "structure-mursalat-refrain",
+  "category": "Structure",
+  "title": "\"Woe, that Day, to the deniers\"",
+  "blurb": "This three-word verse comes ten times in the 50 verses of Surah 77, Al-Mursalat, from 77:15 to 77:49. The same verse appears once more, at 83:10.",
+  "series": [
+   {
+    "label": "Woe, that Day (ويل)",
+    "q": "ar:=ويل has:\"ar:=للمكذبين\"",
+    "count": 11
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "surahs"
+  },
+  "method": "The exact word ويل in verses that also contain للمكذبين: 11, and all 11 verses are word-for-word identical (ويل يومئذ للمكذبين). 52:11 has the same words with \"so\" (fa-) attached to woe, so the exact match leaves it out.",
+  "interest": 4
+ },
+ {
+  "id": "structure-middle-nation",
+  "category": "Structure",
+  "title": "2:143, the \"middle community\" verse, halves Surah 2",
+  "blurb": "Al-Baqarah has 286 verses, so 2:143 closes its first half. That verse calls the believers ummatan wasatan, \"a just community\" in Saheeh International, glossed word by word as a community \"of the middle way\". Counted by words, though, the surah's midpoint falls later, in 2:172.",
+  "series": [
+   {
+    "label": "2:143",
+    "q": "ref:2:143",
+    "count": 1
+   },
+   {
+    "label": "Start and end of Surah 2",
+    "q": "ref:2:1,2:286",
+    "count": 2
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "surahs"
+  },
+  "verdict": {
+   "claim": "2:143, which calls the believers a \"middle nation\", is the exact middle verse of Al-Baqarah.",
+   "result": "partly",
+   "note": "By verse count it holds: 143 is half of 286, so 2:143 ends the first half (with an even count there is no single middle verse). By words it does not: wasatan is word 2,518 of the surah's 6,116, and the midpoint is in 2:172."
+  },
+  "method": "Verse and word counts for Surah 2 from the data (286 verses, 6,116 corpus words; words 3,058 and 3,059 are both in 2:172). The word wasatan (ar:=وسطا) occurs only in 2:143.",
+  "interest": 4
+ },
+ {
+  "id": "structure-longest-shortest-verse",
+  "category": "Structure",
+  "title": "Longest verse, and the one-word verses",
+  "blurb": "The longest verse, 2:282 on writing down debts, has 128 words, more than the seven shortest surahs put together. At the other end, 28 verses are a single word. Twenty are disconnected letters such as Ha Mim, seven more open a surah, like \"By the dawn\" (89:1), and one, 55:64 \"dark green\", stands alone in mid-surah.",
+  "series": [
+   {
+    "label": "Longest verse (2:282)",
+    "q": "ref:2:282",
+    "count": 1
+   },
+   {
+    "label": "One-word verses",
+    "q": "at:first at:last",
+    "count": 28
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "length"
+  },
+  "method": "Words per verse from the Quranic Arabic Corpus tokenisation. A word that is both first and last in its verse is the whole verse. The seven shortest surahs (108, 103, 112, 106, 110, 114, and one of 105, 111 and 113, which tie at 23) total 118 words.",
+  "interest": 4
+ },
+ {
+  "id": "structure-hapax-roots",
+  "category": "Structure",
+  "title": "399 roots used only once",
+  "blurb": "Of the 1,651 Arabic roots in the Quran, 399 appear in a single word only. They gather toward the end: the last juz, with 3% of the words, holds 61 of them. Ramadan (2:185), the hoopoe (27:20) and the elephant (105:1) are among them.",
+  "series": [
+   {
+    "label": "Roots used only once",
+    "q": "root:ربح,بقل,قثأ,فوم,عدس,بصل,فقع,وشي,مرو,نعق,رمض,وسن,أود,فصم,سنه,صلد,طلل,غمض,لحف,خبط,رمز,ذخر,بهل,دنر,غزو,فظظ,حوب,عول,بدر,فضو,جبت,نضج,ثبي,بطأ,ذيع,نبط,رغم,بتك,ذبذب,خنق,وقذ,نطح,ذكو,تيه,بحث,نفي,نهج,قسس,رمح,سيب,حير,نوي,قنو,ينع,ضأن,معز,شحم,ذأم,ريش,حثث,نكد,سهل,قمل,ضفدع,جرر,شمت,سكت,بجس,نتق,صمت,شوك,زحف,حوز,مكو,شرد,كسد,وطن,نجس,ضهأ,كوي,جبه,ثبط,جمح,جرف,زري,بلع,قلع,حنذ,روع,طرح,رتع,درهم,زهد,غلق,هيت,شغف,خبز,حصحص,مير,صوع,فتأ,ثرب,فند,محل,جفأ,جرع,رمد,فرع,جثث,لقح,فضح,عضو,دفأ,بغل,دسس,فرث,حفد,جوو,ظعن,صوف,وبر,وكد,غزل,جوس,نغض,حنك,وفر,قصف,دلك,هجد,خبو,فجو,يقظ,سردق,بيد,وأل,قضض,عيب,غصب,ردم,شعل,حنن,مخض,حتم,ضدد,وفد,أدد,هدد,ركز,ثري,خلع,نعل,هشش,سحل,وني,لحي,زرق,صفصف,أمت,همس,عنو,ضنك,زهر,قصم,دمغ,رتق,فتق,كلأ,نفح,فهم,نون,حدب,ذهل,همد,عطف,مجس,قمع,ضمر,عمق,تفث,وجب,هدم,صمع,بأر,سطو,سلب,لفح,كلح,أيم,ذعن,حيف,لوذ,فلن,فسر,عبأ,ضير,شرذم,طود,كبكب,ريع,فره,بسم,هدهد,خبأ,عفر,جمد,تقن,وكز,ذود,جذو,بقع,فصح,ردأ,قبح,نوأ,خطط,مسو,صعر,ختر,جفو,جوف,عوق,سلق,نحب,صيص,سرد,جفن,عرم,خمط,أثل,نوش,قطمر,قمح,عرجن,مسخ,لزب,غول,شوب,زفف,تلل,جبن,أبق,سهم,لقم,سوح,لوت,نوص,قطط,صفن,رخو,قشعر,شكس,شمز,فوض,ركد,رهو,حقف,تعس,أسن,عسل,معي,شرط,قفل,لحن,نبز,لقب,جسس,ليت,بسق,لفظ,حيد,حبك,هجع,صكك,رقق,ألت,قوب,قوس,ضيز,كدي,قني,سمد,همر,دسر,قعر,دهي,أنم,فني,شوظ,فنن,دهم,نضخ,خيم,رفرف,عبقر,وضن,خضد,طلح,سكب,مزن,جلس,رصص,خشب,سند,غبن,ثيب,نمم,زنم,خرطم,حرد,حسم,صرع,وهي,هاء,وتن,هلع,عزو,وفض,نسر,حرس,هرب,حري,غدق,زمل,غصص,كثب,هيل,دثر,قسر,حرك,ترق,مطو,سدي,مشج,قمطر,زمهر,كفت,شمخ,وهج,ثجج,دهق,نخر,سهر,سمك,غطش,دحو,طمم,قضب,أبب,صخخ,كدر,وحش,وأد,كشط,كنس,عسعس,ضنن,طفف,رين,رحق,سنم,غمز,دفق,هزل,نمرق,زرب,سطح,سوط,جمم,كبد,شفه,نجد,سغب,طحو,لهم,دسو,دمدم,لظي,سجو,تين,سفع,زبن,ضبح,قدح,نقع,كند,حصل,فيل,قرش,شتو,صيف,نحر,بتر,جيد,مسد,صمد,كفأ,وقب,نفث",
+    "count": 399
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "juz"
+  },
+  "method": "Every corpus root carried by exactly one word; the query lists those 399 roots. Adding juz:30 to it gives 61, a rate of about 26 per 1,000 words against at most 12 in any other juz. Forms of a root count together and words without a root are left out, so this is stricter than counting spellings that occur once (8,573 do).",
+  "interest": 4
+ },
+ {
+  "id": "structure-first-last-revealed",
+  "category": "Structure",
+  "title": "First and last revealed verses, in tradition",
+  "blurb": "Tradition holds that 96:1-5, beginning \"Recite in the name of your Lord\", were the first verses revealed. Reports differ on the last: one from Ibn Abbas names 2:281, one from al-Bara' ibn Azib names 4:176, and 5:3, \"This day I have perfected for you your religion\", is often cited. In the revelation-order grid, 2:281 and 4:176 still sit well before the end, because the order is by surah and long surahs like Al-Baqarah grew over years.",
+  "series": [
+   {
+    "label": "First revealed (96:1-5)",
+    "q": "ref:96:1-5",
+    "count": 5
+   },
+   {
+    "label": "Last, in reports",
+    "q": "ref:2:281,4:176",
+    "count": 2
+   },
+   {
+    "label": "Religion perfected (5:3)",
+    "q": "ref:5:3",
+    "count": 1
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Verse references as given in the traditional reports; these are traditions, not something the text itself states. The surah order is the revelation order in the data (Tanzil), which puts Surah 96 first, Surah 2 at 87, Surah 4 at 92 and Surah 5 at 112, so by words 2:281 sits about 69% and 4:176 about 82% of the way through.",
+  "interest": 4
+ },
+ {
+  "id": "structure-sajdah",
+  "category": "Structure",
+  "title": "The 15 verses of prostration",
+  "blurb": "Fifteen verses are marked for prostration when recited, spread over 14 surahs; Surah 22 has two. Three of them are the last verse of their surah: 7:206, 53:62 and 96:19. Surah 96, which ends \"prostrate and draw near\", comes first in the traditional revelation order.",
+  "series": [
+   {
+    "label": "Prostration verses",
+    "q": "sajdah:yes",
+    "count": 15
+   },
+   {
+    "label": "Last verse of a surah",
+    "q": "ref:7:206,53:62,96:19",
+    "count": 3
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "surahs"
+  },
+  "method": "Sajdah marks from the quran.com verse data (Madani mushaf); legal schools differ on a few, such as 22:77 and 38:24. Surahs 7, 53 and 96 have 206, 62 and 19 verses. Ten of the 15 contain a word from the root س ج د (sajdah:yes has:\"root:سجد\").",
+  "interest": 3
+ },
+ {
+  "id": "structure-throne-verse",
+  "category": "Structure",
+  "title": "The Throne Verse and its rare words",
+  "blurb": "The Throne Verse, 2:255, is named for the kursi, a seat or throne, a word used only twice: here and for Solomon's throne in 38:34. It is one of just three verses with al-Hayy al-Qayyum, \"the Ever-Living, the Sustainer\": 2:255, 3:2 and 20:111. Its words for drowsiness and for tiring are used nowhere else.",
+  "series": [
+   {
+    "label": "al-Qayyum",
+    "q": "lemma:قيوم",
+    "count": 3
+   },
+   {
+    "label": "Kursi (ك ر س)",
+    "q": "root:كرس",
+    "count": 2
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "surahs"
+  },
+  "method": "Lemma قيوم occurs 3 times, each right after al-Hayy; root ك ر س occurs twice, both as kursiyyuh. The roots و س ن (sinah, drowsiness) and أ و د (ya'uduh, tires) each occur once, both in 2:255.",
+  "interest": 3
+ },
+ {
+  "id": "meccan-allah-vs-lord",
+  "category": "Meccan & Medinan",
+  "title": "Allah leans Medinan, Lord leans Meccan",
+  "blurb": "Medinan surahs hold 39% of the Quran's words but 1,729 of its 2,699 mentions of Allah (64%). The word Lord (rabb) leans the other way: only 213 of its 977 mentions (22%) are Medinan. In Meccan surahs the two names are close, 970 to 764; in Medinan surahs Allah leads about 8 to 1.",
+  "series": [
+   {
+    "label": "Allah",
+    "q": "lemma:الله",
+    "count": 2699
+   },
+   {
+    "label": "Lord (rabb)",
+    "q": "lemma:رب",
+    "count": 977
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Counted every word with the lemma Allah and every word with the lemma rabb (Lord, in all forms such as your Lord and our Lord, plus the plural arbab 4 times and a few uses for a human master in Surah 12), then added type:medinan or type:meccan to each query for the split. The 39% baseline is 29,990 of 77,429 words ('pos:N,V,P type:medinan'). Of the 213 Medinan uses of Lord, 31 come from the refrain of Surah 55, which this data labels Medinan.",
+  "interest": 5
+ },
+ {
+  "id": "meccan-o-believers-o-mankind",
+  "category": "Meccan & Medinan",
+  "title": "\"O you who believe\" and \"O mankind\"",
+  "blurb": "All 89 verses that say \"O you who believe\" are in Medinan surahs, and so are all 13 that say \"O Prophet\". The wider call \"O mankind\" is split almost evenly: 10 of its 21 uses are Meccan and 11 Medinan.",
+  "series": [
+   {
+    "label": "O you who believe",
+    "q": "tr:\"O you who have believed\"",
+    "count": 89
+   },
+   {
+    "label": "O mankind",
+    "q": "ar:=الناس tag:NOM has:\"ar:ايها\" -tr:\"O you who have believed\"",
+    "count": 21
+   },
+   {
+    "label": "O Prophet",
+    "q": "tr:\"O Prophet\"",
+    "count": 13
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "verdict": {
+   "claim": "Verses that say \"O you who believe\" were revealed in Medina, and verses that say \"O mankind\" were revealed in Mecca.",
+   "result": "partly",
+   "note": "The first half holds without exception: 89 of 89 are in Medinan surahs. The second does not: 10 of the 21 \"O mankind\" calls are in Meccan surahs and 11 in Medinan ones, including 2:21, 4:1, 49:13 and four in Surah 22."
+  },
+  "method": "\"O you who believe\" and \"O Prophet\" use the Saheeh International phrases; both lists were checked word by word against the Arabic and match exactly the verses where ya ayyuha is followed by alladhina amanu (89) or an-nabi (13). \"O mankind\" counts an-nas as the addressed noun in a verse with ayyuha, leaving out 66:6, where an-nas means the people who fuel the Fire; it includes 4:133, where the address drops the ya. The data labels whole surahs, and Surah 22, labelled Medinan here, holds four of the Medinan \"O mankind\" calls.",
+  "interest": 5
+ },
+ {
+  "id": "meccan-kalla",
+  "category": "Meccan & Medinan",
+  "title": "Kalla (\"Nay!\") occurs only in Meccan surahs",
+  "blurb": "The rebuttal kalla, glossed \"Nay\" or \"By no means\", appears 33 times in 15 surahs, all of them Meccan. It never occurs in the first half of the Quran: the first one is 19:79 on page 311, and 18 of the 33 are in the last juz.",
+  "series": [
+   {
+    "label": "Kalla (كلا)",
+    "q": "tag:AVR",
+    "count": 33
+   }
+  ],
+  "view": {
+   "unit": "pages",
+   "shade": "type",
+   "order": "mushaf"
+  },
+  "verdict": {
+   "claim": "The word kalla appears only in Meccan surahs, and only in the second half of the Quran.",
+   "result": "holds",
+   "note": "All 33 are in Meccan surahs, and 'tag:AVR page:1-302' finds none in the first 302 of 604 pages. 'tag:AVR juz:30' finds 18."
+  },
+  "method": "The corpus tags kalla as a particle of rebuttal (AVR). Searching lemma:كلا instead gives 34, because it also catches kilahuma (\"both of them\") in 17:23, and ar:=كلا gives 38, because kullan (\"each\") has the same unvowelled spelling.",
+  "interest": 5
+ },
+ {
+  "id": "meccan-verse-length",
+  "category": "Meccan & Medinan",
+  "title": "Medinan verses run 1.8 times as long on average",
+  "blurb": "Meccan surahs average 10.3 words per verse (47,439 words in 4,613 verses). Medinan surahs average 18.5 (29,990 words in 1,623 verses). So the 28 Medinan surahs hold 26% of the verses but 39% of the words.",
+  "series": [
+   {
+    "label": "Medinan verses",
+    "q": "type:medinan",
+    "count": 1623
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "length",
+   "order": "revelation"
+  },
+  "method": "Verse counts from 'type:meccan' and 'type:medinan'; word counts from 'pos:N,V,P type:meccan' and 'pos:N,V,P type:medinan' (corpus words, so a prefix like wa- stays part of its word). Across all 114 surahs, revelation order and average verse length have a Spearman rank correlation of 0.67. The longest verse, 2:282 on recording debts (128 words), is Medinan.",
+  "interest": 4
+ },
+ {
+  "id": "meccan-hypocrites",
+  "category": "Meccan & Medinan",
+  "title": "The hypocrites appear almost only in Medinan surahs",
+  "blurb": "The hypocrites (munafiqun), men and women, are named 32 times, and 31 of those are in Medinan surahs. The only Meccan one is 29:11. Verses that speak of a disease in the heart, often said of the same people, follow the pattern: 11 of 12 are Medinan.",
+  "series": [
+   {
+    "label": "Hypocrites",
+    "q": "lemma:منافق,منافقه",
+    "count": 32
+   },
+   {
+    "label": "Disease in hearts",
+    "q": "has:\"lemma:قلب\" has:\"lemma:مرض\"",
+    "count": 12
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Words with the lemma munafiq or munafiqa (hypocrite man or woman); 'lemma:منافق,منافقه type:meccan' finds only 29:11. The second series finds verses containing both heart (qalb) and disease (marad); all 12 were read and each speaks of disease in the heart, and the one Meccan verse is 74:31. Saheeh International renders this disease as \"hypocrisy\" in 47:20 and 74:31.",
+  "interest": 4
+ },
+ {
+  "id": "meccan-fighting",
+  "category": "Meccan & Medinan",
+  "title": "Words for fighting: 66 of 67 are Medinan",
+  "blurb": "The verb qātala (to fight) and the noun qitāl (fighting) appear 67 times together, and 66 of those are in Medinan surahs. The one Meccan use is in 73:20, a 78-word verse closing a surah whose other 19 verses have 2 to 11 words. Words for killing (qatala and its noun qatl) are less one-sided at 62 of 97 Medinan, since Meccan surahs use them in stories such as those of Moses and Pharaoh.",
+  "series": [
+   {
+    "label": "Fight (qātala)",
+    "q": "lemma:قاتل",
+    "count": 54
+   },
+   {
+    "label": "Fighting (qitāl)",
+    "q": "lemma:قتال",
+    "count": 13
+   },
+   {
+    "label": "Kill (qatala)",
+    "q": "lemma:قتل",
+    "count": 97
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Lemmas qātala (form III, to fight), qitāl (fighting) and qatala (to kill; the lemma search also takes in the noun qatl and the intensive form quttila). The splits come from adding type:meccan or type:medinan; 'lemma:قاتل,قتال type:meccan' finds only 73:20.",
+  "interest": 4
+ },
+ {
+  "id": "meccan-law-words",
+  "category": "Meccan & Medinan",
+  "title": "Pilgrimage, fasting and divorce are Medinan words",
+  "blurb": "Words for the pilgrimage (11), fasting (14) and divorce (14) are almost entirely Medinan. The only Meccan one is in 19:26, where Maryam says she has vowed a fast (sawm) and will not speak to anyone that day.",
+  "series": [
+   {
+    "label": "Pilgrimage (hajj)",
+    "q": "lemma:حج",
+    "count": 11
+   },
+   {
+    "label": "Fasting (ص و م)",
+    "q": "root:صوم",
+    "count": 14
+   },
+   {
+    "label": "Divorce (ط ل ق)",
+    "q": "root:طلق -lemma:انطلق",
+    "count": 14
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Hajj uses the lemma because its root also gives hujja (argument) and hijaj (years); fasting counts the whole root ص و م; divorce counts the root ط ل ق without intalaqa (to set off), which shares the root and appears in Meccan stories. Adding type:meccan to each finds 0, 1 (19:26) and 0.",
+  "interest": 4
+ },
+ {
+  "id": "meccan-o-my-people",
+  "category": "Meccan & Medinan",
+  "title": "\"O my people\": the prophets' Meccan call",
+  "blurb": "\"O my people\" (ya qawmi) is how prophets such as Noah, Hud, Salih and Shu'ayb plead with their nations. Of its 49 uses, 45 are in Meccan surahs. The 4 Medinan ones are all Moses speaking to his people (2:54, 5:20, 5:21 and 61:5).",
+  "series": [
+   {
+    "label": "O my people",
+    "q": "lemma:قوم tag:VOC",
+    "count": 49
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Words with the lemma qawm (people) carrying the vocative tag, which covers ya qawmi, wa ya qawmi and ya qawmana; a few speakers are not prophets, such as Pharaoh in 43:51. The Medinan four come from adding type:medinan, and each was read to confirm the speaker.",
+  "interest": 4
+ },
+ {
+  "id": "meccan-warning-nations",
+  "category": "Meccan & Medinan",
+  "title": "Noah, 'Ad and Thamud are mostly Meccan stories",
+  "blurb": "Noah and the peoples of 'Ad and Thamud are the Quran's recurring examples of nations that rejected their prophets. The three names occur 93 times, and 82 of those (88%) are in Meccan surahs, against 61% of all words.",
+  "series": [
+   {
+    "label": "Noah (Nuh)",
+    "q": "lemma:نوح",
+    "count": 43
+   },
+   {
+    "label": "'Ad",
+    "q": "lemma:عاد tag:PN",
+    "count": 24
+   },
+   {
+    "label": "Thamud",
+    "q": "lemma:ثمود",
+    "count": 26
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Proper-noun lemmas; 'Ad needs tag:PN because the verb 'ada (to return) has the same spelling (lemma:عاد alone gives 49). Meccan counts from type:meccan: 36, 22 and 24. The Meccan share of all words is 47,439 of 77,429.",
+  "interest": 4
+ },
+ {
+  "id": "meccan-feminine-they",
+  "category": "Meccan & Medinan",
+  "title": "The feminine \"they\" of family law",
+  "blurb": "Arabic has a separate they and them for groups of women (-hunna, -na). Of 294 words carrying it, 243 (83%) are in Medinan surahs, where rulings on marriage, divorce and waiting periods speak about women. 2:228, on divorced women, has 12 by itself.",
+  "series": [
+   {
+    "label": "They (women)",
+    "q": "tag:3FP",
+    "count": 294
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Words tagged third person feminine plural in the corpus, from verbs and attached pronouns; Surahs 2, 4, 24, 33 and 65 alone hold 204 ('tag:3FP surah:2,4,24,33,65'). The tag also covers non-human plurals such as the heavens, so some Meccan hits are about those; 21 of the 51 Meccan ones are in Surah 12 ('tag:3FP surah:12'), mostly about the women of the city.",
+  "interest": 4
+ },
+ {
+  "id": "meccan-hour-resurrection",
+  "category": "Meccan & Medinan",
+  "title": "The Hour leans Meccan; the Resurrection less so",
+  "blurb": "The Hour (al-sa'a), a name for the end of the world, is strongly Meccan: 34 of its 40 mentions. The Resurrection (al-qiyama) is spread more evenly, 48 of 70 (69%) Meccan, nearer the 61% of all words that are Meccan.",
+  "series": [
+   {
+    "label": "The Hour",
+    "q": "lemma:ساعة tag:DET",
+    "count": 40
+   },
+   {
+    "label": "Resurrection",
+    "q": "lemma:قيامة",
+    "count": 70
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Lemma sa'a with the definite article (DET), since without it the lemma also covers 8 uses of \"an hour\" of time; all 40 are glossed \"the Hour\". All 70 uses of qiyama come right after the word day (Day of Resurrection), and the splits come from type:meccan.",
+  "interest": 3
+ },
+ {
+  "id": "meccan-surah-55-refrain",
+  "category": "Meccan & Medinan",
+  "title": "Surah 55's refrain tilts one word to Medina",
+  "blurb": "The refrain \"So which of the favors of your Lord would you deny?\" repeats 31 times in Surah 55, ar-Rahman. This data labels Surah 55 Medinan, so the word for favors (ala') comes out 31 of 34 Medinan. Its verses average 4.5 words, tied with Surah 99 for the shortest of any Medinan surah.",
+  "series": [
+   {
+    "label": "Favors (ala')",
+    "q": "lemma:الاء",
+    "count": 34
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "length",
+   "order": "mushaf"
+  },
+  "method": "Lemma ala' (favors); 'lemma:الاء surah:55' finds 31, and the other 3 are 7:69, 7:74 and 53:55, the last a near twin of the refrain. Surah 55 has 351 words in 78 verses ('pos:N,V,P surah:55') and Surah 99 has 36 in 8, both exactly 4.5. Classical lists disagree on whether Surah 55 is Meccan or Medinan; this page uses the dataset's label.",
+  "interest": 3
+ },
+ {
+  "id": "pairs-forgiving-merciful",
+  "category": "Pairs & echoes",
+  "title": "Forgiving and Merciful, side by side",
+  "blurb": "The name Ghafur, Forgiving, is used in 91 verses, and 72 of them also use Rahim, Merciful. Whenever the two names meet they end the verse: 71 times as Ghafur Rahim and once, in 34:2, as Rahim Ghafur.",
+  "series": [
+   {
+    "label": "Both in one verse",
+    "q": "has:\"lemma:غفور\" has:\"lemma:رحيم\"",
+    "count": 72
+   },
+   {
+    "label": "Forgiving only",
+    "q": "has:\"lemma:غفور\" -has:\"lemma:رحيم\"",
+    "count": 19
+   },
+   {
+    "label": "Merciful only",
+    "q": "has:\"lemma:رحيم\" -has:\"lemma:غفور\"",
+    "count": 44
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Verses containing the lemma ghafur and the lemma rahim (Quranic Arabic Corpus), each verse counted once; the separate name Ghaffar (5 words) is not included. A scan of consecutive words shows the 72 shared verses are exactly the 72 places where the two names stand next to each other, always as the verse's last two words, and lemma:رحيم at:last has:\"lemma:غفور\" finds the 71 in the usual order. 'Merciful only' includes Al-Faatiha (1:1, 1:3) and two verses where the word describes people: the Prophet in 9:128 and his companions in 48:29.",
+  "interest": 5
+ },
+ {
+  "id": "pairs-hearing-before-sight",
+  "category": "Pairs & echoes",
+  "title": "Does hearing always come before sight?",
+  "blurb": "Words for hearing and sight share 37 verses, and hearing comes first in 29 of them. The names All-Hearing, All-Seeing always keep that order (11 times), but in five verses sight leads the pair, such as 32:12, 'we have seen and heard'.",
+  "series": [
+   {
+    "label": "Hearing + sight",
+    "q": "has:\"root:سمع\" has:\"root:بصر\"",
+    "count": 37
+   },
+   {
+    "label": "Sight named first",
+    "q": "ref:7:179,7:195,11:24,18:26,32:12",
+    "count": 5
+   },
+   {
+    "label": "All-Hearing, All-Seeing",
+    "q": "lemma:بصير at:last has:\"lemma:سميع\"",
+    "count": 11
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "verdict": {
+   "claim": "Whenever the Quran mentions hearing and sight together, hearing comes first.",
+   "result": "partly",
+   "note": "It holds for the nouns: in all 14 verses with both sam' (hearing) and basar (sight) the pair is named hearing first, and the divine names All-Hearing, All-Seeing always come in that order (11 verses). It fails in 7:179, 7:195, 11:24, 18:26 and 32:12, where seeing comes before hearing; 18:26 even says of Allah 'How Seeing is He and how Hearing!'"
+  },
+  "method": "Verses with any word from the root س م ع and any word from the root ب ص ر, compared by which root appears first in the verse (29 hearing first, 8 sight first). Each of the 8 was read: in 2:20, 10:67 and 68:51 the earlier sight word is not paired with hearing (2:20 later says 'their hearing and their sight'), leaving 5 true reversals. The noun check used the lemmas sam' and basar with pos N; in 2:20 a lone 'their sight' comes before the hearing-first pair.",
+  "interest": 5
+ },
+ {
+  "id": "pairs-obey-messenger-medinan",
+  "category": "Pairs & echoes",
+  "title": "'Obey the Messenger' is a Medinan pairing",
+  "blurb": "The verb 'obey' (ata'a) occurs 72 times. All 34 uses that share a verse with 'messenger' are in Medinan surahs, as in 'obey Allah and obey the Messenger'. In Meccan surahs 'obey' appears 23 times, 10 of them as a prophet's call to 'fear Allah and obey me'.",
+  "series": [
+   {
+    "label": "Obey + messenger",
+    "q": "lemma:أطاع has:\"lemma:رسول\"",
+    "count": 34
+   },
+   {
+    "label": "Obey, other verses",
+    "q": "lemma:أطاع -has:\"lemma:رسول\"",
+    "count": 38
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type"
+  },
+  "method": "Words with the lemma ata'a (to obey), split by whether the same verse contains the lemma rasul (messenger or messengers); lemma:أطاع type:meccan gives the 23 Meccan uses and lemma:أطاع ar:=واطيعون type:meccan the 10 'obey me' calls (8 in Ash-Shu'araa, 43:63 and 71:3). The rule is per verse: in Ash-Shu'araa five prophets say 'I am a trustworthy messenger to you' in the verse just before 'so fear Allah and obey me', which this count does not join.",
+  "interest": 5
+ },
+ {
+  "id": "pairs-never-alone",
+  "category": "Pairs & echoes",
+  "title": "Words that only appear in one phrase",
+  "blurb": "Some words never travel alone. Al-qiyamah, the Resurrection, occurs 70 times and always right after 'Day' (Day of Resurrection); musamma occurs 21 times, always in 'an appointed term'; and al-albab occurs 16 times, always in 'people of understanding'.",
+  "series": [
+   {
+    "label": "Resurrection (qiyamah)",
+    "q": "lemma:قيامة",
+    "count": 70
+   },
+   {
+    "label": "Appointed (musamma)",
+    "q": "lemma:مسمى",
+    "count": 21
+   },
+   {
+    "label": "Minds (albab)",
+    "q": "lemma:ألباب",
+    "count": 16
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "method": "Every word with each lemma, checked against the word just before it in the same verse: all 70 qiyamah follow yawm (day), all 21 musamma follow ajal (term) and all 16 albab follow ulu (possessors of). At verse level, has:\"lemma:قيامة\" -has:\"lemma:يوم\" finds nothing.",
+  "interest": 4
+ },
+ {
+  "id": "pairs-when-is-this-promise",
+  "category": "Pairs & echoes",
+  "title": "'When is this promise?' asked in six surahs",
+  "blurb": "The verse 'And they say, When is this promise, if you should be truthful?' appears word for word in six surahs: 10:48, 21:38, 27:71, 34:29, 36:48 and 67:25. A seventh, 32:28, asks the same of 'this conquest'. All seven are Meccan.",
+  "series": [
+   {
+    "label": "'When is this promise?'",
+    "q": "has:\"lemma:متى\" has:\"lemma:وعد\"",
+    "count": 6
+   },
+   {
+    "label": "'...this conquest?'",
+    "q": "has:\"lemma:متى\" has:\"lemma:صادق\" -has:\"lemma:وعد\"",
+    "count": 1
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Verses containing both mata (when) and wa'd (promise). The six match letter for letter in the Uthmani text, vowel marks included; the only other verse with mata and sadiq (truthful) is 32:28, which differs in one word, al-fath (the conquest).",
+  "interest": 4
+ },
+ {
+  "id": "pairs-twin-passages",
+  "category": "Pairs & echoes",
+  "title": "Passages repeated word for word",
+  "blurb": "Some runs of verses recur in a second surah. Four verses on guarding chastity and keeping trusts (23:5-8) return as 70:29-32, seven verses of the story of Adam and Iblis are shared by Al-Hijr and Saad, and four verses of Moses before Pharaoh appear in both Al-A'raaf and Ash-Shu'araa.",
+  "series": [
+   {
+    "label": "23:5-8 = 70:29-32",
+    "q": "ref:23:5-8,70:29-32",
+    "count": 8
+   },
+   {
+    "label": "Iblis: Al-Hijr & Saad",
+    "q": "ref:15:29-30,15:34,15:36-38,15:40,38:72-73,38:77,38:79-81,38:83",
+    "count": 14
+   },
+   {
+    "label": "Moses: A'raaf & Shu'araa",
+    "q": "ref:7:107-108,7:121-122,26:32-33,26:47-48",
+    "count": 8
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Every verse was compared letter for letter, marks included, with every verse in other surahs, and matching neighbours were grouped into runs; 23:5-8 = 70:29-32 is the longest unbroken run. The Iblis verses form four short runs split by verses that differ slightly, e.g. 'the curse' in 15:35 against 'My curse' in 38:78, and 23:9 ('their prayers') returns as 70:34 ('their prayer') only after an extra verse on testimony.",
+  "interest": 4
+ },
+ {
+  "id": "pairs-six-days-throne",
+  "category": "Pairs & echoes",
+  "title": "Six days, then above the Throne",
+  "blurb": "The word six (sitta) appears only 7 times, always for the six days in which the heavens and earth were created. Seven verses say Allah established Himself above the Throne, and five do both in identical words, 'in six days, then He established Himself above the Throne', each in a different surah.",
+  "series": [
+   {
+    "label": "Six days",
+    "q": "lemma:ستة",
+    "count": 7
+   },
+   {
+    "label": "Above the Throne",
+    "q": "has:\"lemma:استوى\" has:\"lemma:عرش\"",
+    "count": 7
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Words with the lemma sitta, and verses containing both istawa (rose, established) and 'arsh (throne). has:\"lemma:ستة\" has:\"lemma:استوى\" gives the five shared verses (7:54, 10:3, 25:59, 32:4, 57:4), which all contain the same seven-word run fi sittati ayyamin thumma istawa 'ala al-'arsh. Sixth, sixty and one-sixth are different words and are not counted.",
+  "interest": 4
+ },
+ {
+  "id": "pairs-fixed-order",
+  "category": "Pairs & echoes",
+  "title": "Night before day, sun before moon",
+  "blurb": "Night and day share 42 verses, and night is named first in 40. The sun comes before the moon in 17 of their 18 shared verses (71:16 is the exception), and heaven before earth in 201 of 222. Side by side, 'the heavens and the earth' occurs 148 times and 'the earth and the heavens' only twice.",
+  "series": [
+   {
+    "label": "Night & day",
+    "q": "has:\"lemma:ليل\" has:\"lemma:نهار\"",
+    "count": 42
+   },
+   {
+    "label": "Sun & moon",
+    "q": "has:\"lemma:شمس\" has:\"lemma:قمر\"",
+    "count": 18
+   },
+   {
+    "label": "Heaven & earth",
+    "q": "has:\"lemma:سماء\" has:\"lemma:أرض\"",
+    "count": 222
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Verses containing both lemmas, compared by which one appears first; day comes first only in 11:114 and 28:72. 'Side by side' means consecutive words (and is attached to the second word, as in al-samawati wa-l-ard); the two reversed cases are 14:48 and 20:4.",
+  "interest": 4
+ },
+ {
+  "id": "pairs-name-closers",
+  "category": "Pairs & echoes",
+  "title": "Knowing, Wise or Wise, Knowing",
+  "blurb": "Pairs of divine names often end verses: All-Mighty, All-Wise 47 times and All-Knowing, All-Wise 29 times, never mid-verse. The same two names reversed, Wise, Knowing, close 7 verses, all in Meccan surahs, while 26 of the 29 in the usual order are Medinan (the 3 Meccan ones are all in Surah Yusuf).",
+  "series": [
+   {
+    "label": "Mighty, Wise",
+    "q": "lemma:حكيم at:last has:\"lemma:عزيز\"",
+    "count": 47
+   },
+   {
+    "label": "Knowing, Wise",
+    "q": "lemma:حكيم at:last has:\"lemma:عليم\"",
+    "count": 29
+   },
+   {
+    "label": "Wise, Knowing",
+    "q": "lemma:عليم at:last has:\"lemma:حكيم\"",
+    "count": 7
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "type"
+  },
+  "method": "Consecutive words with these lemmas were counted in both orders; every instance is the verse's last two words, so the at:last queries find exactly them, and 'Mighty, Wise' never reverses. All-Hearing, All-Knowing (lemma:عليم at:last has:\"lemma:سميع\", 32 verses) also never reverses or stands mid-verse. Hakim (Wise) occurs 97 times and always in the last two words of its verse.",
+  "interest": 4
+ },
+ {
+  "id": "pairs-rivers-flowing-beneath",
+  "category": "Pairs & echoes",
+  "title": "Gardens beneath which rivers flow",
+  "blurb": "Rivers are mentioned 54 times, and 40 of them sit in the phrase 'beneath which rivers flow'. Nearly all of these describe Paradise; the clear exceptions are a parable garden (2:266), destroyed nations (6:6) and Pharaoh's boast of 'these rivers flowing beneath me' (43:51). The four rivers of 47:15, of water, milk, wine and honey, are among the others.",
+  "series": [
+   {
+    "label": "Rivers flowing beneath",
+    "q": "lemma:نهر has:\"lemma:تحت\"",
+    "count": 40
+   },
+   {
+    "label": "Other rivers",
+    "q": "lemma:نهر -has:\"lemma:تحت\"",
+    "count": 14
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "method": "Words with the lemma nahr (river, rivers), split by whether the verse also contains taht (beneath). All 40 verses with 'beneath' also contain the verb jara (flow), so the split is the phrase itself; each verse was read to tell Paradise from earthly rivers.",
+  "interest": 4
+ },
+ {
+  "id": "pairs-believe-and-do-good",
+  "category": "Pairs & echoes",
+  "title": "Believe, and do righteous deeds",
+  "blurb": "Al-salihat, usually 'righteous deeds', occurs 62 times, and 52 of those share a verse with the verb 'believe', which always comes first. Fifty verses use the exact words amanu wa 'amilu al-salihat, 'believe and do righteous deeds'; six more pair the deeds with 'believer', leaving four with no word of faith.",
+  "series": [
+   {
+    "label": "With 'believe'",
+    "q": "lemma:صالحة has:\"lemma:آمن\"",
+    "count": 52
+   },
+   {
+    "label": "With 'believer'",
+    "q": "lemma:صالحة has:\"root:أمن\" -has:\"lemma:آمن\"",
+    "count": 6
+   },
+   {
+    "label": "No word of faith",
+    "q": "lemma:صالحة -has:\"root:أمن\"",
+    "count": 4
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "method": "Words with the lemma salihah (plural al-salihat), split by whether the verse has the verb amana or another word from the root أ م ن. Because hamza is folded, lemma:آمن would also match amina (feel safe), so each of the 51 verses was checked to contain amana itself; the exact three-word run was counted in the plain text (50 verses; 24:55 inserts minkum, 'among you'). In 4:34, one of the four, al-salihat means righteous women.",
+  "interest": 4
+ },
+ {
+  "id": "pairs-prayer-and-zakah",
+  "category": "Pairs & echoes",
+  "title": "Prayer and zakah, almost always together",
+  "blurb": "The word zakah appears in 32 verses, and 26 of them also name prayer (salah), always first, as in 'establish prayer and give zakah'. Two of the other six use the word in its root sense of purity (18:81, 19:13). Salah appears in 78 verses, so most of them do not mention zakah.",
+  "series": [
+   {
+    "label": "Prayer + zakah",
+    "q": "has:\"lemma:صلاة\" has:\"lemma:زكاة\"",
+    "count": 26
+   },
+   {
+    "label": "Zakah only",
+    "q": "has:\"lemma:زكاة\" -has:\"lemma:صلاة\"",
+    "count": 6
+   },
+   {
+    "label": "Prayer only",
+    "q": "has:\"lemma:صلاة\" -has:\"lemma:زكاة\"",
+    "count": 52
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Verses containing the lemma zakah and the lemma salah; prayer comes before zakah in all 26 shared verses. The lemma salah also covers 'blessings' (2:157, 9:99, 9:103) and 'synagogues', places of prayer (22:40).",
+  "interest": 4
+ },
+ {
+  "id": "pairs-abiding-forever",
+  "category": "Pairs & echoes",
+  "title": "Abiding forever, in Paradise and in Hell",
+  "blurb": "Khalid, 'abiding eternally', occurs 74 times: in 29 verses that also name the Gardens and 27 that name the Fire or Hell, with 47:15 naming both. The fuller 'abiding therein forever' (khalidina fiha abadan) comes 11 times, 8 for Paradise and 3 for Hell (4:169, 33:65, 72:23).",
+  "series": [
+   {
+    "label": "Abiding + Gardens",
+    "q": "lemma:خالد has:\"lemma:جنة\"",
+    "count": 29
+   },
+   {
+    "label": "Abiding + Fire/Hell",
+    "q": "lemma:خالد has:\"lemma:نار,جهنم\"",
+    "count": 27
+   },
+   {
+    "label": "Forever (abadan)",
+    "q": "lemma:أبدا has:\"lemma:خالد\"",
+    "count": 11
+   }
+  ],
+  "view": {
+   "unit": "words"
+  },
+  "method": "Words with the lemma khalid, split by whether the verse also contains jannah (garden) or nar or jahannam (Fire, Hell); in 47:15 the word refers to the Fire, though the verse names both. The other 19 name neither: most point back to a place named in the verse before, some use another word (al-Firdaus in 23:11, 'the punishment' in 5:80), and 21:8 and 21:34 speak of immortality on earth. All 11 abadan verses contain the run khalidina fiha abadan and were read to assign them.",
+  "interest": 3
+ },
+ {
+  "id": "pairs-no-fear-nor-grief",
+  "category": "Pairs & echoes",
+  "title": "No fear upon them, nor will they grieve",
+  "blurb": "Fear and grief meet in 18 verses. Twelve of them, spread over 7 surahs, repeat one promise: 'no fear will there be concerning them, nor will they grieve'. Five of the other six are spoken comfort, such as the angels' 'do not fear and do not grieve' (41:30).",
+  "series": [
+   {
+    "label": "'No fear... nor grieve'",
+    "q": "has:\"lemma:خوف\" has:\"ar:=يحزنون\"",
+    "count": 12
+   },
+   {
+    "label": "Other fear + grief",
+    "q": "has:\"root:خوف\" has:\"root:حزن\" -has:\"ar:=يحزنون\"",
+    "count": 6
+   }
+  ],
+  "view": {
+   "unit": "verses"
+  },
+  "method": "Verses containing words from both roots خ و ف (fear) and ح ز ن (grief). The 12 formula verses all contain the five-word run khawfun 'alayhim wa-la hum yahzanun; the other six (7:49, 12:13, 28:7, 29:33, 41:30, 43:68) were read one by one, and only 12:13, Jacob's worry, is not reassurance.",
+  "interest": 3
+ },
+ {
+  "id": "pairs-see-how-was-the-end",
+  "category": "Pairs & echoes",
+  "title": "'See how was the end of...'",
+  "blurb": "'See how was the end of...' recurs in 21 verses across 14 surahs, 19 of them Meccan. It closes most often on those before them (7 times), the deniers (4) or the corrupters (3). Eleven of the verses first say 'travel through the land'.",
+  "series": [
+   {
+    "label": "See how was the end",
+    "q": "has:\"lemma:عاقبة\" has:\"lemma:كيف\"",
+    "count": 21
+   },
+   {
+    "label": "...after 'travel'",
+    "q": "has:\"lemma:عاقبة\" has:\"lemma:كيف\" has:\"lemma:سار\"",
+    "count": 11
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type"
+  },
+  "method": "Verses containing both 'aqibah (end, outcome) and kayfa (how); all 21 also contain nazara (look, see). The ending was read from the words after 'aqibah; series 2 adds sara (travel), which comes before 'aqibah in all 11.",
+  "interest": 3
+ },
+ {
+  "id": "numbers-six-days",
+  "category": "Numbers & time",
+  "title": "Six is only used for the days of creation",
+  "blurb": "The number six (sitta) appears 7 times, and every time it is the six days in which the heavens and the earth were created. Surah 41 tells the same story in stages: the earth in two days, its provisions in four, and the seven heavens in two (41:9-12).",
+  "series": [
+   {
+    "label": "Six (sitta)",
+    "q": "lemma:ستة",
+    "count": 7
+   },
+   {
+    "label": "Days in 41:9-12",
+    "q": "lemma:يوم tag:MD,MP,FP ref:41:9-12",
+    "count": 3
+   }
+  ],
+  "method": "Every word with the lemma sitta (six) in the Quranic Arabic Corpus; sixty (sittin, 58:4) is a separate lemma and is not included. All 7 verses also contain a word from the root خ ل ق (create), checked with has:\"lemma:ستة\" has:\"root:خلق\". The second series marks the dual and plural day words in 41:9-12.",
+  "interest": 5
+ },
+ {
+  "id": "numbers-cave-309",
+  "category": "Numbers & time",
+  "title": "Three hundred years, and nine more",
+  "blurb": "The sleepers of the cave stayed 'three hundred years and exceeded by nine' (18:25). Three verses earlier, 18:22 reports people's guesses about how many they were: three, five or seven, with their dog the fourth, sixth or eighth, so the verse runs through every number from three to eight.",
+  "series": [
+   {
+    "label": "300 + 9 (18:25)",
+    "q": "ref:18:25 lemma:ثلاث,مائة,تسع",
+    "count": 3
+   },
+   {
+    "label": "Three to eight (18:22)",
+    "q": "ref:18:22 lemma:ثلاثة,رابع,خمسة,سادس,سبعة,ثامن",
+    "count": 6
+   }
+  ],
+  "verdict": {
+   "claim": "300 solar years equal 309 lunar years, which matches the 'three hundred years and nine' of 18:25.",
+   "result": "holds",
+   "note": "As arithmetic it holds: 300 years of 365.24 days are about 109,573 days, which is 309.2 lunar years of 354.37 days. The verse itself does not mention calendars, so reading the nine as the lunar difference is an interpretation, not something the text states."
+  },
+  "method": "Number words found by lemma inside each verse: thalath, mi'a and tis' in 18:25; thalatha, rabi', khamsa, sadis, sab'a and thamin in 18:22. The verdict uses the mean solar year (365.2422 days) and twelve mean lunar months (12 x 29.5306 days).",
+  "interest": 5
+ },
+ {
+  "id": "numbers-seven-yusuf",
+  "category": "Numbers & time",
+  "title": "A third of all sevens are in one dream",
+  "blurb": "Among number words, seven is the most frequent after one: it appears 24 times, not counting seventy. Eight of them, a third, fall in four verses of Surah Yusuf (12:43-48), where the king dreams of seven fat cows eaten by seven lean ones and seven green ears of grain, and Yusuf reads it as seven years of farming followed by seven hard years.",
+  "series": [
+   {
+    "label": "Seven (sab')",
+    "q": "lemma:سبع,سبعة en:seven",
+    "count": 24
+   },
+   {
+    "label": "Seven in 12:43-48",
+    "q": "lemma:سبع,سبعة en:seven ref:12:43-48",
+    "count": 8
+   },
+   {
+    "label": "Seventy (sab'in)",
+    "q": "lemma:سبع en:seventy",
+    "count": 3
+   }
+  ],
+  "method": "Words with the lemma sab' or sab'a whose word-by-word gloss contains 'seven'; this drops seventy (glossed 'seventy') and sabu', a beast of prey (5:3), which has the same letters. Counted the same way, without tens: one (wahid, wahida) 61, two 23 (ithnayn and ithnatayn, including twelve, plus mathna 'in twos'), three 21 (thalatha, thalath and thulath 'in threes'). The other 16 sevens fall in 16 different verses.",
+  "interest": 4
+ },
+ {
+  "id": "numbers-forty",
+  "category": "Numbers & time",
+  "title": "Forty: Musa's nights and the age of maturity",
+  "blurb": "Forty appears 4 times: Musa's forty nights (2:51, 7:142), the Israelites' forty years of wandering (5:26) and forty years as the age of maturity (46:15). Thirty appears only twice, and both times forty is in the same verse: 7:142 reaches forty nights as 30 plus 10, and 46:15 gives thirty months for carrying and weaning a child.",
+  "series": [
+   {
+    "label": "Forty (arba'in)",
+    "q": "lemma:أربع ar:اربعين",
+    "count": 4
+   },
+   {
+    "label": "Thirty (thalathin)",
+    "q": "lemma:ثلاث ar:ثلاثين,ثلاثون",
+    "count": 2
+   }
+  ],
+  "method": "The corpus files forty under the lemma arba' and thirty under thalath, so the tens were picked out by spelling (اربعين, ثلاثين, ثلاثون). The 'ten' of 7:142 is the word bi-'ashr in the same verse.",
+  "interest": 4
+ },
+ {
+  "id": "numbers-two-words-year",
+  "category": "Numbers & time",
+  "title": "Two main words for year, and Nuh's 950",
+  "blurb": "The Quran's two main words for year are sana (plural sinin), used 19 times, and 'am, used 9 times. Both meet in 29:14, where Nuh stays among his people 'a thousand years (sana) minus fifty years ('am)', which is 950. All 12 uses of the plural sinin are in Meccan surahs, while 6 of the 9 uses of 'am are in Medinan ones.",
+  "series": [
+   {
+    "label": "Year: sana, sinin",
+    "q": "lemma:سنة,سنين root:سنو",
+    "count": 19
+   },
+   {
+    "label": "Year: 'am",
+    "q": "lemma:عام",
+    "count": 9
+   }
+  ],
+  "view": {
+   "shade": "type"
+  },
+  "verdict": {
+   "claim": "The Quran uses sana for years of hardship and 'am for years of ease.",
+   "result": "partly",
+   "note": "It fits 12:49, where a year ('am) of rain follows seven hard years, and 7:130, where 'the years' (al-sinin) are years of famine. But 12:47 and 26:205 use sinin for years of farming and of enjoyment, 9:126 uses 'am for yearly trials, and 2:259 uses 'am for a hundred years of death."
+  },
+  "method": "Words from the root س ن و with the lemma sana or sinin; the root filter leaves out sunna (way) and sina (slumber, 2:255), which share the spelling سنة, and sana (flash) in 24:43. 'Am is every word with the lemma 'am (root ع و م); the 12 plurals come from lemma:سنين alone. Two rarer words for year are not counted: hawl (2:233, 2:240) and hijaj (28:27).",
+  "interest": 4
+ },
+ {
+  "id": "numbers-oaths-by-time",
+  "category": "Numbers & time",
+  "title": "Oaths by the time of day",
+  "blurb": "Sixteen verses swear by a time of day or night, such as 'By the dawn' (89:1), 'By the night when it covers' (92:1) and 'By the morning brightness' (93:1). All are in eight Meccan surahs, four of them named after the time they swear by: al-Fajr, al-Layl, ad-Duha and al-'Asr. In the traditional revelation order, six of the eight are among the first 13 surahs revealed.",
+  "series": [
+   {
+    "label": "Oath by a time of day",
+    "q": "at:first ar:=والليل,=والنهار,=والصبح,=والفجر,=والضحى,=والعصر,=وليال | lemma:شفق",
+    "count": 16
+   }
+  ],
+  "view": {
+   "order": "revelation",
+   "shade": "revelation"
+  },
+  "method": "First words of verses spelled wal-layl, wan-nahar, was-subh, wal-fajr, wad-duha, wal-'asr or wa-layalin ('and nights'), plus 'I swear by the twilight' (bish-shafaq, 84:16); each hit was read to confirm it is an oath, and 'asr (103:1) can mean the afternoon or time itself. Revelation order is the one stored in the dataset, where surahs 74, 81, 92, 89, 93 and 103 are numbers 4, 7, 9, 10, 11 and 13 (91 is 26 and 84 is 83).",
+  "interest": 4
+ },
+ {
+  "id": "numbers-thousand",
+  "category": "Numbers & time",
+  "title": "A thousand years, a thousand angels",
+  "blurb": "Thousand (alf) appears 14 times. Six measure time, from a Day 'like a thousand years' (22:47) to a Day of 'fifty thousand years' (70:4) and the Night of Decree, 'better than a thousand months' (97:3). The other eight count people or angels, up to the 'hundred thousand or more' that Yunus was sent to (37:147).",
+  "series": [
+   {
+    "label": "Thousand: time",
+    "q": "lemma:ألف pos:N has:\"root:سنو,شهر\"",
+    "count": 6
+   },
+   {
+    "label": "Thousand: people/angels",
+    "q": "lemma:ألف pos:N -has:\"root:سنو,شهر\"",
+    "count": 8
+   }
+  ],
+  "method": "Nouns with the lemma alf; pos:N leaves out the verbs alfa (to find) and allafa (to unite hearts), which share the letters. Split by whether the verse also has a word from the root س ن و (year) or ش ه ر (month). The eight others are 2:243, 3:124, 3:125, 8:9, 8:65, 8:66 (twice) and 37:147.",
+  "interest": 4
+ },
+ {
+  "id": "numbers-calendar",
+  "category": "Numbers & time",
+  "title": "Two weekdays, two seasons, and the new moons",
+  "blurb": "Only two days of the week are named: the Sabbath (as-sabt, 6 times in 5 verses) and Friday (al-jumu'a, once, in 62:9). Only two seasons are named, winter and summer, together in 106:2. The new moons (ahilla) appear once, in 2:189, as 'measurements of time for the people and for Hajj'.",
+  "series": [
+   {
+    "label": "Sabbath and Friday",
+    "q": "lemma:سبت,جمعة",
+    "count": 7
+   },
+   {
+    "label": "Winter and summer",
+    "q": "lemma:شتاء,صيف",
+    "count": 2
+   },
+   {
+    "label": "New moons (ahilla)",
+    "q": "lemma:أهلة",
+    "count": 1
+   }
+  ],
+  "method": "Lemmas sabt, jumu'a, shita', sayf and ahilla (lemma:سبت alone gives 6). Searches for the other weekday names (al-ahad, al-ithnayn, al-thulatha', al-arbi'a', al-khamis) find nothing, and no word from the roots of spring (ر ب ع outside the number words) or autumn (خ ر ف) appears.",
+  "interest": 4
+ },
+ {
+  "id": "numbers-fractions",
+  "category": "Numbers & time",
+  "title": "Fractions gather in the inheritance verses",
+  "blurb": "Words for fractions (half, third, quarter, fifth, sixth, eighth, tenth) appear 21 times. Thirteen sit in just three verses, the inheritance shares of 4:11, 4:12 and 4:176. Four of the other eight measure the night prayer in surah 73, which speaks of 'almost two thirds of the night or half of it or a third of it' (73:20).",
+  "series": [
+   {
+    "label": "Inheritance shares",
+    "q": "lemma:نصف,ثلث,ربع,سدس ref:4:11-12,4:176 | lemma:ثمن en:eighth",
+    "count": 13
+   },
+   {
+    "label": "Other fractions",
+    "q": "lemma:نصف,ثلث,ربع,خمس,سدس,معشار -ref:4:11-12 -ref:4:176",
+    "count": 8
+   }
+  ],
+  "method": "Lemmas nisf (half), thuluth (third), rub' (quarter), khums (fifth), sudus (sixth), thumun (eighth) and mi'shar (tenth); two thirds (thuluthan) is one word. Thumun has the same letters as thaman (price), so it is matched with the gloss 'eighth'; the only eighth is in 4:12. All 21 together: lemma:نصف,ثلث,ربع,خمس,سدس,معشار | lemma:ثمن en:eighth.",
+  "interest": 3
+ },
+ {
+  "id": "numbers-morning-evening",
+  "category": "Numbers & time",
+  "title": "Morning and evening come in pairs",
+  "blurb": "Five words for early morning (bukra, ghuduww, ibkar, ghada, ishraq) appear 17 times, and three words for late afternoon (asil, 'ashiyy, 'ashiyya) appear 18 times. In 15 verses one of each appears as a pair, most often as a time to praise or remember God, as in 'exalt Him morning and afternoon' (33:42).",
+  "series": [
+   {
+    "label": "Morning words",
+    "q": "lemma:بكرة,إبكار,غدو,غداة,إشراق",
+    "count": 17
+   },
+   {
+    "label": "Evening words",
+    "q": "lemma:أصيل,عشي,عشية",
+    "count": 18
+   }
+  ],
+  "method": "Morning: lemmas bukra, ibkar, ghuduww, ghada and ishraq; evening: asil, 'ashiyy and 'ashiyya. Pairs are verses with a word from each list (has:\"lemma:بكرة,إبكار,غدو,غداة,إشراق\" has:\"lemma:أصيل,عشي,عشية\" gives 15), and reading them shows 11 are about praising, remembering or calling on God. The 5 unpaired words are in 34:12, 54:38, 30:18, 38:31 and 79:46, though 34:12 and 79:46 set them beside other time words (rawah, duha).",
+  "interest": 3
+ },
+ {
+  "id": "numbers-every-number",
+  "category": "Numbers & time",
+  "title": "Thirty different numbers, from one to 100,000",
+  "blurb": "Counting the main number words, from one (wahid) to thousand (alf), gives 219 words, and one alone accounts for 61 of them. Together they name 30 different whole numbers: one to twelve, 19, 20, 30, 40, 50, 60, 70, 80, 99, 100, 200, 300, 1,000, 2,000, 3,000, 5,000, 50,000 and 100,000.",
+  "series": [
+   {
+    "label": "One (wahid)",
+    "q": "lemma:واحد,واحدة",
+    "count": 61
+   },
+   {
+    "label": "Two and up",
+    "q": "lemma:اثنين,اثنتين,مثنى,ثلاثة,ثلاث,رباع,أربعة,أربع,خمسة,خمسين,ستة,ستين,سبعة,ثمانية,ثمانين,ثماني,تسع,تسعة,عشر,عشرة,عشرون,مائة | lemma:سبع en:seven,seventy | lemma:ألف pos:N",
+    "count": 158
+   }
+  ],
+  "view": {
+   "shade": "surahs"
+  },
+  "method": "Lemmas for one to ten, twenty to eighty, hundred and thousand (alf as a noun only), plus the distributives mathna, thulath and ruba' ('in twos, threes, fours'); seven is limited to words glossed seven or seventy to drop sabu' (beast of prey, 5:3). Ahad and ihda, which usually mean 'anyone' or 'one of', are left out, though ahad forms eleven in 12:4. The 30 values were read off each verse: compounds such as 19 (74:30), 99 (38:23) and 100,000 (37:147) count as one value each.",
+  "interest": 3
+ },
+ {
+  "id": "themes-hearts-and-reason",
+  "category": "Themes & language",
+  "title": "Hearts and reason: 'aql is always a verb",
+  "blurb": "The noun 'aql (mind) never appears: reason is always a verb, 49 times, and 13 of those are the question afala ta'qilun (Will you not reason?). The heart, qalb, appears 132 times, 93 of them in Medinan surahs, which hold 39% of the words, while the other word for heart, fu'ad, appears 16 times, all in Meccan surahs. 22:46 ties them together: 'hearts by which to reason'.",
+  "series": [
+   {
+    "label": "Heart (qalb)",
+    "q": "lemma:قلب pos:N",
+    "count": 132
+   },
+   {
+    "label": "Heart (fu'ad)",
+    "q": "lemma:فؤاد",
+    "count": 16
+   },
+   {
+    "label": "Reason (ع ق ل)",
+    "q": "root:عقل",
+    "count": 49
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Heart: nouns with the lemma qalb (pos:N drops the verb qallaba, to turn over) and the lemma fu'ad in singular and plural. Reason: every word from the root ع ق ل; the corpus tags all 49 as verbs, and 43 of them end a verse. 'ar:=تعقلون has:\"ar:=افلا\"' finds the 13 afala ta'qilun, each as two adjacent words; Medinan surahs contain 29,990 of the 77,429 words.",
+  "interest": 4
+ },
+ {
+  "id": "themes-rahman-maryam",
+  "category": "Themes & language",
+  "title": "Ar-Rahman gathers in Surah Maryam",
+  "blurb": "The divine name ar-Rahman (the Entirely Merciful) appears 57 times. 16 of them are in Surah 19 (Maryam), which holds about 1% of the Quran's words, and 53 are in Meccan surahs. Its partner rahim (merciful) leans the other way: 68 of its 116 uses are in Medinan surahs.",
+  "series": [
+   {
+    "label": "Ar-Rahman",
+    "q": "lemma:رحمن",
+    "count": 57
+   },
+   {
+    "label": "Rahim (merciful)",
+    "q": "lemma:رحيم",
+    "count": 116
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "surahs"
+  },
+  "method": "Words with the lemma rahman or rahim in the Quranic Arabic Corpus. The basmala counts only where it is part of a numbered verse (1:1 and 27:30), not at the head of the other surahs. Rahim also describes the Prophet in 9:128 and includes ruhama' (merciful to one another) in 48:29.",
+  "interest": 4
+ },
+ {
+  "id": "themes-oaths-meccan",
+  "category": "Themes & language",
+  "title": "Surahs that open with an oath are all Meccan",
+  "blurb": "15 surahs open with an oath as their very first word, among them by the dawn, by the sun and by the fig, and all 15 are Meccan. So are the 31 verses whose first word is an oath glossed 'By ...' and the 8 that begin la uqsimu (Nay, I swear by). Medinan verses do swear, as in 4:65, which begins 'But no, by your Lord'.",
+  "series": [
+   {
+    "label": "'By ...' first word",
+    "q": "en:by at:first -tag:AVR",
+    "count": 31
+   },
+   {
+    "label": "'I swear by ...'",
+    "q": "lemma:أقسم tag:1S",
+    "count": 8
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type"
+  },
+  "method": "First words of verses whose word-by-word gloss contains 'by' (the oath particles wa-, ta- and la-'amru), minus four kalla glossed 'By no means'; the 15 surahs are the hits at verse 1. The gloss marks some later lines of an oath chain (52:2-6) but not others (91:2-7), so 31 undercounts verses inside oaths. 'I swear' is the first-person verb uqsimu, always right after la, wa-la or fa-la.",
+  "interest": 4
+ },
+ {
+  "id": "themes-verse-endings",
+  "category": "Themes & language",
+  "title": "How verses end: Forgiving, Merciful",
+  "blurb": "The most common closing pair is ghafurun rahim (Forgiving and Merciful), which ends 71 verses. 'Azizun hakim (Exalted in Might, Wise) closes 47. The word alim (painful) closes 63 verses, 58 of them as 'a painful punishment'.",
+  "series": [
+   {
+    "label": "Forgiving, Merciful",
+    "q": "at:last lemma:رحيم has:\"lemma:غفور\"",
+    "count": 71
+   },
+   {
+    "label": "Painful (alim)",
+    "q": "at:last lemma:أليم",
+    "count": 63
+   },
+   {
+    "label": "Mighty, Wise",
+    "q": "at:last lemma:حكيم has:\"lemma:عزيز\"",
+    "count": 47
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type"
+  },
+  "method": "The last two words of every verse, grouped in pairs by lemma; ghafur rahim is the most frequent pair, ahead of kana + 'amila ('used to do', 59). In every one of the 71 and 47 hits, the partner word comes directly before. Of the 63 'painful' endings, 58 follow 'adhab (punishment) and the other 5 describe a day (11:26, 43:65), rijz or 'iqab (penalty).",
+  "interest": 4
+ },
+ {
+  "id": "themes-qaf-57",
+  "category": "Themes & language",
+  "title": "The letter qaf in the two surahs that open with it",
+  "blurb": "Surah 50 (Qaf) and Surah 42, which opens Ha Mim, Ayn Sin Qaf, each contain the letter qaf 57 times. Their rates differ. Qaf is 3.7% of the letters of Surah 50, more than in any surah of its length or longer, but only 1.6% of Surah 42, below the Quran's 2.1%.",
+  "series": [
+   {
+    "label": "Qaf words, Surah 50",
+    "q": "ar:ق surah:50",
+    "count": 56
+   },
+   {
+    "label": "Qaf words, Surah 42",
+    "q": "ar:ق surah:42",
+    "count": 57
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "verdict": {
+   "claim": "Surahs 50 and 42, the two that open with Qaf, each contain the letter qaf 57 times (19 x 3).",
+   "result": "holds",
+   "note": "Counting every qaf, including the opening letters, gives 57 in each surah in both the Uthmani and the modern spelling. The grid marks words, so Surah 50 shows 56: tashaqqaqu (50:44) has two qafs."
+  },
+  "method": "Letters counted in each word's plain spelling and checked against the Uthmani text. Surah 50 has 1,522 letters and Surah 42 has 3,536. The whole Quran has 7,034 qafs in 332,015 letters.",
+  "interest": 4
+ },
+ {
+  "id": "themes-opening-letters",
+  "category": "Themes & language",
+  "title": "Do surahs echo their opening letters?",
+  "blurb": "Surah 38 opens with Sad and uses sad more than the Quran overall (0.94% of its letters against 0.62%), and no longer surah uses it more. Surah 68 opens with Nun (10.1% against 8.2%), but five longer surahs use nun even more. Across all 29 surahs with opening letters, 44 of 78 letter checks come out above average.",
+  "series": [
+   {
+    "label": "Sad words, Surah 38",
+    "q": "ar:ص surah:38",
+    "count": 29
+   },
+   {
+    "label": "Nun words, Surah 68",
+    "q": "ar:ن surah:68",
+    "count": 123
+   },
+   {
+    "label": "Opening letters",
+    "q": "tag:INL",
+    "count": 30
+   }
+  ],
+  "view": {
+   "unit": "words",
+   "shade": "surahs"
+  },
+  "verdict": {
+   "claim": "Surahs that open with disconnected letters use those letters more than the rest of the Quran does.",
+   "result": "partly",
+   "note": "It holds for qaf in Surah 50, sad in Surah 38 and nun in Surah 68. Across all 29 such surahs only 44 of 78 letter checks are above the Quran-wide share (43 in the Uthmani spelling), close to an even split."
+  },
+  "method": "Each surah that opens with disconnected letters was checked letter by letter: a letter's share of the surah's letters (plain spelling, opening included) against its share in the whole Quran, 78 surah-letter checks in all. Surah 38 has 29 sads in 3,087 letters, and Surah 68 has 131 nuns in 1,293. The longer surahs with a higher nun share are 15, 26, 37, 44 and 56.",
+  "interest": 3
+ },
+ {
+  "id": "themes-knowledge-endings",
+  "category": "Themes & language",
+  "title": "Knowing ends more verses than any other root",
+  "blurb": "309 verses end on a word from the root ع ل م (to know), against 167 for the next root, أ م ن (to believe). Most are verbs like ya'lamun and ta'lamun (they know, you know; 117 verses) or the name 'alim (All-Knowing, 97). It stays first even without the 72 verses ending in al-'alamin (the worlds), which shares the root.",
+  "series": [
+   {
+    "label": "Know (ع ل م)",
+    "q": "root:علم at:last",
+    "count": 309
+   },
+   {
+    "label": "Believe (أ م ن)",
+    "q": "root:أمن at:last",
+    "count": 167
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "rhyme"
+  },
+  "method": "The last word of every verse, grouped by root (93 last words have no root); third place is ر ح م with 131. Sub-counts: 'root:علم at:last pos:V' gives 117, 'root:علم at:last lemma:عليم' gives 97, and 'at:last lemma:عالم en:world*,universe' gives 72.",
+  "interest": 3
+ },
+ {
+  "id": "themes-questions-meccan",
+  "category": "Themes & language",
+  "title": "Meccan surahs ask questions more often",
+  "blurb": "Question words (did not?, will you not?, how, which) appear 902 times. Meccan surahs use them about 14 times per 1,000 words and Medinan surahs about 8. Among surahs over 300 words, Surah 55 has the highest rate, because its refrain asks 'which of the favors?' 31 times.",
+  "series": [
+   {
+    "label": "Question words",
+    "q": "tag:INTG",
+    "count": 902
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Words that the Quranic Arabic Corpus tags as interrogative (INTG), including the question prefix a- (as in a-fa-la, will you not?). Rates divide by the 47,439 Meccan and 29,990 Medinan words. Surah 55, which Tanzil labels Medinan, supplies 32 of the 235 Medinan hits; without it the Medinan rate is about 7.",
+  "interest": 3
+ },
+ {
+  "id": "themes-patience",
+  "category": "Themes & language",
+  "title": "Patience, and the patient and grateful",
+  "blurb": "Patience (root ص ب ر) appears 103 times, 71 of them in Meccan surahs. The command 'be patient' comes 29 times, 25 of them in Meccan surahs. The intensive form sabbar (very patient) occurs only 4 times, always in the same line: 'in that are signs for everyone patient and grateful'.",
+  "series": [
+   {
+    "label": "Patience (ص ب ر)",
+    "q": "root:صبر",
+    "count": 103
+   },
+   {
+    "label": "Be patient! (command)",
+    "q": "root:صبر tag:IMPV",
+    "count": 29
+   },
+   {
+    "label": "Very patient (sabbar)",
+    "q": "lemma:صبار",
+    "count": 4
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type",
+   "order": "revelation"
+  },
+  "method": "Words from the root ص ب ر; the commands are the words tagged IMPV (22 of them singular). The four sabbar verses (14:5, 31:31, 34:19, 42:33) all end inna fi dhalika la-ayatin li-kulli sabbarin shakur.",
+  "interest": 3
+ },
+ {
+  "id": "themes-mercy-forgiveness-punishment",
+  "category": "Themes & language",
+  "title": "Mercy, forgiveness and punishment",
+  "blurb": "Counting whole roots, punishment (371 words) slightly outnumbers mercy (327) and forgiveness (234). Per 1,000 words, forgiveness doubles from 2.1 in Meccan surahs to 4.5 in Medinan ones, mercy falls from 4.7 to 3.5, and punishment holds at 4.8 and 4.7. The root of mercy also gives arham (wombs, family ties), 12 more times, not counted here.",
+  "series": [
+   {
+    "label": "Mercy (ر ح م)",
+    "q": "root:رحم -lemma:أرحام",
+    "count": 327
+   },
+   {
+    "label": "Forgiveness (غ ف ر)",
+    "q": "root:غفر",
+    "count": 234
+   },
+   {
+    "label": "Punishment (ع ذ ب)",
+    "q": "root:عذب -en:palatable,fresh",
+    "count": 371
+   }
+  ],
+  "view": {
+   "unit": "verses",
+   "shade": "type"
+  },
+  "method": "Whole roots. Mercy leaves out arham (wombs, kin), which shares its root ('lemma:أرحام' gives 12). Punishment leaves out the two words from the same root that mean fresh, sweet water (25:53, 35:12); rates divide by the 47,439 Meccan and 29,990 Medinan words.",
+  "interest": 3
  }
 ]
