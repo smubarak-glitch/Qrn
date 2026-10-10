@@ -1,0 +1,25 @@
+[
+ {
+  "id": "month",
+  "category": "Numbers & time",
+  "title": "Every mention of month",
+  "blurb": "The Arabic word for month, shahr, appears 21 times in 17 verses. Twelve are the singular shahr, two are the dual shahrayn (two months) and seven are plurals.",
+  "series": [{"label": "Month (ش ه ر)", "q": "root:شهر", "count": 21}],
+  "method": "Every word from the root ش ه ر in the Quranic Arabic Corpus. In the Quran this root is only used for month. A spelling search of the Tanzil text for ش ه ر and ش ه و ر finds the same 21 words.",
+  "interest": 5,
+  "featured": true
+ },
+ {
+  "id": "month-forms",
+  "category": "Numbers & time",
+  "title": "Month, two months, months",
+  "blurb": "The 21 mentions of month split by grammatical number: 12 singular, 2 dual and 7 plural. The singular shahr occurs exactly 12 times, and 9:36 says the number of months with Allah is twelve.",
+  "series": [
+   {"label": "Month (singular)", "q": "root:شهر -tag:MD -tag:MP", "count": 12},
+   {"label": "Two months (dual)", "q": "root:شهر tag:MD", "count": 2},
+   {"label": "Months (plural)", "q": "root:شهر tag:MP", "count": 7}
+  ],
+  "method": "Words from the root ش ه ر, split by the corpus number tags: MD marks the dual shahrayn, MP the plurals ashhur and shuhur.",
+  "interest": 4
+ }
+]
