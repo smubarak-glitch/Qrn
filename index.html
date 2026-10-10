@@ -149,7 +149,7 @@ h1 { font-size: 1.5rem; line-height: 1.15; font-weight: 600; letter-spacing: -0.
 
 /* ---------- two columns: trends beside the grid ---------- */
 .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 32px; align-items: start; margin-top: 20px; }
-.trends { position: sticky; top: 12px; max-height: calc(100vh - 24px); display: flex; flex-direction: column; min-width: 0; }
+.trends { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px - env(safe-area-inset-top, 0px)); display: flex; flex-direction: column; min-width: 0; }
 .trends-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
 .trends-head h2 { font-size: 1.125rem; font-weight: 600; margin: 0; }
 .trends-head h2 .n { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--ink-3); font-weight: 400; margin-left: 4px; }
