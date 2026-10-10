@@ -1,55 +1,44 @@
 #!/usr/bin/env python3
-"""Build the data behind the Quran month grid.
+"""Build everything behind the Quran grid explorer.
 
-Downloads (and caches in data/raw/) the word-by-word morphology of the Quran,
-the Tanzil metadata (surahs, Madani mushaf pages), the Tanzil Simple Clean text
-and the Saheeh International translation, then:
-
-  * finds every word whose root is ش ه ر (sh-h-r, "month"),
-  * cross-checks that list against a plain-text search of the Tanzil text,
-  * writes data/*.json + data/month_occurrences.csv,
-  * injects the data into index.html between the DATA markers,
-  * renders docs/month-grid-{words,verses,pages}.svg.
+  1. Loads the Quran word by word (scripts/quran_data.py; sources cached in
+     data/raw/) and writes data/derived/quran_words.json for scripts/query.py.
+  2. Month study: finds every word from the root ش ه ر, cross-checks the list
+     against a spelling search of the Tanzil text, and writes
+     data/month_occurrences.{json,csv} and docs/month-grid-*.svg.
+  3. Checks every trend in data/discoveries.json against the reference
+     query engine (each stated count must match) and writes the README's
+     trends section from it.
+  4. Packs the page data (gzip + base64) into index.html between the DATA
+     markers, so the page works opened straight from disk.
 
 Standard library only. Run from anywhere:  python3 scripts/build.py
 """
 
 from __future__ import annotations
 
+import base64
 import csv
+import gzip
 import json
 import math
 import re
 import sys
-import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-RAW = ROOT / "data" / "raw"
-
-MORPHOLOGY_COMMIT = "8f38b39016824284f9ed16ae15069ff9102c4acf"
-SOURCES = {
-    "morphology": (
-        "quran-morphology.txt",
-        "https://raw.githubusercontent.com/mustafa0x/quran-morphology/"
-        f"{MORPHOLOGY_COMMIT}/quran-morphology.txt",
-    ),
-    "metadata": ("quran-data.js", "https://tanzil.net/res/text/metadata/quran-data.js"),
-    "text": (
-        "quran-simple-clean.txt",
-        "https://tanzil.net/pub/download/index.php?quranType=simple-clean&outType=txt-2&agree=true",
-    ),
-    "translation": ("en.sahih.txt", "https://tanzil.net/trans/?transID=en.sahih&type=txt-2"),
-}
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import quran_data  # noqa: E402
+from quran_data import DERIVED, ROOT, normalize_ar  # noqa: E402
 
 MONTH_ROOT = "شهر"
 MONTH_SPELLING = re.compile("شهو?ر")
 BASMALA = "بسم الله الرحمن الرحيم"
 DATA_BEGIN = "<!-- DATA:BEGIN -->"
 DATA_END = "<!-- DATA:END -->"
+APP_BEGIN = "<!-- APP:BEGIN -->"
+APP_END = "<!-- APP:END -->"
 
-# Lemma-level forms of the root. "form" is the grammatical number; "key" the
-# specific word shape (both plurals of shahr occur).
+# Word shapes of the root. "form" is the grammatical number; both plurals occur.
 FORMS = {
     "shahr": {"form": "singular", "translit": "shahr", "gloss": "month"},
     "shahrayn": {"form": "dual", "translit": "shahrayn", "gloss": "two months"},
@@ -57,143 +46,91 @@ FORMS = {
     "shuhur": {"form": "plural", "translit": "shuhūr", "gloss": "months"},
 }
 
-ARABIC_DIACRITICS = re.compile(r"[ؐ-ًؚ-ٰٟۖ-ۭـ]")
+
+# --------------------------------------------------------------------------- month study
 
 
-def fetch(name: str) -> Path:
-    filename, url = SOURCES[name]
-    path = RAW / filename
-    if not path.exists():
-        RAW.mkdir(parents=True, exist_ok=True)
-        print(f"downloading {url}", file=sys.stderr)
-        req = urllib.request.Request(url, headers={"User-Agent": "quran-month-grid/1.0"})
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            path.write_bytes(resp.read())
-    return path
-
-
-def strip_diacritics(text: str) -> str:
-    text = ARABIC_DIACRITICS.sub("", text)
-    return text.replace("ٱ", "ا")
-
-
-# --------------------------------------------------------------------------- parsing
-
-
-def parse_metadata(path: Path):
-    js = path.read_text(encoding="utf8")
-
-    def block(name: str) -> str:
-        m = re.search(rf"QuranData\.{name} = \[(.*?)\n\];", js, re.S)
-        if not m:
-            raise SystemExit(f"metadata: QuranData.{name} not found")
-        return m.group(1)
-
-    surahs = []
-    row = re.compile(
-        r"\[(\d+), (\d+), (\d+), (\d+), '([^']*)', \"([^\"]*)\", '((?:[^'\\]|\\.)*)', '(\w+)'\]"
-    )
-    for m in row.finditer(block("Sura")):
-        start, ayas, order, _rukus, name, tname, ename, kind = m.groups()
-        surahs.append(
-            {
-                "n": len(surahs) + 1,
-                "name_ar": name,
-                "name": tname,
-                "name_en": ename.replace("\\'", "'"),
-                "verses": int(ayas),
-                "first_verse": int(start),
-                "revelation_order": int(order),
-                "type": kind,
-            }
-        )
-    # The list ends with a [115, 1] sentinel marking the end of the last page.
-    pages = [(int(s), int(a)) for s, a in re.findall(r"\[(\d+), (\d+)\]", block("Page")) if int(s) <= 114]
-    if len(surahs) != 114 or len(pages) != 604:
-        raise SystemExit(f"metadata: expected 114 surahs and 604 pages, got {len(surahs)}, {len(pages)}")
-    if sorted(s["revelation_order"] for s in surahs) != list(range(1, 115)):
-        raise SystemExit("metadata: revelation order is not a permutation of 1..114")
-    return surahs, pages
-
-
-def parse_morphology(path: Path):
-    """Return {(surah, ayah): [word, ...]} where word = {"text", "segments"}."""
-    verses: dict[tuple[int, int], list[dict]] = {}
-    for line in path.read_text(encoding="utf8").splitlines():
-        if not line or not line[0].isdigit():
-            continue
-        loc, text, pos, features = line.split("\t")
-        s, a, w, _seg = (int(x) for x in loc.split(":"))
-        words = verses.setdefault((s, a), [])
-        if w == len(words) + 1:
-            words.append({"text": "", "segments": []})
-        elif w != len(words):
-            raise SystemExit(f"morphology: word numbering jumps at {loc}")
-        words[-1]["text"] += text
-        words[-1]["segments"].append({"text": text, "pos": pos, "features": features.split("|")})
-    return verses
-
-
-def parse_tanzil_lines(path: Path) -> dict[tuple[int, int], str]:
-    out = {}
-    for line in path.read_text(encoding="utf8").splitlines():
-        if not line or not line[0].isdigit():
-            continue
-        s, a, text = line.split("|", 2)
-        out[(int(s), int(a))] = text
-    return out
-
-
-# --------------------------------------------------------------------------- analysis
-
-
-def classify(segment: dict, word_text: str) -> str:
-    feats = set(segment["features"])
-    if feats & {"MD", "FD", "D"}:
+def month_key(word: dict) -> str:
+    tags = set(word["tags"])
+    if tags & {"MD", "FD"}:
         return "shahrayn"
-    if feats & {"MP", "FP", "P"}:
-        bare = strip_diacritics(word_text)
+    if tags & {"MP", "FP"}:
+        bare = normalize_ar(word["ar"])
         if "شهور" in bare:
             return "shuhur"
-        if "أشهر" in bare or "اشهر" in bare:
+        if "اشهر" in bare:
             return "ashhur"
-        raise SystemExit(f"unrecognised plural of shahr: {word_text}")
+        raise SystemExit(f"unrecognised plural of shahr: {word['ar']}")
     return "shahr"
 
 
-def find_month_words(verses):
-    found = []
-    for (s, a), words in verses.items():
-        for w, word in enumerate(words, start=1):
-            for seg in word["segments"]:
-                if f"ROOT:{MONTH_ROOT}" in seg["features"]:
-                    found.append({"surah": s, "ayah": a, "word": w, "key": classify(seg, word["text"])})
-    return found
+def month_study(data: dict) -> dict:
+    words, verses = data["words"], data["verses"]
+    found = [w for w in words if MONTH_ROOT in w["roots"]]
 
-
-def cross_check(found, verses, plain_text) -> None:
-    """Independent check: count space-separated tokens in the Tanzil Simple Clean
-    text (basmala prefixes removed) that spell ش-ه-ر, allowing the و of the
-    plural shuhur (شهور), and compare per verse with the root search."""
+    # Independent check: spelling search of the Tanzil text, basmala prefixes removed.
+    plain = quran_data.parse_tanzil_lines(quran_data.fetch("text"))
     by_root: dict[tuple[int, int], int] = {}
-    for f in found:
-        by_root[(f["surah"], f["ayah"])] = by_root.get((f["surah"], f["ayah"]), 0) + 1
-
+    for w in found:
+        by_root[(w["surah"], w["ayah"])] = by_root.get((w["surah"], w["ayah"]), 0) + 1
     by_text: dict[tuple[int, int], int] = {}
-    for (s, a), text in plain_text.items():
+    for (s, a), text in plain.items():
         if a == 1 and s not in (1, 9) and text.startswith(BASMALA + " "):
-            text = text[len(BASMALA) + 1 :]
+            text = text[len(BASMALA) + 1:]
         n = sum(bool(MONTH_SPELLING.search(tok)) for tok in text.split())
         if n:
             by_text[(s, a)] = n
-
     if by_root != by_text:
-        raise SystemExit(f"cross-check failed:\n root search: {by_root}\n text search: {by_text}")
-    if len(plain_text) != len(verses):
-        raise SystemExit("cross-check failed: verse counts differ between sources")
+        raise SystemExit(f"month cross-check failed:\n root: {by_root}\n text: {by_text}")
 
-
-# --------------------------------------------------------------------------- output
+    page_start = data["page_start"]
+    occurrences = []
+    for i, w in enumerate(found, start=1):
+        key = month_key(w)
+        v = w["verse"]
+        occurrences.append(
+            {
+                "n": i,
+                "ref": f"{w['surah']}:{w['ayah']}",
+                "surah": w["surah"],
+                "ayah": w["ayah"],
+                "word": w["word"],
+                "verse_index": v,
+                "word_index": verses[v]["first_word"] + w["word"] - 1,
+                "page": sum(1 for p in page_start if p <= v),
+                "key": key,
+                "form": FORMS[key]["form"],
+                "translit": FORMS[key]["translit"],
+                "gloss": FORMS[key]["gloss"],
+                "arabic": w["ar"],
+            }
+        )
+    month_verses = []
+    for o in occurrences:
+        if month_verses and month_verses[-1]["ref"] == o["ref"]:
+            continue
+        v = verses[o["verse_index"]]
+        month_verses.append(
+            {
+                "ref": o["ref"],
+                "surah": o["surah"],
+                "ayah": o["ayah"],
+                "words": [w["ar"] for w in words[v["first_word"]:v["first_word"] + v["words"]]],
+                "translation": v["en"],
+            }
+        )
+    summary = {
+        "root": MONTH_ROOT,
+        "occurrences": len(occurrences),
+        "verses": len(month_verses),
+        "surahs": len({o["surah"] for o in occurrences}),
+        "by_form": {f: sum(o["form"] == f for o in occurrences) for f in ("singular", "dual", "plural")},
+        "by_word": {k: sum(o["key"] == k for o in occurrences) for k in FORMS},
+        "total_words": len(words),
+        "total_verses": len(verses),
+        "total_pages": len(page_start),
+    }
+    return {"summary": summary, "occurrences": occurrences, "verses": month_verses}
 
 
 def grid_shape(n: int) -> tuple[int, int]:
@@ -279,140 +216,25 @@ def render_svg(path: Path, n: int, positions: list[int], label: str, rtl: bool =
     path.write_text("\n".join(parts) + "\n", encoding="utf8")
 
 
-def main() -> None:
-    surahs, pages = parse_metadata(fetch("metadata"))
-    verses = parse_morphology(fetch("morphology"))
-    plain_text = parse_tanzil_lines(fetch("text"))
-    translation = parse_tanzil_lines(fetch("translation"))
-
-    # Order verses the mushaf way and check them against the metadata.
-    order = [(s["n"], a) for s in surahs for a in range(1, s["verses"] + 1)]
-    if sorted(verses) != order:
-        raise SystemExit("morphology verses do not match the 6,236 verses in the metadata")
-    verse_index = {key: i for i, key in enumerate(order)}
-    verse_word_counts = [len(verses[key]) for key in order]
-    word_start = [0]
-    for c in verse_word_counts:
-        word_start.append(word_start[-1] + c)
-    total_words = word_start[-1]
-
-    page_start_verse = [verse_index[p] for p in pages]
-    if page_start_verse != sorted(page_start_verse) or page_start_verse[0] != 0:
-        raise SystemExit("page starts are not increasing")
-
-    found = find_month_words(verses)
-    found.sort(key=lambda f: (verse_index[(f["surah"], f["ayah"])], f["word"]))
-    cross_check(found, verses, plain_text)
-
-    occurrences = []
-    for i, f in enumerate(found, start=1):
-        key = (f["surah"], f["ayah"])
-        v = verse_index[key]
-        page = next(p for p in range(len(page_start_verse) - 1, -1, -1) if page_start_verse[p] <= v) + 1
-        words = verses[key]
-        occurrences.append(
-            {
-                "n": i,
-                "ref": f"{f['surah']}:{f['ayah']}",
-                "surah": f["surah"],
-                "ayah": f["ayah"],
-                "word": f["word"],
-                "verse_index": v,
-                "word_index": word_start[v] + f["word"] - 1,
-                "page": page,
-                "key": f["key"],
-                "form": FORMS[f["key"]]["form"],
-                "translit": FORMS[f["key"]]["translit"],
-                "gloss": FORMS[f["key"]]["gloss"],
-                "arabic": words[f["word"] - 1]["text"],
-            }
-        )
-
-    month_verses = {}
-    for o in occurrences:
-        key = (o["surah"], o["ayah"])
-        if key not in month_verses:
-            month_verses[key] = {
-                "ref": o["ref"],
-                "surah": o["surah"],
-                "ayah": o["ayah"],
-                "words": [w["text"] for w in verses[key]],
-                "translation": translation[key],
-            }
-
-    by_key = {k: sum(o["key"] == k for o in occurrences) for k in FORMS}
-    by_form = {
-        f: sum(o["form"] == f for o in occurrences) for f in ("singular", "dual", "plural")
-    }
-    summary = {
-        "root": MONTH_ROOT,
-        "occurrences": len(occurrences),
-        "verses": len(month_verses),
-        "surahs": len({o["surah"] for o in occurrences}),
-        "by_form": by_form,
-        "by_word": by_key,
-        "total_words": total_words,
-        "total_verses": len(order),
-        "total_pages": len(pages),
-    }
-
-    structure = {
-        "surahs": surahs,
-        "verse_word_counts": verse_word_counts,
-        "page_start_verse": page_start_verse,
-    }
-
+def write_month_outputs(month: dict) -> None:
     data_dir = ROOT / "data"
-    (data_dir / "quran_structure.json").write_text(
-        json.dumps(structure, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf8"
-    )
     (data_dir / "month_occurrences.json").write_text(
-        json.dumps(
-            {"summary": summary, "occurrences": occurrences, "verses": list(month_verses.values())},
-            ensure_ascii=False,
-            indent=1,
-        )
-        + "\n",
-        encoding="utf8",
+        json.dumps(month, ensure_ascii=False, indent=1) + "\n", encoding="utf8"
     )
     with open(data_dir / "month_occurrences.csv", "w", newline="", encoding="utf8") as fh:
         cols = ["n", "ref", "surah", "ayah", "word", "page", "word_index", "verse_index",
                 "form", "translit", "gloss", "arabic"]
         writer = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
         writer.writeheader()
-        writer.writerows(occurrences)
+        writer.writerows(month["occurrences"])
 
-    # Inline everything the page needs, so index.html works opened straight from disk.
-    payload = {
-        "summary": summary,
-        "occurrences": occurrences,
-        "verses": list(month_verses.values()),
-        "surahs": [
-            {k: s[k] for k in ("n", "name", "name_ar", "name_en", "verses", "revelation_order", "type")}
-            for s in surahs
-        ],
-        "verse_word_counts": verse_word_counts,
-        "page_start_verse": page_start_verse,
-    }
-    blob = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    index = ROOT / "index.html"
-    html = index.read_text(encoding="utf8")
-    start, end = html.find(DATA_BEGIN), html.find(DATA_END)
-    if start < 0 or end < start:
-        raise SystemExit("index.html: DATA markers not found")
-    html = (
-        html[: start + len(DATA_BEGIN)]
-        + f'\n<script id="quran-data" type="application/json">{blob}</script>\n'
-        + html[end:]
-    )
-    index.write_text(html, encoding="utf8")
-
+    s = month["summary"]
     docs = ROOT / "docs"
     docs.mkdir(exist_ok=True)
     for unit, n, positions in (
-        ("words", total_words, [o["word_index"] for o in occurrences]),
-        ("verses", len(order), [o["verse_index"] for o in occurrences]),
-        ("pages", len(pages), [o["page"] - 1 for o in occurrences]),
+        ("words", s["total_words"], [o["word_index"] for o in month["occurrences"]]),
+        ("verses", s["total_verses"], [o["verse_index"] for o in month["occurrences"]]),
+        ("pages", s["total_pages"], [o["page"] - 1 for o in month["occurrences"]]),
     ):
         cols, rows = grid_shape(n)
         render_svg(
@@ -420,10 +242,210 @@ def main() -> None:
             n,
             positions,
             f"{n:,} {unit} · {cols} x {rows} grid · read right to left from the top · "
-            f"{len(occurrences)} mentions of month",
+            f"{s['occurrences']} mentions of month",
         )
 
-    print(json.dumps(summary, ensure_ascii=False, indent=1))
+
+# --------------------------------------------------------------------------- trends
+
+
+CATEGORY_ORDER = ["Big picture", "Mecca & Medina", "Words & meaning", "People & stories", "Nature", "Numbers"]
+TOP_TRENDS = 10  # data/discoveries.json is ordered most striking first; keep in step with TOP in src/explorer.js
+
+VIEW_OPTIONS = {
+    "unit": {"words", "verses", "pages"},
+    "order": {"mushaf", "revelation"},
+    "shade": {"none", "surahs", "type", "length", "revelation", "juz", "rhyme"},
+}
+
+
+def discovery_shape_problems(item: dict) -> list[str]:
+    """Everything the page relies on when it shows a trend."""
+    name = item.get("id", "?")
+    out = []
+    for key in ("id", "category", "title", "blurb", "why", "method"):
+        if not isinstance(item.get(key), str) or not item.get(key).strip():
+            out.append(f"{name}: needs a non-empty {key}")
+    if item.get("category") not in CATEGORY_ORDER:
+        out.append(f"{name}: category must be one of {', '.join(CATEGORY_ORDER)}")
+    if "claim" in item and not (isinstance(item["claim"], str) and item["claim"].strip()):
+        out.append(f"{name}: claim, when present, must be the popular claim this trend checks")
+    series = item.get("series")
+    if not isinstance(series, list) or not 1 <= len(series) <= 3:
+        out.append(f"{name}: needs 1 to 3 series")
+        series = []
+    for s in series:
+        if not (isinstance(s, dict) and isinstance(s.get("q"), str) and isinstance(s.get("label"), str)
+                and isinstance(s.get("count"), int)):
+            out.append(f"{name}: each series needs q, label and an integer count")
+    view = item.get("view")
+    if view is not None:
+        if not isinstance(view, dict):
+            out.append(f"{name}: view must be an object")
+        else:
+            for k, v in view.items():
+                if k not in VIEW_OPTIONS or v not in VIEW_OPTIONS[k]:
+                    out.append(f"{name}: view {k}={v!r} is not an option the page has")
+    return out
+
+
+def check_discoveries() -> list[dict]:
+    """Every trend must have the shape the page expects, and its stated counts
+    must match the reference engine."""
+    path = ROOT / "data" / "discoveries.json"
+    if not path.exists():
+        return []
+    import query  # needs data/derived/quran_words.json, written above
+
+    query.dataset.cache_clear()
+    items = json.loads(path.read_text(encoding="utf8"))
+    ids = set()
+    problems = []
+    for item in items:
+        shape = discovery_shape_problems(item)
+        if shape:
+            problems += shape
+            continue
+        if item["id"] in ids:
+            problems.append(f"{item['id']}: duplicate id")
+        ids.add(item["id"])
+        if not re.fullmatch(r"[a-z0-9-]+", item["id"]):
+            problems.append(f"{item['id']}: id must be lowercase letters, digits and dashes")
+        for series in item["series"]:
+            try:
+                got = query.summarize(series["q"], limit=0)
+            except query.QueryError as e:
+                problems.append(f"{item['id']}: {series['q']}: {e}")
+                continue
+            if series["count"] != got["count"]:
+                problems.append(f"{item['id']}: {series['q']} states {series['count']}, engine finds {got['count']}")
+    if problems:
+        raise SystemExit("discoveries.json does not match the data:\n  " + "\n  ".join(problems))
+    return items
+
+
+README_BEGIN = "<!-- DISCOVERIES:BEGIN -->"
+README_END = "<!-- DISCOVERIES:END -->"
+
+
+def write_readme_discoveries(items: list[dict]) -> None:
+    """The README's trends section, generated so it always matches the page:
+    the same order (most striking first) and the same first ten under "Start here"."""
+    if not items:
+        return
+    md = lambda t: t.replace("|", "\\|")  # noqa: E731
+    counts = {c: sum(1 for x in items if x["category"] == c) for c in CATEGORY_ORDER}
+    lines = [
+        "## Trends",
+        "",
+        f"The page ships with **{len(items)} trends**, listed here as on the page, most striking first. "
+        "Each is a saved search with what it shows and why it matters, in six groups: "
+        + ", ".join(f"{c} ({n})" for c, n in counts.items() if n) + ". "
+        "Most come from analysing the text directly; the rest are popular claims that were checked and hold. "
+        "Claims that did not hold were left out. The build re-runs every count. "
+        "Open one with `index.html#<id>`, for example `index.html#lord-to-allah`.",
+        "",
+        f"### Start here: the {TOP_TRENDS} most striking",
+        "",
+    ]
+    for i, x in enumerate(items, 1):
+        if i == TOP_TRENDS + 1:
+            lines += ["", "### More trends", ""]
+        tag = x["category"] + (", popular claim, checked" if x.get("claim") else "")
+        lines.append(f"{i}. **{md(x['title'])}** ({tag}, `#{x['id']}`). {md(x['blurb'])} "
+                     f"*Why it matters:* {md(x['why'])}")
+    readme = ROOT / "README.md"
+    text = readme.read_text(encoding="utf8")
+    if README_BEGIN in text and README_END in text:
+        readme.write_text(replace_between(text, README_BEGIN, README_END, "\n".join(lines) + "\n"), encoding="utf8")
+
+
+# --------------------------------------------------------------------------- page data
+
+
+def page_payload(data: dict, discoveries: list[dict]) -> dict:
+    words, verses = data["words"], data["verses"]
+    roots = sorted({r for w in words for r in w["roots"]})
+    lemmas = sorted({x for w in words for x in w["lemmas"]})
+    tagsets = sorted({" ".join(w["tags"]) for w in words})
+    root_id = {r: i for i, r in enumerate(roots)}
+    lemma_id = {x: i for i, x in enumerate(lemmas)}
+    tag_id = {t: i for i, t in enumerate(tagsets)}
+
+    extra_roots, extra_lemmas = [], []
+    for i, w in enumerate(words):
+        extra_roots += [[i, root_id[r]] for r in w["roots"][1:]]
+        extra_lemmas += [[i, lemma_id[x]] for x in w["lemmas"][1:]]
+
+    return {
+        "surahs": [
+            [s["name"], s["name_ar"], s["name_en"], s["verses"], s["revelation_order"], s["type"]]
+            for s in data["surahs"]
+        ],
+        "verse_words": [v["words"] for v in verses],
+        "verse_en": [v["en"] for v in verses],
+        "page_start": data["page_start"],
+        "juz_start": data["juz_start"],
+        "sajdah": [[i, v["sajdah"]] for i, v in enumerate(verses) if v["sajdah"]],
+        "roots": roots,
+        "lemmas": lemmas,
+        "tagsets": tagsets,
+        "w_ar": [w["ar"] for w in words],
+        "w_plain": [w["plain"] for w in words],
+        "w_translit": [w["translit"] for w in words],
+        "w_gloss": [w["gloss"] for w in words],
+        "w_pos": "".join(w["pos"] for w in words),
+        "w_root": [root_id[w["roots"][0]] if w["roots"] else -1 for w in words],
+        "w_lemma": [lemma_id[w["lemmas"][0]] if w["lemmas"] else -1 for w in words],
+        "w_tags": [tag_id[" ".join(w["tags"])] for w in words],
+        "extra_roots": extra_roots,
+        "extra_lemmas": extra_lemmas,
+        "discoveries": discoveries,
+    }
+
+
+def replace_between(html: str, begin: str, end: str, content: str) -> str:
+    a, b = html.find(begin), html.find(end)
+    if a < 0 or b < a:
+        raise SystemExit(f"index.html: markers {begin} ... {end} not found")
+    return html[: a + len(begin)] + "\n" + content + "\n" + html[b:]
+
+
+def inject(payload: dict) -> int:
+    """Inline the packed data and src/explorer.js, so index.html is one self-contained file."""
+    raw = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf8")
+    # mtime=0 keeps the output byte-identical between builds.
+    packed = base64.b64encode(gzip.compress(raw, compresslevel=9, mtime=0)).decode("ascii")
+    app = (ROOT / "src" / "explorer.js").read_text(encoding="utf8")
+    if "</script" in app:
+        raise SystemExit("src/explorer.js must not contain </script")
+    index = ROOT / "index.html"
+    html = index.read_text(encoding="utf8")
+    html = replace_between(
+        html, DATA_BEGIN, DATA_END, f'<script id="quran-data" type="application/gzip-base64">{packed}</script>'
+    )
+    html = replace_between(html, APP_BEGIN, APP_END, f"<script>\n{app}</script>")
+    index.write_text(html, encoding="utf8")
+    return len(packed)
+
+
+def main() -> None:
+    data = quran_data.load()
+    DERIVED.mkdir(parents=True, exist_ok=True)
+    (DERIVED / "quran_words.json").write_text(
+        json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf8"
+    )
+
+    month = month_study(data)
+    write_month_outputs(month)
+    discoveries = check_discoveries()
+
+    write_readme_discoveries(discoveries)
+
+    if "--no-page" not in sys.argv:
+        size = inject(page_payload(data, discoveries))
+        print(f"index.html data: {size / 1e6:.2f} MB packed, {len(discoveries)} trends", file=sys.stderr)
+    print(json.dumps(month["summary"], ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":
