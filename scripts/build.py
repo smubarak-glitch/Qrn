@@ -6,8 +6,9 @@
   2. Month study: finds every word from the root ش ه ر, cross-checks the list
      against a spelling search of the Tanzil text, and writes
      data/month_occurrences.{json,csv} and docs/month-grid-*.svg.
-  3. Checks every discovery in data/discoveries.json against the reference
-     query engine (each stated count must match).
+  3. Checks every trend in data/discoveries.json against the reference
+     query engine (each stated count must match) and writes the README's
+     trends section from it.
   4. Packs the page data (gzip + base64) into index.html between the DATA
      markers, so the page works opened straight from disk.
 
@@ -245,8 +246,10 @@ def write_month_outputs(month: dict) -> None:
         )
 
 
-# --------------------------------------------------------------------------- discoveries
+# --------------------------------------------------------------------------- trends
 
+
+CATEGORY_ORDER = ["Big picture", "Mecca & Medina", "Words & meaning", "People & stories", "Nature", "Numbers"]
 
 VIEW_OPTIONS = {
     "unit": {"words", "verses", "pages"},
@@ -256,12 +259,16 @@ VIEW_OPTIONS = {
 
 
 def discovery_shape_problems(item: dict) -> list[str]:
-    """Everything the page relies on when it shows a discovery."""
+    """Everything the page relies on when it shows a trend."""
     name = item.get("id", "?")
     out = []
-    for key in ("id", "category", "title", "blurb"):
+    for key in ("id", "category", "title", "blurb", "why", "method"):
         if not isinstance(item.get(key), str) or not item.get(key).strip():
             out.append(f"{name}: needs a non-empty {key}")
+    if item.get("category") not in CATEGORY_ORDER:
+        out.append(f"{name}: category must be one of {', '.join(CATEGORY_ORDER)}")
+    if "claim" in item and not (isinstance(item["claim"], str) and item["claim"].strip()):
+        out.append(f"{name}: claim, when present, must be the popular claim this trend checks")
     series = item.get("series")
     if not isinstance(series, list) or not 1 <= len(series) <= 3:
         out.append(f"{name}: needs 1 to 3 series")
@@ -270,12 +277,6 @@ def discovery_shape_problems(item: dict) -> list[str]:
         if not (isinstance(s, dict) and isinstance(s.get("q"), str) and isinstance(s.get("label"), str)
                 and isinstance(s.get("count"), int)):
             out.append(f"{name}: each series needs q, label and an integer count")
-    verdict = item.get("verdict")
-    if verdict is not None and not (
-        isinstance(verdict, dict) and verdict.get("result") in ("holds", "partly", "fails")
-        and isinstance(verdict.get("claim"), str) and isinstance(verdict.get("note"), str)
-    ):
-        out.append(f"{name}: verdict needs claim, note and a result of holds, partly or fails")
     view = item.get("view")
     if view is not None:
         if not isinstance(view, dict):
@@ -288,7 +289,7 @@ def discovery_shape_problems(item: dict) -> list[str]:
 
 
 def check_discoveries() -> list[dict]:
-    """Every discovery must have the shape the page expects, and its stated counts
+    """Every trend must have the shape the page expects, and its stated counts
     must match the reference engine."""
     path = ROOT / "data" / "discoveries.json"
     if not path.exists():
@@ -324,39 +325,32 @@ def check_discoveries() -> list[dict]:
 
 README_BEGIN = "<!-- DISCOVERIES:BEGIN -->"
 README_END = "<!-- DISCOVERIES:END -->"
-CATEGORY_ORDER = ["Numbers & time", "Famous claims", "People & places", "Nature & cosmos", "Structure",
-                  "Meccan & Medinan", "Pairs & echoes", "Themes & language"]
-VERDICT_WORDS = {"holds": "✓ holds", "partly": "≈ partly", "fails": "✕ does not hold"}
 
 
 def write_readme_discoveries(items: list[dict]) -> None:
-    """The README's discoveries section, generated so it always matches the page."""
+    """The README's trends section, generated so it always matches the page."""
     if not items:
         return
     md = lambda t: t.replace("|", "\\|")  # noqa: E731
     counts = {c: sum(1 for x in items if x["category"] == c) for c in CATEGORY_ORDER}
     lines = [
-        "## Discoveries",
+        "## Trends",
         "",
-        f"The page ships with **{len(items)} discoveries**, saved searches with a short explanation: "
-        + ", ".join(f"{c} ({n})" for c, n in counts.items() if n) + ". "
-        "Each was found by a research pass over the data and re-checked by a separate pass that "
-        "tried to disprove it, and the build re-runs every count. Open one with "
-        "`index.html#<id>`, for example `index.html#claims-day-365`.",
-        "",
-        "### Popular number claims, tested",
-        "",
-        "| Claim | Verdict | What the data says |",
-        "|---|---|---|",
+        f"The page ships with **{len(items)} trends**, each a saved search with what it shows and why it "
+        "matters: " + ", ".join(f"{c} ({n})" for c, n in counts.items() if n) + ". "
+        "Most come from analysing the text directly; the rest are popular claims that were checked and hold. "
+        "Claims that did not hold were left out. The build re-runs every count. "
+        "Open one with `index.html#<id>`, for example `index.html#lord-to-allah`.",
     ]
-    for x in items:
-        if x["category"] == "Famous claims" and x.get("verdict"):
-            v = x["verdict"]
-            lines.append(f"| {md(v['claim'])} | {VERDICT_WORDS[v['result']]} | {md(v['note'])} |")
-    lines += ["", "### A few more", ""]
-    picks = [x for x in items if x["category"] not in ("Famous claims",) and x.get("interest", 0) >= 5]
-    for x in picks[:14]:
-        lines.append(f"- **{x['title']}** (`#{x['id']}`). {x['blurb']}")
+    for cat in CATEGORY_ORDER:
+        group = [x for x in items if x["category"] == cat]
+        if not group:
+            continue
+        lines += ["", f"### {cat}", ""]
+        for x in group:
+            tag = " *(popular claim, checked)*" if x.get("claim") else ""
+            lines.append(f"- **{md(x['title'])}** (`#{x['id']}`){tag}. {md(x['blurb'])} "
+                         f"*Why it matters:* {md(x['why'])}")
     readme = ROOT / "README.md"
     text = readme.read_text(encoding="utf8")
     if README_BEGIN in text and README_END in text:
@@ -447,7 +441,7 @@ def main() -> None:
 
     if "--no-page" not in sys.argv:
         size = inject(page_payload(data, discoveries))
-        print(f"index.html data: {size / 1e6:.2f} MB packed, {len(discoveries)} discoveries", file=sys.stderr)
+        print(f"index.html data: {size / 1e6:.2f} MB packed, {len(discoveries)} trends", file=sys.stderr)
     print(json.dumps(month["summary"], ensure_ascii=False, indent=1))
 
 

@@ -12,12 +12,14 @@ Query language
   A leading "-" negates a term (-tag:PN). Arabic-Indic digits work like 0-9.
 
   Word keys    root:  lemma: (diacritics ignored; lemma:=x matches the vowelled
-               dictionary form exactly)  ar: (spelling contains; ar:=x exact)
+               dictionary form exactly)  ar: (spelling contains; ar:=x exact,
+               ar:*x ends with, ar:x* starts with)
                en: (word-by-word English, whole words, * wildcard)
                pos: N|V|P   tag: corpus tag (PN, ADJ, DET, MP, INL, NEG, ...)
                at: first|last (position of the word in its verse)
   Verse keys   tr: (Saheeh International translation)   surah:  juz:  page:
                ref: (2:255, 2:255-257)   type: meccan|medinan   sajdah:yes|no
+               length: (verse length in words, e.g. length:50-200)
                has:"<word term>" (the verse contains such a word, e.g.
                has:"root:شمس" has:"root:قمر" = verses with both sun and moon)
 
@@ -49,7 +51,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from quran_data import load_derived, normalize_ar  # noqa: E402
 
 WORD_KEYS = {"root", "lemma", "ar", "en", "pos", "tag", "at"}
-VERSE_KEYS = {"tr", "surah", "juz", "page", "ref", "type", "sajdah", "has"}
+VERSE_KEYS = {"tr", "surah", "juz", "page", "ref", "type", "sajdah", "has", "length"}
 # ASCII classes throughout, so Python and JavaScript read a query the same way.
 TOKEN = re.compile(r'(-?)(?:(\w+):"([^"]*)"|(\w+):(\S+)|"([^"]*)"|(\S+))', re.ASCII)
 ARABIC = re.compile("[\u0600-\u06FF]")
@@ -165,6 +167,22 @@ def alternatives(key: str, value: str) -> list[str]:
     return alts
 
 
+def spelling_matcher(value: str):
+    """ar: values: =x exact, *x ends with x, x* starts with x, otherwise contains x."""
+    if value.startswith("="):
+        exact = normalize_ar(value[1:])
+        return lambda s: s == exact
+    ends, starts = value.startswith("*"), len(value) > 1 and value.endswith("*")
+    core = normalize_ar(value.strip("*"))
+    if not core:
+        return None
+    if ends and not starts:
+        return lambda s: s.endswith(core)
+    if starts and not ends:
+        return lambda s: s.startswith(core)
+    return lambda s: core in s
+
+
 def word_test(key: str, value: str):
     d = dataset()
     words = d["words"]
@@ -178,12 +196,11 @@ def word_test(key: str, value: str):
         return lambda i: (any(x in exact for x in d["_word_lemmas_exact"][i])
                           or any(x in loose for x in d["_word_lemmas"][i]))
     if key == "ar":
-        exact = {normalize_ar(v[1:]) for v in alts if v.startswith("=")}
-        contains = [c for c in (normalize_ar(v) for v in alts if not v.startswith("=")) if c]
+        matchers = [m for m in (spelling_matcher(v) for v in alts) if m]
 
         def ar(i):
             p, u = d["_word_plain"][i], d["_word_uthmani"][i]
-            return p in exact or u in exact or any(c in p or c in u for c in contains)
+            return any(m(p) or m(u) for m in matchers)
 
         return ar
     if key == "en":
@@ -221,6 +238,9 @@ def verse_test(key: str, value: str):
     if key in ("surah", "juz", "page"):
         ranges = number_ranges(value, key)
         return lambda v: any(lo <= verses[v][key] <= hi for lo, hi in ranges)
+    if key == "length":
+        ranges = number_ranges(value, key)
+        return lambda v: any(lo <= verses[v]["words"] <= hi for lo, hi in ranges)
     if key == "ref":
         want = []
         for part in value.split(","):

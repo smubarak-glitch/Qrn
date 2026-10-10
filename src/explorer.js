@@ -198,10 +198,11 @@
     }
     D.surahWords = D.surahs.map((s, i) => D.surahFirstWord[i + 1] - D.surahFirstWord[i]);
 
-    // Last letter of each verse, for the rhyme shading.
+    // Last letter of each verse, for the rhyme shading. Unlike search folding, alif
+    // maqsura (ى, read -a) stays apart from ya (ي, read -i); ta marbuta reads as h.
     D.verseRhyme = new Array(V);
     for (let v = 0; v < V; v++) {
-      const p = D.plainN[D.verseFirst[v + 1] - 1];
+      const p = D.plain[D.verseFirst[v + 1] - 1].replace(MARKS, "").replace(/ة/g, "ه");
       D.verseRhyme[v] = p ? p[p.length - 1] : "";
     }
   }
@@ -214,7 +215,7 @@
   // ------------------------------------------------------------------ query engine
   // Mirrors scripts/query.py. Change both together.
   const WORD_KEYS = new Set(["root", "lemma", "ar", "en", "pos", "tag", "at"]);
-  const VERSE_KEYS = new Set(["tr", "surah", "juz", "page", "ref", "type", "sajdah", "has"]);
+  const VERSE_KEYS = new Set(["tr", "surah", "juz", "page", "ref", "type", "sajdah", "has", "length"]);
   const REF = /^[0-9]+:[0-9]+(-[0-9]+)?$/;
 
   // One kind of space, ASCII digits (same as query.canonical).
@@ -237,7 +238,7 @@
         else if (m[4] !== undefined) { key = m[4].toLowerCase(); value = m[5]; }
         else if (m[6] !== undefined) { key = "en"; value = m[6]; }
         else { key = bareKey(m[7]); value = m[7]; }
-        if (!WORD_KEYS.has(key) && !VERSE_KEYS.has(key)) throw new QueryError(`unknown key “${key}”. Open “How to search” for the list.`);
+        if (!WORD_KEYS.has(key) && !VERSE_KEYS.has(key)) throw new QueryError(`unknown key “${key}”. Open “Search tips” for the list.`);
         terms.push({ neg, key, value });
       }
       if (terms.length) groups.push(terms);
@@ -265,6 +266,20 @@
     return mask;
   }
 
+  // ar: values: =x exact, *x ends with x, x* starts with x, otherwise contains x.
+  function spellingMatcher(value) {
+    if (value.startsWith("=")) {
+      const exact = normalizeAr(value.slice(1));
+      return s => s === exact;
+    }
+    const ends = value.startsWith("*"), starts = value.length > 1 && value.endsWith("*");
+    const core = normalizeAr(value.replace(/^\*+|\*+$/g, ""));
+    if (!core) return null;
+    if (ends && !starts) return s => s.endsWith(core);
+    if (starts && !ends) return s => s.startsWith(core);
+    return s => s.includes(core);
+  }
+
   function wordTest(key, value) {
     const alts = alternatives(key, value);
     if (key === "root" || key === "lemma") {
@@ -282,11 +297,10 @@
     }
     if (key === "ar") {
       // Both the plain and the Uthmani spelling of each word.
-      const exact = new Set(alts.filter(v => v.startsWith("=")).map(v => normalizeAr(v.slice(1))));
-      const contains = alts.filter(v => !v.startsWith("=")).map(normalizeAr).filter(Boolean);
+      const matchers = alts.map(spellingMatcher).filter(Boolean);
       return i => {
         const p = D.plainN[i], u = D.uthN[i];
-        return exact.has(p) || exact.has(u) || contains.some(c => p.includes(c) || u.includes(c));
+        return matchers.some(m => m(p) || m(u));
       };
     }
     if (key === "en") {
@@ -327,9 +341,9 @@
       const rxs = alternatives(key, value).map(x => phraseRegex(x));
       return v => rxs.some(rx => rx.test(D.verseEnC[v]));
     }
-    if (key === "surah" || key === "juz" || key === "page") {
+    if (key === "surah" || key === "juz" || key === "page" || key === "length") {
       const ranges = numberRanges(value, key);
-      const field = key === "surah" ? D.verseSurah : key === "juz" ? D.verseJuz : D.versePage;
+      const field = key === "surah" ? D.verseSurah : key === "juz" ? D.verseJuz : key === "page" ? D.versePage : D.verseLen;
       return v => ranges.some(([lo, hi]) => field[v] >= lo && field[v] <= hi);
     }
     if (key === "ref") {
@@ -417,7 +431,11 @@
     let s;
     switch (t.key) {
       case "root": s = `words from the root ${v.split(",").map(spaced).join(" or ")}`; break;
-      case "ar": s = list(v).map(x => (x.startsWith("=") ? `the word ${x.slice(1)}` : `words spelled with ${x}`)).join(" or "); break;
+      case "ar": s = list(v).map(x => (x.startsWith("=") ? `the word ${x.slice(1)}`
+        : x.startsWith("*") && !x.endsWith("*") ? `words ending in ${x.slice(1)}`
+        : x.endsWith("*") && !x.startsWith("*") ? `words starting with ${x.slice(0, -1)}`
+        : `words spelled with ${x.replace(/\*/g, "")}`)).join(" or "); break;
+      case "length": s = `verses of ${list(v).join(", ")} words`; break;
       case "en": s = `words meaning ${list(v).map(x => `“${x}”`).join(" or ")}`; break;
       case "tr": s = `verses whose translation says ${list(v).map(x => `“${x}”`).join(" or ")}`; break;
       case "lemma": s = `forms of ${list(v).map(x => x.replace(/^=/, "")).join(" or ")}`; break;
@@ -464,11 +482,14 @@
     try { localStorage.setItem("quran-grid-view", JSON.stringify(view)); } catch (_) { /* ignore */ }
   }
 
-  // Search series: [{q, label}], at most 3. results: [{level, hits, error}]
+  // series: the searches on the grid, [{q, label}], at most 3 (a trend's, or the
+  // visitor's own). inputs: what is typed in the search box, [{q, label}]; a trend
+  // leaves the box empty. results: [{level, hits, error, label}], one per series.
   let series = [];
+  let inputs = [{ q: "", label: "" }];
   let results = [];
   let activeDiscovery = null;
-  let catalogLimit = 25;
+  let catalogLimit = 10;
   let distMode = "count";
 
   // ------------------------------------------------------------------ sequences & cells
@@ -539,8 +560,8 @@
     rampLo: [14, 14, 13], rampHi: [86, 82, 75],
   };
   const RHYME = [
-    ["ن", "n", [24, 46, 74]], ["ا", "ā", [27, 66, 52]], ["م", "m", [80, 46, 26]], ["ر", "r", [76, 62, 18]],
-    ["ي", "ī", [78, 36, 62]], ["د", "d", [52, 44, 92]], ["ه", "h", [86, 34, 34]], ["ب", "b", [30, 68, 82]],
+    ["ن", "n", [24, 46, 74]], ["ا", "a", [27, 66, 52]], ["م", "m", [80, 46, 26]], ["ر", "r", [76, 62, 18]],
+    ["ى", "a (alif maqsura)", [78, 36, 62]], ["د", "d", [52, 44, 92]], ["ه", "h", [86, 34, 34]], ["ب", "b", [30, 68, 82]],
   ];
   const RHYME_OTHER = [34, 33, 30];
   const RHYME_MAP = new Map(RHYME.map(([l, , c]) => [l, c]));
@@ -565,6 +586,10 @@
     const sw = c => { const s = el("span", "sw"); s.style.background = rgb(c); return s; };
     const item = (c, text) => { const s = el("span"); s.append(sw(c), text); return s; };
     const ramp = (lo, hi) => { const s = el("span", "ramp"); s.style.background = `linear-gradient(90deg, ${rgb(lo)}, ${rgb(hi)})`; return s; };
+    // In revelation order the grid is a timeline; say which way it runs.
+    if (view.order === "revelation" && view.unit !== "pages" && view.shade !== "revelation") {
+      lg.append(el("span", "", "Top rows were revealed first, bottom rows last"));
+    }
     switch (view.shade) {
       case "surahs": lg.append(item(SHADE.field, "odd-numbered surahs"), item(SHADE.band, "even-numbered surahs")); break;
       case "juz": lg.append(item(SHADE.field, "odd-numbered juz"), item(SHADE.band, "even-numbered juz")); break;
@@ -614,8 +639,6 @@
   const ctx = canvas.getContext("2d");
   const box = $("grid-box");
   const tooltip = $("tooltip");
-  const strip = $("strip");
-  const sctx = strip.getContext("2d");
   let geo = null;
   let hover = null;          // {idx} cell index under the pointer
   let focusVerse = null;     // verse index highlighted from the list
@@ -701,7 +724,6 @@
     geo = { width, height, cell, pad, dpr, cols: model.cols, rows: model.rows, r: markRadius(cell) };
     drawBase();
     draw();
-    drawStrip();
   }
 
   // Everything that does not change on hover: the field, lines, dots and rings.
@@ -815,37 +837,6 @@
     return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
   }
 
-  function drawStrip() {
-    const lanes = Math.max(1, results.length);
-    const laneH = 26;
-    const height = lanes * laneH + 8;
-    const width = Math.max(200, Math.floor(strip.clientWidth));
-    const dpr = geo.dpr;
-    strip.width = Math.round(width * dpr);
-    strip.height = Math.round(height * dpr);
-    strip.style.height = height + "px";
-    sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    sctx.fillStyle = "#000";
-    sctx.fillRect(0, 0, width, height);
-    const pad = 8;
-    const X = f => (view.dir === "rtl" ? width - pad - f * (width - 2 * pad) : pad + f * (width - 2 * pad));
-    const seq = model.seq;
-    results.forEach((r, k) => {
-      const y = 4 + k * laneH + laneH / 2;
-      sctx.fillStyle = "#262522";
-      for (let s = 1; s < seq.wordStart.length - 1; s++) sctx.fillRect(Math.round(X(seq.wordStart[s] / D.N)), y - 5, 1, 10);
-      sctx.fillStyle = "#85817a";
-      sctx.fillRect(pad, y, width - 2 * pad, 1);
-      if (!r || r.error) return;
-      const st = SERIES[k];
-      sctx.fillStyle = st.color;
-      const rad = r.hits.length > 400 ? 1.6 : 3.2;
-      if (r.hits.length > 400) sctx.globalAlpha = 0.6;
-      for (const h of r.hits) { drawShape(sctx, st.shape, X(hitFraction(r.level, h, seq)), y + 0.5, rad); sctx.fill(); }
-      sctx.globalAlpha = 1;
-    });
-  }
-
   // ------------------------------------------------------------------ text around the grid
   function endsText() {
     const label = info => {
@@ -856,24 +847,26 @@
     return { start: label(cellInfo(0, model.unit, model.seq)), end: label(cellInfo(model.n - 1, model.unit, model.seq)) };
   }
 
+  const SHADE_WORDS = {
+    none: "no shading", surahs: "shaded by surah", type: "shaded Meccan / Medinan", length: "shaded by verse length",
+    revelation: "shaded by revelation order", juz: "shaded by juz", rhyme: "shaded by verse-end rhyme",
+  };
   function renderEnds() {
     const { start, end } = endsText();
     const { cols, rows, n } = model;
     const empty = cols * rows - n;
     const rtl = view.dir === "rtl";
-    const size = el("span", "", `${cols} columns × ${rows} rows`);
+    const unitWord = { words: "word", verses: "verse", pages: "page" }[model.unit];
+    const order = model.unit === "pages" ? "pages in book order" : view.order === "revelation" ? "surahs in revelation order" : "surahs in book order";
+    const layout = `1 square = 1 ${unitWord} · ${order} · ${SHADE_WORDS[view.shade]}`;
     const begin = el("span", "mark", rtl ? `Start · ${start} ←` : `Start · ${start} →`);
-    $("ends-top").replaceChildren(begin, size);
+    $("ends-top").replaceChildren(begin, el("span", "", layout));
     $("ends-top").style.flexDirection = rtl ? "row-reverse" : "row";
-    const finish = el("span", "", `End · ${end}${empty ? `, then ${empty} empty square${empty === 1 ? "" : "s"}` : ""}`);
+    const finish = el("span", "", `End · ${end}${empty ? ` (then ${plural(empty, "empty square")})` : ""}`);
     $("ends-bottom").replaceChildren(finish, el("span"));
     $("ends-bottom").style.flexDirection = rtl ? "row-reverse" : "row";
-    const s1 = el("span", "", `Start · ${start}`), s2 = el("span", "", `End · ${end}`);
-    $("strip-ends").replaceChildren(s1, s2);
-    $("strip-ends").style.flexDirection = rtl ? "row-reverse" : "row";
-    const unitWord = { words: "word", verses: "verse", pages: "page" }[model.unit];
-    const how = model.unit === "pages" ? "the 604 pages of the Madani mushaf" : view.order === "revelation" ? "surahs in revelation order" : "surahs in their standard order";
-    $("caption").textContent = `1 square = 1 ${unitWord} · ${how}. Hover or tap any square to see what it holds; tap a dot to open its verse.`;
+    $("options-summary").replaceChildren("Grid options: ", el("span", "now", layout), " · change");
+    $("caption").textContent = "Hover or tap a square to see what it holds. Tap a dot to read its verse.";
     const total = results.reduce((a, r) => a + (r && !r.error ? r.hits.length : 0), 0);
     canvas.setAttribute("aria-label", `Grid of ${fmt.format(n)} ${unitWord}s with ${fmt.format(total)} matches marked. Use the arrow keys to step through the matches and Enter to open a verse. The verse list below has every match.`);
   }
@@ -896,72 +889,34 @@
     return (r && r.label) || (series[k] && (series[k].label || series[k].q)) || "";
   }
 
-  function renderNotes() {
-    const notes = $("notes");
-    notes.replaceChildren();
+  // One line per search under the grid: how many, where, and the share in Medinan
+  // surahs next to the share for the whole text.
+  function renderResults() {
+    const box = $("results");
+    box.replaceChildren();
     results.forEach((r, k) => {
       if (!r) return;
-      const box = el("div", "s-note");
-      const head = el("div", "s-head");
-      head.append(markerSvg(k, 18), elB("span", "lbl", seriesLabel(k)));
-      box.append(head);
-      if (!r || r.error) { box.append(el("p", "empty-note", r ? r.error : "")); notes.append(box); return; }
+      const row = el("div", "result");
+      const text = el("span");
+      text.append(elB("span", "lbl", seriesLabel(k)), ": ");
+      row.append(markerSvg(k, 14), text);
+      box.append(row);
+      if (r.error) { text.append(...bidi(r.error)); return; }
       const n = r.hits.length;
-      const verses = new Set(), surahs = new Map();
+      if (!n) { text.append("no matches. Try a shorter word, a root, or the search tips."); return; }
+      const verses = new Set(), surahs = new Set();
       let med = 0;
       for (const h of r.hits) {
         const v = r.level === "word" ? D.wordVerse[h] : h;
         verses.add(v);
-        const s = D.verseSurah[v];
-        surahs.set(s, (surahs.get(s) || 0) + 1);
-        if (D.surahs[s - 1].type === "medinan") med++;
+        surahs.add(D.verseSurah[v]);
+        if (D.surahs[D.verseSurah[v] - 1].type === "medinan") med++;
       }
-      const big = el("div");
-      big.append(el("div", "big", fmt.format(n)));
-      big.append(el("div", "big-sub", r.level === "word"
-        ? `${n === 1 ? "word" : "words"} in ${plural(verses.size, "verse")}, across ${plural(surahs.size, "surah")}`
-        : `${n === 1 ? "verse" : "verses"} across ${plural(surahs.size, "surah")}`));
-      box.append(big);
-      if (!n) { box.append(el("p", "empty-note", "No matches. Try a shorter word, a root, or “How to search”.")); notes.append(box); return; }
-
+      text.append(el("strong", "", fmt.format(n)), r.level === "word"
+        ? ` ${n === 1 ? "word" : "words"} in ${plural(verses.size, "verse")} and ${plural(surahs.size, "surah")}`
+        : ` ${n === 1 ? "verse" : "verses"} in ${plural(surahs.size, "surah")}`);
       const base = r.level === "word" ? D.medinanWords / D.N : D.medinanVerses / D.V;
-      const split = el("div", "split");
-      const bar = el("div", "split-bar");
-      const a = el("span", "mec"); a.style.width = `${100 - pct(med, n)}%`;
-      const b = el("span", "med"); b.style.width = `${pct(med, n)}%`;
-      bar.append(a, b);
-      const row = el("div", "row");
-      row.append(el("span", "", `Meccan ${pct(n - med, n)}%`), el("span", "", `Medinan ${pct(med, n)}%`));
-      split.append(bar, row, el("div", "base", `All ${r.level === "word" ? "words" : "verses"}: ${Math.round((1 - base) * 100)}% Meccan, ${Math.round(base * 100)}% Medinan`));
-      box.append(split);
-
-      const ordered = [...r.hits].map(h => [h, hitFraction(r.level, h, model.seq)]).sort((x, y) => x[1] - y[1]);
-      const refOf = h => (r.level === "word" ? verseRef(D.wordVerse[h]) : verseRef(h));
-      const top = [...surahs.entries()].sort((x, y) => y[1] - x[1])[0];
-      const third = ordered.filter(([, f]) => f < 1 / 3).length;
-      const facts = el("dl", "facts");
-      const fact = (dt, dd) => facts.append(el("dt", "", dt), el("dd", "", dd));
-      fact("First", refOf(ordered[0][0]));
-      fact("Last", refOf(ordered[ordered.length - 1][0]));
-      fact("Most in", `${surahName(top[0])} (${top[0]}) · ${fmt.format(top[1])}`);
-      fact("First third", `${fmt.format(third)} of ${fmt.format(n)} (${pct(third, n)}%)`);
-      box.append(facts);
-
-      if (r.level === "word") {
-        const counts = new Map();
-        for (const h of r.hits) counts.set(D.plain[h], (counts.get(D.plain[h]) || 0) + 1);
-        const sp = el("div", "spellings");
-        for (const [w, c] of [...counts.entries()].sort((x, y) => y[1] - x[1]).slice(0, 8)) {
-          const s = el("span");
-          const ar = arSpan(w);
-          s.append(ar, " ", el("span", "k", fmt.format(c)));
-          sp.append(s);
-        }
-        const lbl = el("p", "mono-label", "Most common spellings");
-        lbl.style.margin = "0 0 -4px";
-        box.append(lbl, sp);
-      }
-      notes.append(box);
+      text.append(` · ${pct(med, n)}% in Medinan surahs `, el("span", "base", `(whole Quran: ${Math.round(base * 100)}%)`));
     });
   }
 
@@ -1082,17 +1037,17 @@
     });
     const seq = model.seq;
     const verses = [...byVerse.keys()].sort((a, b) => verseCell(a, seq) - verseCell(b, seq));
-    $("catalog-title").textContent = verses.length ? `The ${plural(verses.length, "verse")}` : "The verses";
-    $("catalog-note").textContent = verses.length ? "In the order they appear in the grid. Tap a dot to jump to its verse." : "Nothing matches yet.";
+    $("catalog-title").textContent = verses.length ? `Verses (${fmt.format(verses.length)})` : "Verses";
+    $("catalog-note").textContent = verses.length ? "In grid order. Tap a dot on the grid to jump to its verse." : "Nothing matches yet.";
     const rxs = trPhrases();
     for (const v of verses.slice(0, catalogLimit)) entriesEl.append(entryFor(v, byVerse.get(v), rxs));
     if (verses.length > catalogLimit) {
       more.append(`Showing ${fmt.format(catalogLimit)} of ${fmt.format(verses.length)}.`);
-      const btn = el("button", "btn", `Show ${fmt.format(Math.min(100, verses.length - catalogLimit))} more`);
+      const btn = el("button", "btn", `Show ${fmt.format(Math.min(25, verses.length - catalogLimit))} more`);
       btn.type = "button";
       btn.addEventListener("click", () => {
         const first = catalogLimit;
-        catalogLimit += 100;
+        catalogLimit += 25;
         renderCatalog();
         if (entriesEl.children[first]) entriesEl.children[first].focus();
       });
@@ -1316,14 +1271,14 @@
   function renderRows() {
     const focused = document.activeElement && document.activeElement.id;
     rowsEl.replaceChildren();
-    series.forEach((s, k) => {
+    inputs.forEach((s, k) => {
       const row = el("div", "series-row");
       const mk = el("span", "marker"); mk.append(markerSvg(k, 18));
       const input = el("input", "q-input");
       input.type = "text";
       input.id = `q-${k}`;
       input.value = s.q;
-      input.placeholder = k === 0 ? "Try month, شمس, root:رحم, Musa, tr:\"sacred month\"…" : "Compare with… (sun, قمر, en:star*)";
+      input.placeholder = k === 0 ? "Search any word: month, sun, شمس, Musa, mercy…" : "Compare with… (moon, قمر, star*)";
       input.setAttribute("aria-label", k === 0 ? "Search the Quran" : `Comparison ${k}`);
       input.setAttribute("role", "combobox");
       input.setAttribute("aria-autocomplete", "list");
@@ -1331,9 +1286,9 @@
       input.setAttribute("aria-controls", `suggest-${k}`);
       input.spellcheck = false;
       input.addEventListener("input", () => {
-        if (!series[k]) return;
-        series[k].q = input.value;
-        series[k].label = "";
+        if (!inputs[k]) return;
+        inputs[k].q = input.value;
+        inputs[k].label = "";
         scheduleSuggest(k);
       });
       input.addEventListener("keydown", e => onKey(e, k));
@@ -1345,10 +1300,9 @@
         rm.type = "button";
         rm.setAttribute("aria-label", `Remove comparison ${k}`);
         rm.addEventListener("click", () => {
-          series.splice(k, 1);
-          activeDiscovery = null;
+          inputs.splice(k, 1);
           renderRows();
-          search();
+          if (!activeDiscovery) submitSearch();
           const prev = $(`q-${k - 1}`);
           if (prev) prev.focus();
         });
@@ -1362,7 +1316,7 @@
       row.append(sug);
       rowsEl.append(row);
     });
-    $("add-series").disabled = series.length >= 3;
+    $("add-series").disabled = inputs.length >= 3;
     if (focused && /^q-\d$/.test(focused) && $(focused)) $(focused).focus();
   }
 
@@ -1379,7 +1333,7 @@
   }
   function closeSuggest() {
     clearTimeout(suggestTimer);
-    series.forEach((_, k) => closeList(k));
+    inputs.forEach((_, k) => closeList(k));
     suggestState = { k: -1, items: [], sel: -1 };
   }
   function buildSuggest(k) {
@@ -1442,16 +1396,15 @@
   }
   function pickSuggest(i) {
     const { k, items } = suggestState;
-    if (k < 0 || !items[i] || !series[k]) return;
-    series[k].q = items[i].q;
-    series[k].label = "";
+    if (k < 0 || !items[i] || !inputs[k]) return;
+    inputs[k].q = items[i].q;
+    inputs[k].label = "";
     $(`q-${k}`).value = items[i].q;
     closeSuggest();
-    activeDiscovery = null;
-    search();
+    submitSearch();
   }
   function onKey(e, k) {
-    if (!series[k]) return;
+    if (!inputs[k]) return;
     const st = suggestState;
     if (st.k === k && st.items.length && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
       e.preventDefault();
@@ -1473,32 +1426,29 @@
   form.addEventListener("submit", e => {
     e.preventDefault();
     closeSuggest();
-    activeDiscovery = null;
-    search();
+    submitSearch();
   });
-  $("add-series").addEventListener("click", () => {
-    if (series.length >= 3) return;
-    series.push({ q: "", label: "" });
+  // What is typed becomes the search on the grid, replacing any open trend.
+  function submitSearch() {
+    const typed = inputs.filter(x => x.q.trim());
+    if (!typed.length) { inputs = [{ q: "", label: "" }]; renderRows(); $("q-0").focus(); return; }
+    activeDiscovery = null;
+    inputs = typed.map(x => ({ q: x.q, label: x.label || "" }));
+    series = inputs.map(x => ({ q: x.q, label: x.label }));
     renderRows();
-    $(`q-${series.length - 1}`).focus();
+    search();
+  }
+  $("add-series").addEventListener("click", () => {
+    if (inputs.length >= 3) return;
+    inputs.push({ q: "", label: "" });
+    renderRows();
+    $(`q-${inputs.length - 1}`).focus();
   });
   $("help-toggle").addEventListener("click", e => {
     const help = $("help");
     help.hidden = !help.hidden;
     e.currentTarget.setAttribute("aria-expanded", String(!help.hidden));
   });
-
-  const EXAMPLES = ["month", "شمس", "root:رحم", "Musa", "tr:\"sacred month\"", "en:star*", "tag:INL", "sajdah:yes", "at:last surah:55"];
-  function renderExamples() {
-    const ex = $("examples");
-    for (const q of EXAMPLES) {
-      const b = el("button", "chip-btn");
-      b.type = "button";
-      b.append(...bidi(q));
-      b.addEventListener("click", () => { series = [{ q, label: "" }]; activeDiscovery = null; renderRows(); search(); });
-      ex.append(b);
-    }
-  }
 
   function interpText(r) {
     return r.error ? r.error : `${capital(describe(r.groups))}: ${plural(r.hits.length, r.level)}`;
@@ -1507,49 +1457,53 @@
     const ul = $("interp");
     ul.replaceChildren();
     results.forEach((r, k) => {
-      const input = $(`q-${k}`);
-      if (!r) return;
+      const input = activeDiscovery ? null : $(`q-${k}`);
+      if (input) { if (r && r.error) input.setAttribute("aria-invalid", "true"); else input.removeAttribute("aria-invalid"); }
+      if (!r || !r.error) return;
       const li = el("li");
-      li.append(markerSvg(k, 12));
-      if (r.error) {
-        li.append(elB("span", "err", r.error));
-        if (input) input.setAttribute("aria-invalid", "true");
-      } else {
-        if (input) input.removeAttribute("aria-invalid");
-        li.append(elB("span", "", interpText(r)));
-      }
+      li.append(markerSvg(k, 12), elB("span", "", r.error));
       ul.append(li);
     });
   }
   const capital = s => s.charAt(0).toUpperCase() + s.slice(1);
+  function autoLabel(q, groups) {
+    const d = capital(describe(groups));
+    if (d.length <= 140) return d;
+    return q.length <= 140 ? q : q.slice(0, 137) + "…";
+  }
 
   function search(opts) {
-    const before = series.length;
-    series = series.filter((s, k) => k === 0 || s.q.trim());
-    if (!series.length) series = [{ q: "", label: "" }];
-    if (series.length !== before || rowsEl.children.length !== series.length) renderRows();
     results = series.map(s => {
       if (!s.q.trim()) return null;
-      const label = s.label || s.q;
-      try { return { ...run(s.q), label }; } catch (e) {
-        return { error: e instanceof QueryError ? e.message : `Could not run this search: ${e.message}`, hits: [], label };
+      try {
+        const r = run(s.q);
+        return { ...r, label: s.label || autoLabel(s.q, r.groups) };
+      } catch (e) {
+        return { error: e instanceof QueryError ? e.message : `Could not run this search: ${e.message}`, hits: [], label: s.label || s.q };
       }
     });
     if (!activeDiscovery && !(opts && opts.keepHash)) {
       try { history.replaceState(null, "", location.pathname + location.search); } catch (_) { /* ignore */ }
     }
-    catalogLimit = 25;
+    catalogLimit = 10;
     renderAll();
     renderInterp();
     renderStory();
+    markCurrentTrend(false);
     // One short announcement per search; view changes stay silent.
     $("search-status").textContent = results.filter(Boolean).map(interpText).join(". ");
   }
 
-  // ------------------------------------------------------------------ discoveries
-  const CAT_ORDER = ["Numbers & time", "Famous claims", "People & places", "Nature & cosmos", "Structure", "Meccan & Medinan", "Pairs & echoes", "Themes & language"];
+  // ------------------------------------------------------------------ trends
+  const CAT_ORDER = ["Big picture", "Mecca & Medina", "Words & meaning", "People & stories", "Nature", "Numbers"];
   let catFilter = "All";
-  let cardsExpanded = false;
+
+  // By category, then in the order of data/discoveries.json.
+  function trendOrder() {
+    const rank = c => { const i = CAT_ORDER.indexOf(c); return i < 0 ? 99 : i; };
+    return D.discoveries.map((d, i) => [d, i]).sort((a, b) => rank(a[0].category) - rank(b[0].category) || a[1] - b[1]).map(([d]) => d);
+  }
+  const shownTrends = () => trendOrder().filter(d => catFilter === "All" || d.category === catFilter);
 
   function renderCats() {
     const cats = $("cats");
@@ -1562,129 +1516,78 @@
       const b = el("button", "cat", c);
       b.type = "button";
       b.setAttribute("aria-pressed", String(c === catFilter));
-      const n = c === "All" ? D.discoveries.length : counts.get(c);
-      b.append(" ", el("span", "n", String(n)));
-      b.setAttribute("aria-label", `${c}, ${plural(n, "discovery", "discoveries")}`);
-      b.addEventListener("click", () => { catFilter = c; cardsExpanded = false; renderCats(); renderCards(); });
+      b.setAttribute("aria-label", `${c}, ${plural(c === "All" ? D.discoveries.length : counts.get(c), "trend")}`);
+      b.addEventListener("click", () => { catFilter = c; renderCats(); renderTrendList(); markCurrentTrend(true); });
       cats.append(b);
     }
     if (hadFocus) { const on = cats.querySelector('[aria-pressed="true"]'); if (on) on.focus(); }
-    $("discover-count").textContent = String(D.discoveries.length);
+    $("trend-count").textContent = String(D.discoveries.length);
   }
 
-  const VERDICT = { holds: ["✓", "holds"], partly: ["≈", "partly"], fails: ["✕", "does not hold"] };
-  function verdictPill(v) {
-    const p = el("span", "verdict-pill");
-    p.append(el("span", "sym", VERDICT[v.result][0]), VERDICT[v.result][1]);
-    return p;
-  }
-
-  function sortedDiscoveries() {
-    const list = D.discoveries.filter(d => catFilter === "All" || d.category === catFilter);
-    const catRank = c => { const i = CAT_ORDER.indexOf(c); return i < 0 ? 99 : i; };
-    return list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || (b.interest || 0) - (a.interest || 0) || catRank(a.category) - catRank(b.category));
-  }
-
-  function renderCards() {
-    const cards = $("cards");
-    cards.replaceChildren();
-    const list = sortedDiscoveries();
-    // Two full rows at whatever column count the layout gives (four cards on a phone).
-    const cols = getComputedStyle(cards).gridTemplateColumns.split(" ").filter(Boolean).length || 1;
-    const first = window.matchMedia("(max-width: 640px)").matches ? 4 : cols * 2;
-    const limit = cardsExpanded ? list.length : first;
-    for (const d of list.slice(0, limit)) {
-      const b = el("button", "card");
+  function renderTrendList() {
+    const box = $("trend-list");
+    box.replaceChildren();
+    let cat = null;
+    for (const d of shownTrends()) {
+      if (catFilter === "All" && d.category !== cat) { cat = d.category; box.append(el("h3", "", cat)); }
+      const b = el("button", "trend");
       b.type = "button";
       b.dataset.id = d.id;
-      if (activeDiscovery && activeDiscovery.id === d.id) b.setAttribute("aria-current", "true");
-      b.append(el("span", "c-cat", d.category), elB("span", "c-title", d.title));
-      const cv = el("canvas");
-      cv.setAttribute("aria-hidden", "true");
-      b.append(cv);
-      const meta = el("span", "c-meta");
-      if (d.verdict) meta.append(verdictPill(d.verdict));
-      d.series.forEach((s, k) => {
-        const m = el("span");
-        m.style.display = "inline-flex"; m.style.gap = "4px"; m.style.alignItems = "center";
-        m.append(markerSvg(k, 10), ...bidi(`${fmt.format(s.count)} ${s.label.replace(/\s*\(.*\)$/, "")}`));
-        meta.append(m);
-      });
-      b.append(meta);
-      b.addEventListener("click", () => { loadDiscovery(d.id, true); });
-      cards.append(b);
-      queueMini(cv, d);
+      b.append(...bidi(d.title));
+      if (d.claim) b.append(el("span", "tag", "Popular claim · holds"));
+      b.addEventListener("click", () => loadDiscovery(d.id, true));
+      box.append(b);
     }
-    const more = $("cards-more");
-    more.hidden = list.length <= first;
-    more.textContent = cardsExpanded ? "Show fewer" : `Show all ${list.length}`;
-    flushMini();
+    markCurrentTrend(false);
   }
-  $("cards-more").addEventListener("click", () => { cardsExpanded = !cardsExpanded; renderCards(); });
 
-  // Small strips on each card, drawn a few at a time so the page stays responsive.
-  let miniQueue = [];
-  let miniTimer = 0;
-  function queueMini(cv, d) { miniQueue.push([cv, d]); }
-  function flushMini() {
-    clearTimeout(miniTimer);
-    const step = () => {
-      const batch = miniQueue.splice(0, 4);
-      for (const [cv, d] of batch) drawMini(cv, d);
-      if (miniQueue.length) miniTimer = setTimeout(step, 16);
-    };
-    miniTimer = setTimeout(step, 0);
-  }
-  function drawMini(cv, d) {
-    if (!cv.isConnected) return;
-    const w = Math.max(100, cv.clientWidth), h = 14, dpr = Math.min(window.devicePixelRatio || 1, 2);
-    cv.width = w * dpr; cv.height = h * dpr;
-    const c = cv.getContext("2d");
-    c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    c.fillStyle = "#262522";
-    c.fillRect(0, 7, w, 1);
-    const seq = sequence((d.view && d.view.order) || "mushaf");
-    d.series.forEach((s, k) => {
-      let r;
-      try { r = run(s.q); } catch (_) { return; }
-      c.fillStyle = SERIES[k].color;
-      c.globalAlpha = r.hits.length > 200 ? 0.35 : 0.9;
-      for (const hh of r.hits) {
-        const f = hitFraction(r.level, hh, seq);
-        const x = (view.dir === "rtl" ? 1 - f : f) * (w - 4) + 2;
-        c.fillRect(Math.round(x), 3 + k * 1, 1.5, 8);
-      }
+  // Mark the open trend in the list and, if asked, scroll the list (not the page) to it.
+  function markCurrentTrend(scroll) {
+    let cur = null;
+    document.querySelectorAll(".trend").forEach(b => {
+      if (activeDiscovery && b.dataset.id === activeDiscovery.id) { b.setAttribute("aria-current", "true"); cur = b; }
+      else b.removeAttribute("aria-current");
     });
-    c.globalAlpha = 1;
+    if (scroll && cur) {
+      const list = $("trend-list");
+      const top = cur.offsetTop, bottom = top + cur.offsetHeight;
+      if (top < list.scrollTop || bottom > list.scrollTop + list.clientHeight) list.scrollTop = Math.max(0, top - list.clientHeight / 3);
+    }
   }
 
-  // byUser: a click (scroll to the story and move focus there); otherwise the first load,
-  // which keeps the viewer's saved shading.
+  // byUser: a click, which also brings the trend's text into view and moves focus
+  // to its title; otherwise the first load.
   function loadDiscovery(id, byUser) {
     const d = D.discoveries.find(x => x.id === id);
     if (!d) return false;
     activeDiscovery = d;
     series = d.series.map(s => ({ q: s.q, label: s.label }));
+    inputs = [{ q: "", label: "" }];
+    // Each trend brings its own view; whatever it does not set goes back to the default.
     const v = d.view || {};
-    if (ALLOWED.unit.includes(v.unit)) view.unit = v.unit;
-    if (ALLOWED.order.includes(v.order)) view.order = v.order;
-    if (ALLOWED.shade.includes(v.shade)) view.shade = v.shade;
-    else if (byUser) view.shade = "none";
-    if (byUser) saveView();
+    view.unit = ALLOWED.unit.includes(v.unit) ? v.unit : "words";
+    view.order = ALLOWED.order.includes(v.order) ? v.order : "mushaf";
+    view.shade = ALLOWED.shade.includes(v.shade) ? v.shade : "none";
+    saveView();
     try { history.replaceState(null, "", "#" + d.id); } catch (_) { /* ignore */ }
+    if (catFilter !== "All" && catFilter !== d.category) { catFilter = "All"; renderCats(); renderTrendList(); }
     renderRows();
     search({ keepHash: true });
-    renderCards();
+    markCurrentTrend(byUser);
     if (byUser) {
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      $("story").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-      const h = $("story").querySelector("h2");
+      const story = $("story");
+      const top = story.getBoundingClientRect().top;
+      if (top < 0 || top > window.innerHeight * 0.5) {
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        story.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      }
+      const h = story.querySelector("h2");
       if (h) h.focus({ preventScroll: true });
     }
     return true;
   }
   $("surprise").addEventListener("click", () => {
-    const pool = D.discoveries.filter(d => !activeDiscovery || d.id !== activeDiscovery.id);
+    const pool = shownTrends().filter(d => !activeDiscovery || d.id !== activeDiscovery.id);
     if (pool.length) loadDiscovery(pool[Math.floor(Math.random() * pool.length)].id, true);
   });
   const hashId = () => { try { return decodeURIComponent(location.hash.slice(1)); } catch (_) { return ""; } };
@@ -1692,7 +1595,7 @@
     if (!D.N) return;
     const id = hashId();
     if (!id) {
-      if (activeDiscovery) { activeDiscovery = null; renderCards(); search({ keepHash: true }); }
+      if (activeDiscovery) { activeDiscovery = null; markCurrentTrend(false); search({ keepHash: true }); }
       return;
     }
     if (!activeDiscovery || activeDiscovery.id !== id) loadDiscovery(id, true);
@@ -1701,61 +1604,64 @@
   function renderStory() {
     const story = $("story");
     story.replaceChildren();
-    const main = el("div");
-    const actions = el("div", "story-actions");
-    if (activeDiscovery) {
-      const d = activeDiscovery;
-      const h = elB("h2", "", d.title);
-      h.tabIndex = -1;
-      main.append(el("p", "s-eyebrow", d.category), h, elB("p", "s-blurb", d.blurb));
-      if (d.verdict) {
-        const v = el("div", "s-verdict");
-        const c = el("div", "claim");
-        c.append(verdictPill(d.verdict), " ", ...bidi(`The claim: ${d.verdict.claim}`));
-        v.append(c, elB("div", "note", d.verdict.note));
-        main.append(v);
-      }
-      const det = el("details");
-      det.append(el("summary", "", "How this was counted"));
-      if (d.method) det.append(elB("p", "", d.method));
-      const ul = el("ul", "s-queries");
-      d.series.forEach((s, k) => {
-        const li = el("li");
-        const code = el("code", "", s.q);
-        const right = el("span");
-        right.append(code, ...bidi(` · ${s.label} · ${fmt.format(s.count)}`));
-        li.append(markerSvg(k, 14), right);
-        ul.append(li);
-      });
-      det.append(ul);
-      main.append(det);
-      const same = sortedDiscoveries();
-      const pos = same.findIndex(x => x.id === d.id);
-      const next = el("button", "btn", "Next discovery");
-      next.type = "button";
-      next.addEventListener("click", () => {
-        const pool = pos >= 0 ? same : sortedDiscoveries();
-        const nd = pool[(pos + 1) % pool.length];
-        if (nd) loadDiscovery(nd.id, true);
-      });
-      const edit = el("button", "btn", "Change this search");
-      edit.type = "button";
-      edit.addEventListener("click", () => { $("q-0").focus(); $("q-0").scrollIntoView({ block: "center" }); });
-      actions.append(edit, next);
-    } else {
+    if (!activeDiscovery) {
+      // A typed search: its counts are under the grid, so this only names it.
       const ok = results.filter(r => r && !r.error);
-      main.append(el("p", "s-eyebrow", "Your search"));
+      story.append(el("p", "s-eyebrow", "Your search"));
       const err = results.find(r => r && r.error);
-      if (!ok.length && err) {
-        main.append(el("h2", "", "This search has a problem"), elB("p", "s-blurb", err.error));
-      } else if (!ok.length) {
-        main.append(el("h2", "", "Type something to search"), el("p", "s-blurb", "Search in English or Arabic, or open a discovery above."));
-      } else {
-        main.append(elB("h2", "", ok.map(r => capital(describe(r.groups))).join(" · ")));
-        main.append(elB("p", "s-blurb", results.map((r, k) => r && !r.error ? `${seriesLabel(k)}: ${plural(r.hits.length, r.level)}` : null).filter(Boolean).join(". ") + "."));
-      }
+      if (!ok.length && err) story.append(el("h2", "", "This search has a problem"), elB("p", "s-found", err.error));
+      else if (!ok.length) story.append(el("h2", "", "Pick a trend or search for a word"));
+      else story.append(elB("h2", "", ok.map(r => r.label).join(" · ")));
+      return;
     }
-    story.append(main, actions);
+    const d = activeDiscovery;
+    const h = elB("h2", "", d.title);
+    h.tabIndex = -1;
+    story.append(el("p", "s-eyebrow", `${d.category} · ${d.claim ? "Popular claim, checked" : "Found in the text"}`), h);
+    if (d.claim) {
+      const c = el("p", "s-claim");
+      c.append("The claim: ", ...bidi(d.claim), " ", el("span", "ok", "✓ It holds."));
+      story.append(c);
+    }
+    const found = el("div", "found");
+    found.append(el("p", "label", "What we found"), elB("p", "s-found", d.blurb));
+    const why = el("div", "why");
+    why.append(el("p", "label", "Why it matters"), elB("p", "", d.why));
+    const det = el("details");
+    det.append(el("summary", "", "How we counted"), elB("p", "", d.method));
+    const ul = el("ul", "s-queries");
+    d.series.forEach((s, k) => {
+      const li = el("li");
+      const right = el("span");
+      right.append(el("code", "", s.q), ...bidi(` · ${s.label} · ${fmt.format(s.count)}`));
+      li.append(markerSvg(k, 14), right);
+      ul.append(li);
+    });
+    const edit = el("button", "link-btn", "Edit these searches");
+    edit.type = "button";
+    edit.addEventListener("click", () => {
+      inputs = d.series.map(s => ({ q: s.q, label: s.label }));
+      renderRows();
+      const q0 = $("q-0");
+      q0.scrollIntoView({ block: "center" });
+      q0.focus({ preventScroll: true });
+    });
+    det.append(ul, edit);
+    story.append(found, why);
+
+    const pool = shownTrends().some(x => x.id === d.id) ? shownTrends() : trendOrder();
+    const pos = pool.findIndex(x => x.id === d.id);
+    const step = (delta, text) => {
+      const b = el("button", "btn", text);
+      b.type = "button";
+      b.addEventListener("click", () => loadDiscovery(pool[(pos + delta + pool.length) % pool.length].id, true));
+      return b;
+    };
+    const actions = el("div", "story-actions");
+    actions.append(step(-1, "← Previous"), step(1, "Next trend →"));
+    const foot = el("div", "story-foot");
+    foot.append(det, actions);
+    story.append(foot);
   }
 
   // ------------------------------------------------------------------ controls
@@ -1782,7 +1688,6 @@
     else if (t.id === "opt-connect") view.connect = t.checked;
     saveView();
     renderAll();
-    if (t.name === "dir") renderCards();
   });
 
   // ------------------------------------------------------------------ render all
@@ -1796,13 +1701,9 @@
     resize();
     renderEnds();
     renderLegend();
-    renderNotes();
+    renderResults();
     renderDist();
     renderCatalog();
-    document.querySelectorAll(".card").forEach(c => {
-      if (activeDiscovery && c.dataset.id === activeDiscovery.id) c.setAttribute("aria-current", "true");
-      else c.removeAttribute("aria-current");
-    });
   }
 
   const currentDpr = () => Math.min(window.devicePixelRatio || 1, 3);
@@ -1828,16 +1729,15 @@
   };
 
   // ------------------------------------------------------------------ boot
-  renderExamples();
-  series = [{ q: "", label: "" }];
   renderRows();
   unpack().then(raw => {
     buildIndex(raw);
     renderCats();
-    renderCards();
+    renderTrendList();
     const id = hashId();
-    if (!(id && loadDiscovery(id, false))) {
-      if (!loadDiscovery("month", false)) { series = [{ q: "root:شهر", label: "Month (ش ه ر)" }]; renderRows(); search(); }
+    if (id && loadDiscovery(id, false)) markCurrentTrend(true);
+    else {
+      if (!loadDiscovery("month", false)) { series = [{ q: "root:شهر", label: "Month (ش ه ر)" }]; search(); }
     }
     document.dispatchEvent(new CustomEvent("quran-grid-ready"));
   }).catch(err => {
