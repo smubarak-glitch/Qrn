@@ -250,6 +250,7 @@ def write_month_outputs(month: dict) -> None:
 
 
 CATEGORY_ORDER = ["Big picture", "Mecca & Medina", "Words & meaning", "People & stories", "Nature", "Numbers"]
+TOP_TRENDS = 10  # data/discoveries.json is ordered most striking first; keep in step with TOP in src/explorer.js
 
 VIEW_OPTIONS = {
     "unit": {"words", "verses", "pages"},
@@ -328,7 +329,8 @@ README_END = "<!-- DISCOVERIES:END -->"
 
 
 def write_readme_discoveries(items: list[dict]) -> None:
-    """The README's trends section, generated so it always matches the page."""
+    """The README's trends section, generated so it always matches the page:
+    the same order (most striking first) and the same first ten under "Start here"."""
     if not items:
         return
     md = lambda t: t.replace("|", "\\|")  # noqa: E731
@@ -336,21 +338,22 @@ def write_readme_discoveries(items: list[dict]) -> None:
     lines = [
         "## Trends",
         "",
-        f"The page ships with **{len(items)} trends**, each a saved search with what it shows and why it "
-        "matters: " + ", ".join(f"{c} ({n})" for c, n in counts.items() if n) + ". "
+        f"The page ships with **{len(items)} trends**, listed here as on the page, most striking first. "
+        "Each is a saved search with what it shows and why it matters, in six groups: "
+        + ", ".join(f"{c} ({n})" for c, n in counts.items() if n) + ". "
         "Most come from analysing the text directly; the rest are popular claims that were checked and hold. "
         "Claims that did not hold were left out. The build re-runs every count. "
         "Open one with `index.html#<id>`, for example `index.html#lord-to-allah`.",
+        "",
+        f"### Start here: the {TOP_TRENDS} most striking",
+        "",
     ]
-    for cat in CATEGORY_ORDER:
-        group = [x for x in items if x["category"] == cat]
-        if not group:
-            continue
-        lines += ["", f"### {cat}", ""]
-        for x in group:
-            tag = " *(popular claim, checked)*" if x.get("claim") else ""
-            lines.append(f"- **{md(x['title'])}** (`#{x['id']}`){tag}. {md(x['blurb'])} "
-                         f"*Why it matters:* {md(x['why'])}")
+    for i, x in enumerate(items, 1):
+        if i == TOP_TRENDS + 1:
+            lines += ["", "### More trends", ""]
+        tag = x["category"] + (", popular claim, checked" if x.get("claim") else "")
+        lines.append(f"{i}. **{md(x['title'])}** ({tag}, `#{x['id']}`). {md(x['blurb'])} "
+                     f"*Why it matters:* {md(x['why'])}")
     readme = ROOT / "README.md"
     text = readme.read_text(encoding="utf8")
     if README_BEGIN in text and README_END in text:

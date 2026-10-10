@@ -1498,11 +1498,10 @@
   const CAT_ORDER = ["Big picture", "Mecca & Medina", "Words & meaning", "People & stories", "Nature", "Numbers"];
   let catFilter = "All";
 
-  // By category, then in the order of data/discoveries.json.
-  function trendOrder() {
-    const rank = c => { const i = CAT_ORDER.indexOf(c); return i < 0 ? 99 : i; };
-    return D.discoveries.map((d, i) => [d, i]).sort((a, b) => rank(a[0].category) - rank(b[0].category) || a[1] - b[1]).map(([d]) => d);
-  }
+  // data/discoveries.json lists the trends most striking first; the list keeps
+  // that order, with the first TOP under "Start here".
+  const TOP = 10;
+  const trendOrder = () => D.discoveries;
   const shownTrends = () => trendOrder().filter(d => catFilter === "All" || d.category === catFilter);
 
   function renderCats() {
@@ -1527,17 +1526,19 @@
   function renderTrendList() {
     const box = $("trend-list");
     box.replaceChildren();
-    let cat = null;
-    for (const d of shownTrends()) {
-      if (catFilter === "All" && d.category !== cat) { cat = d.category; box.append(el("h3", "", cat)); }
+    const all = catFilter === "All";
+    shownTrends().forEach((d, i) => {
+      if (all && i === 0) box.append(el("h3", "", `Start here: the ${TOP} most striking`));
+      if (all && i === TOP) box.append(el("h3", "", "More trends"));
       const b = el("button", "trend");
       b.type = "button";
       b.dataset.id = d.id;
       b.append(...bidi(d.title));
-      if (d.claim) b.append(el("span", "tag", "Popular claim · holds"));
+      const tag = [all ? d.category : "", d.claim ? "popular claim, holds" : ""].filter(Boolean).join(" · ");
+      if (tag) b.append(el("span", "tag", capital(tag)));
       b.addEventListener("click", () => loadDiscovery(d.id, true));
       box.append(b);
-    }
+    });
     markCurrentTrend(false);
   }
 
@@ -1736,8 +1737,9 @@
     renderTrendList();
     const id = hashId();
     if (id && loadDiscovery(id, false)) markCurrentTrend(true);
-    else {
-      if (!loadDiscovery("month", false)) { series = [{ q: "root:شهر", label: "Month (ش ه ر)" }]; search(); }
+    else if (!(D.discoveries.length && loadDiscovery(D.discoveries[0].id, false))) {
+      series = [{ q: "root:شهر", label: "Month (ش ه ر)" }];
+      search();
     }
     document.dispatchEvent(new CustomEvent("quran-grid-ready"));
   }).catch(err => {
