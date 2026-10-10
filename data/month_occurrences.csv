@@ -1,0 +1,22 @@
+n,ref,surah,ayah,word,page,word_index,verse_index,form,translit,gloss,arabic
+1,2:185,2,185,1,28,3361,191,singular,shahr,month,شَهْرُ
+2,2:185,2,185,16,28,3376,191,singular,shahr,month,ٱلشَّهْرَ
+3,2:194,2,194,1,30,3590,200,singular,shahr,month,ٱلشَّهْرُ
+4,2:194,2,194,3,30,3592,200,singular,shahr,month,بِٱلشَّهْرِ
+5,2:197,2,197,2,31,3700,203,plural,ashhur,months,أَشْهُرٌ
+6,2:217,2,217,3,34,4103,223,singular,shahr,month,ٱلشَّهْرِ
+7,2:226,2,226,7,36,4342,232,plural,ashhur,months,أَشْهُرٍ
+8,2:234,2,234,9,38,4622,240,plural,ashhur,months,أَشْهُرٍ
+9,4:92,4,92,52,93,11707,584,dual,shahrayn,two months,شَهْرَيْنِ
+10,5:2,5,2,9,106,13404,670,singular,shahr,month,ٱلشَّهْرَ
+11,5:97,5,97,8,124,15640,765,singular,shahr,month,وَٱلشَّهْرَ
+12,9:2,9,2,5,187,23793,1236,plural,ashhur,months,أَشْهُرٍ
+13,9:5,9,5,3,187,23859,1239,plural,ashhur,months,ٱلْأَشْهُرُ
+14,9:36,9,36,3,192,24444,1270,plural,shuhūr,months,ٱلشُّهُورِ
+15,9:36,9,36,8,192,24449,1270,singular,shahr,month,شَهْرًا
+16,34:12,34,12,4,429,55209,3617,singular,shahr,month,شَهْرٌ
+17,34:12,34,12,6,429,55211,3617,singular,shahr,month,شَهْرٌ
+18,46:15,46,15,13,504,64936,4524,singular,shahr,month,شَهْرًا
+19,58:4,58,4,5,542,69908,5107,dual,shahrayn,two months,شَهْرَيْنِ
+20,65:4,65,4,11,558,72026,5220,plural,ashhur,months,أَشْهُرٍ
+21,97:3,97,3,6,598,76932,6127,singular,shahr,month,شَهْرٍ

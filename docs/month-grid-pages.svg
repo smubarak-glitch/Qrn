@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1036" width="1000" height="1036">
+<defs><radialGradient id="g"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+<rect width="100%" height="100%" fill="#000"/>
+<rect x="40.0" y="40.0" width="920.0" height="883.2" fill="#141412"/>
+<rect x="812.8" y="923.2" width="147.2" height="36.8" fill="#141412"/>
+<circle cx="868.0" cy="95.2" r="46.4" fill="url(#g)"/>
+<circle cx="868.0" cy="95.2" r="15.5" fill="#fff"/>
+<circle cx="868.0" cy="95.2" r="19.0" fill="none" stroke="#fff" stroke-width="1.5"/>
+<circle cx="794.4" cy="95.2" r="46.4" fill="url(#g)"/>
+<circle cx="794.4" cy="95.2" r="15.5" fill="#fff"/>
+<circle cx="794.4" cy="95.2" r="19.0" fill="none" stroke="#fff" stroke-width="1.5"/>
+<circle cx="757.6" cy="95.2" r="46.4" fill="url(#g)"/>
+<circle cx="757.6" cy="95.2" r="15.5" fill="#fff"/>
+<circle cx="647.2" cy="95.2" r="46.4" fill="url(#g)"/>
+<circle cx="647.2" cy="95.2" r="15.5" fill="#fff"/>
+<circle cx="573.6" cy="95.2" r="46.4" fill="url(#g)"/>
+<circle cx="573.6" cy="95.2" r="15.5" fill="#fff"/>
+<circle cx="500.0" cy="95.2" r="46.4" fill="url(#g)"/>
+<circle cx="500.0" cy="95.2" r="15.5" fill="#fff"/>
+<circle cx="316.0" cy="168.8" r="46.4" fill="url(#g)"/>
+<circle cx="316.0" cy="168.8" r="15.5" fill="#fff"/>
+<circle cx="757.6" cy="205.6" r="46.4" fill="url(#g)"/>
+<circle cx="757.6" cy="205.6" r="15.5" fill="#fff"/>
+<circle cx="95.2" cy="205.6" r="46.4" fill="url(#g)"/>
+<circle cx="95.2" cy="205.6" r="15.5" fill="#fff"/>
+<circle cx="536.8" cy="316.0" r="46.4" fill="url(#g)"/>
+<circle cx="536.8" cy="316.0" r="15.5" fill="#fff"/>
+<circle cx="536.8" cy="316.0" r="19.0" fill="none" stroke="#fff" stroke-width="1.5"/>
+<circle cx="352.8" cy="316.0" r="46.4" fill="url(#g)"/>
+<circle cx="352.8" cy="316.0" r="15.5" fill="#fff"/>
+<circle cx="352.8" cy="316.0" r="19.0" fill="none" stroke="#fff" stroke-width="1.5"/>
+<circle cx="831.2" cy="684.0" r="46.4" fill="url(#g)"/>
+<circle cx="831.2" cy="684.0" r="15.5" fill="#fff"/>
+<circle cx="831.2" cy="684.0" r="19.0" fill="none" stroke="#fff" stroke-width="1.5"/>
+<circle cx="831.2" cy="794.4" r="46.4" fill="url(#g)"/>
+<circle cx="831.2" cy="794.4" r="15.5" fill="#fff"/>
+<circle cx="352.8" cy="831.2" r="46.4" fill="url(#g)"/>
+<circle cx="352.8" cy="831.2" r="15.5" fill="#fff"/>
+<circle cx="684.0" cy="868.0" r="46.4" fill="url(#g)"/>
+<circle cx="684.0" cy="868.0" r="15.5" fill="#fff"/>
+<circle cx="132.0" cy="904.8" r="46.4" fill="url(#g)"/>
+<circle cx="132.0" cy="904.8" r="15.5" fill="#fff"/>
+<text x="40" y="1014" fill="#8c8a86" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="15">604 pages · 25 x 25 grid · read right to left from the top · 21 mentions of month</text>
+</svg>

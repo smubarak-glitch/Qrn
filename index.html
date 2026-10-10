@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quran Month Grid</title>
+<meta name="description" content="Every word of the Quran as one square of a grid, with a white dot wherever the Arabic word for month (shahr) appears.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri&family=Amiri+Quran&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: a night-sky plate. One square grid on black, its catalog notes beside it,
+   the catalog of verses below. Single dark look, as asked: black ground, white dots. */
+:root {
+  --bg: #000000;
+  --panel: #0b0b0a;
+  --field: #141412;
+  --band: #23221f;
+  --rule: #262522;
+  --ink: #f3f1ec;
+  --ink-2: #aaa69e;
+  --ink-3: #75716a;
+  --dot: #ffffff;
+  --font-ui: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-ar: "IBM Plex Sans Arabic", "Geeza Pro", "Noto Sans Arabic", Tahoma, sans-serif;
+  --font-quran: "Amiri Quran", "Amiri", "Scheherazade New", "Traditional Arabic", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --step--1: 0.8125rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.75rem;
+  --step-3: 2.5rem;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  padding-inline: 16px;
+  padding-block: 0 64px;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1120px; margin-inline: auto; }
+a { color: var(--ink); text-underline-offset: 3px; text-decoration-color: var(--ink-3); }
+a:hover { text-decoration-color: var(--ink); }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ---------- header ---------- */
+header.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px 48px;
+  align-items: end;
+  padding-block: 56px 32px;
+  border-bottom: 1px solid var(--rule);
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 12px;
+}
+h1 {
+  font-size: var(--step-3);
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+  text-wrap: balance;
+}
+.lede { margin: 0; max-width: 62ch; color: var(--ink-2); font-size: 1.0625rem; }
+.lede strong { color: var(--ink); font-weight: 500; }
+.hero-word {
+  text-align: center;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+}
+.hero-word .ar {
+  font-family: "Amiri", var(--font-quran);
+  font-size: 5.5rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.hero-word .tr {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  letter-spacing: 0.04em;
+}
+
+/* ---------- controls ---------- */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  align-items: flex-end;
+  padding-block: 24px;
+}
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+legend, .ctl-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 0;
+  margin-bottom: 6px;
+}
+.seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 2px;
+  gap: 2px;
+}
+.seg input, .chk input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.seg label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.seg label:hover { color: var(--ink); background: #151513; }
+.seg input:checked + label { background: var(--ink); color: var(--bg); }
+.seg input:focus-visible + label { outline: 2px solid var(--ink); outline-offset: 1px; }
+.seg input:disabled + label { opacity: 0.35; cursor: not-allowed; }
+.seg .n { font-family: var(--font-mono); font-size: 0.75rem; opacity: 0.7; font-variant-numeric: tabular-nums; }
+.toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+.chk label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px 7px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--panel);
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  cursor: pointer;
+  user-select: none;
+}
+.chk label::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--ink-3);
+  border-radius: 3px;
+  flex: none;
+}
+.chk input:checked + label { color: var(--ink); border-color: var(--ink-3); }
+.chk input:checked + label::before { background: var(--ink); border-color: var(--ink); box-shadow: inset 0 0 0 2px var(--panel); }
+.chk input:focus-visible + label { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+/* ---------- workspace: controls, plate, notes ---------- */
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-areas: "controls controls" "plate notes";
+  column-gap: 32px;
+  align-items: start;
+}
+.controls { grid-area: controls; }
+figure { grid-area: plate; margin: 0; min-width: 0; }
+.notes { grid-area: notes; }
+.grid-box { position: relative; width: 100%; max-width: 820px; }
+#grid {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: manipulation;
+  cursor: crosshair;
+  background: var(--bg);
+}
+.ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-3);
+  max-width: 820px;
+}
+.ends.top { margin-bottom: 8px; }
+.ends.bottom { margin-top: 8px; }
+.ends .mark { color: var(--ink-2); }
+figcaption {
+  margin-top: 14px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  max-width: 820px;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  min-width: 200px;
+  max-width: 280px;
+  background: rgba(10, 10, 9, 0.96);
+  border: 1px solid #3a3935;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--ink-2);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+}
+.tooltip .t-ref { font-family: var(--font-mono); color: var(--ink); font-size: 0.875rem; }
+.tooltip .t-ar { font-family: var(--font-quran); font-size: 1.75rem; color: var(--ink); line-height: 1.5; direction: rtl; }
+.tooltip .t-strong { color: var(--ink); font-weight: 500; }
+.tooltip .t-row + .t-row { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--rule); }
+.tooltip .t-muted { color: var(--ink-3); }
+
+/* ---------- side notes ---------- */
+.notes { display: grid; gap: 28px; min-width: 0; }
+.big {
+  font-size: 4.5rem;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.big-label { color: var(--ink-2); margin-top: 6px; font-size: 0.9375rem; }
+.forms { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.forms li {
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding-block: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+.forms .ar { font-family: var(--font-quran); font-size: 1.5rem; line-height: 1.2; text-align: right; direction: rtl; }
+.forms .en { font-size: 0.875rem; color: var(--ink-2); }
+.forms .en i { color: var(--ink); font-style: italic; }
+.forms .count { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1rem; text-align: right; }
+.forms li.off { opacity: 0.35; }
+.notes h2, .catalog h2, .method h2 {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 400;
+  margin: 0 0 10px;
+}
+.key { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 0.875rem; color: var(--ink-2); }
+.key li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: center; }
+.key svg { display: block; }
+.readout { font-size: 0.9375rem; color: var(--ink-2); margin: 0; }
+.readout b { color: var(--ink); font-weight: 500; }
+
+/* ---------- strip ---------- */
+.strip-wrap { margin-top: 40px; max-width: 820px; }
+.strip-wrap h2 { font-weight: 400; margin: 0 0 6px; }
+#strip { display: block; width: 100%; height: 48px; }
+
+/* ---------- catalog ---------- */
+.catalog { margin-top: 64px; border-top: 1px solid var(--rule); padding-top: 32px; }
+.catalog-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; margin-bottom: 8px; }
+.catalog-head h3 { font-size: var(--step-2); font-weight: 600; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+.catalog-head p { margin: 0; color: var(--ink-3); font-size: 0.875rem; }
+.entries { list-style: none; margin: 0; padding: 0; }
+.entry {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 8px 32px;
+  padding-block: 24px;
+  border-bottom: 1px solid var(--rule);
+  scroll-margin-top: 24px;
+  border-radius: 2px;
+  transition: background-color 0.6s ease;
+}
+.entry:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+.entry.flash { background-color: #1b1a17; }
+.entry.dim { opacity: 0.4; }
+.entry .meta { display: grid; gap: 4px; align-content: start; }
+.entry .ref { font-family: var(--font-mono); font-size: 1.375rem; font-weight: 500; color: var(--ink); }
+.entry .surah { color: var(--ink-2); font-size: 0.875rem; }
+.entry .surah .ar { font-family: var(--font-ar); }
+.entry .where { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.entry .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--ink);
+  border: 1px solid #3a3935;
+  border-radius: 999px;
+  padding: 2px 9px 2px 4px;
+  font-variant-numeric: tabular-nums;
+}
+.chip::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--dot); box-shadow: 0 0 6px rgba(255, 255, 255, 0.6); }
+.chip .k { font-family: var(--font-mono); color: var(--ink-2); }
+.verse-ar {
+  font-family: var(--font-quran);
+  font-size: 1.625rem;
+  line-height: 2.1;
+  direction: rtl;
+  text-align: right;
+  color: var(--ink-3);
+  margin: 0;
+}
+.verse-ar mark { background: none; color: var(--ink); text-shadow: 0 0 14px rgba(255, 255, 255, 0.55); }
+.verse-en { margin: 10px 0 0; color: var(--ink-2); max-width: 70ch; }
+.verse-en .src { color: var(--ink-3); font-size: 0.8125rem; }
+.entry .body { min-width: 0; }
+
+/* ---------- method ---------- */
+.method {
+  margin-top: 64px;
+  border-top: 1px solid var(--rule);
+  padding-top: 32px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px 48px;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+.method p { margin: 0 0 12px; max-width: 62ch; }
+.method ul { margin: 0; padding-left: 18px; }
+.method li { margin-bottom: 6px; }
+.method code { font-family: var(--font-mono); font-size: 0.85em; color: var(--ink); }
+
+@media (max-width: 900px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-areas: "controls" "plate" "notes"; }
+  .notes { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 40px; }
+  .notes > .count-block { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  /* Grid first on phones; the settings follow right under it. */
+  .workspace { grid-template-areas: "plate" "controls" "notes"; padding-top: 24px; }
+  .controls { padding-block: 28px 0; }
+  header.hero { grid-template-columns: minmax(0, 1fr); padding-block: 32px 20px; }
+  .hero-word { display: none; }
+  h1 { font-size: 2rem; }
+  .notes { grid-template-columns: minmax(0, 1fr); }
+  .entry { grid-template-columns: minmax(0, 1fr); }
+  .method { grid-template-columns: minmax(0, 1fr); }
+  .big { font-size: 3.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .entry { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">The Quran as a grid</p>
+      <h1>Every “month” in the Quran</h1>
+      <p class="lede" id="lede">Each square below is one word of the Quran. All <strong>77,429</strong> words fill a <strong>279 × 278</strong> grid, read like an Arabic page: right to left, top to bottom. The white dots mark the <strong>21</strong> places where the Arabic word for month, <em>shahr</em>, appears.</p>
+    </div>
+    <div class="hero-word" aria-hidden="true">
+      <span class="ar">شَهْر</span>
+      <span class="tr">shahr · month</span>
+    </div>
+  </header>
+
+  <section class="workspace" aria-label="The grid">
+  <form class="controls" id="controls" aria-label="Grid settings">
+    <fieldset>
+      <legend>One square is</legend>
+      <div class="seg">
+        <input type="radio" name="unit" id="unit-words" value="words" checked><label for="unit-words">a word <span class="n">77,429</span></label>
+        <input type="radio" name="unit" id="unit-verses" value="verses"><label for="unit-verses">a verse <span class="n">6,236</span></label>
+        <input type="radio" name="unit" id="unit-pages" value="pages"><label for="unit-pages">a page <span class="n">604</span></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Show</legend>
+      <div class="seg">
+        <input type="radio" name="show" id="show-all" value="all" checked><label for="show-all">all forms <span class="n" data-count="all">21</span></label>
+        <input type="radio" name="show" id="show-singular" value="singular"><label for="show-singular">month <span class="n" data-count="singular">12</span></label>
+        <input type="radio" name="show" id="show-dual" value="dual"><label for="show-dual">two months <span class="n" data-count="dual">2</span></label>
+        <input type="radio" name="show" id="show-plural" value="plural"><label for="show-plural">months <span class="n" data-count="plural">7</span></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Read from</legend>
+      <div class="seg">
+        <input type="radio" name="dir" id="dir-rtl" value="rtl" checked><label for="dir-rtl">right to left</label>
+        <input type="radio" name="dir" id="dir-ltr" value="ltr"><label for="dir-ltr">left to right</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Surah order</legend>
+      <div class="seg">
+        <input type="radio" name="order" id="order-mushaf" value="mushaf" checked><label for="order-mushaf">standard</label>
+        <input type="radio" name="order" id="order-revelation" value="revelation"><label for="order-revelation">revelation</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Overlays</legend>
+      <div class="toggles">
+        <span class="chk"><input type="checkbox" id="opt-bands"><label for="opt-bands">Shade surahs</label></span>
+        <span class="chk"><input type="checkbox" id="opt-connect"><label for="opt-connect">Connect the dots</label></span>
+      </div>
+    </fieldset>
+  </form>
+
+    <figure>
+      <div class="ends top" id="ends-top"></div>
+      <div class="grid-box" id="grid-box">
+        <canvas id="grid" role="img" aria-label="Grid of the Quran with a white dot at each mention of month"></canvas>
+        <div class="tooltip" id="tooltip" hidden></div>
+      </div>
+      <div class="ends bottom" id="ends-bottom"></div>
+      <figcaption id="caption"></figcaption>
+
+      <div class="strip-wrap">
+        <h2 class="ctl-label">The same dots on one line, start to end</h2>
+        <canvas id="strip" aria-hidden="true"></canvas>
+        <div class="ends" id="strip-ends"></div>
+      </div>
+    </figure>
+
+    <aside class="notes" aria-label="Summary">
+      <div class="count-block">
+        <div class="big" id="big-count">21</div>
+        <div class="big-label" id="big-label">mentions of month in 17 verses, across 9 surahs</div>
+      </div>
+      <div>
+        <h2>The four word shapes</h2>
+        <ul class="forms" id="forms">
+          <li data-form="singular"><span class="ar">شَهْر</span><span class="en"><i>shahr</i>, month</span><span class="count">12</span></li>
+          <li data-form="dual"><span class="ar">شَهْرَيْن</span><span class="en"><i>shahrayn</i>, two months</span><span class="count">2</span></li>
+          <li data-form="plural"><span class="ar">أَشْهُر</span><span class="en"><i>ashhur</i>, months</span><span class="count">6</span></li>
+          <li data-form="plural"><span class="ar">شُهُور</span><span class="en"><i>shuhūr</i>, months</span><span class="count">1</span></li>
+        </ul>
+      </div>
+      <div>
+        <h2>What you are seeing</h2>
+        <p class="readout" id="readout"></p>
+      </div>
+      <div>
+        <h2>Key</h2>
+        <ul class="key">
+          <li><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="#fff" opacity=".15"/><circle cx="11" cy="11" r="4.5" fill="#fff"/></svg><span>A mention of month</span></li>
+          <li><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="4.5" fill="#fff"/><circle cx="11" cy="11" r="8" fill="none" stroke="#fff" stroke-width="1.4"/></svg><span>Two mentions in the same square</span></li>
+          <li><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="5" y="5" width="12" height="12" fill="#141412" stroke="#262522"/></svg><span id="key-cell">One word of the Quran</span></li>
+        </ul>
+      </div>
+    </aside>
+  </section>
+
+  <section class="catalog" aria-labelledby="catalog-title">
+    <div class="catalog-head">
+      <h3 id="catalog-title">The 17 verses</h3>
+      <p id="catalog-note">In the order they appear in the grid. Tap a dot to jump to its verse.</p>
+    </div>
+    <ol class="entries" id="entries"></ol>
+  </section>
+
+  <section class="method" aria-label="Method and sources">
+    <div>
+      <h2>How the grid is built</h2>
+      <p>The text is split into words exactly as the Quranic Arabic Corpus splits it, which gives 77,429 words in 6,236 verses. The grid is the smallest near-square that holds them: 279 columns by 278 rows, with the last 133 squares left empty. Verses use 79 × 79 (6,236 of 6,241 squares) and the 604 pages of the Madani mushaf use 25 × 25.</p>
+      <p>A dot is any word built on the root ش ه ر that the corpus tags as the noun <em>shahr</em>. In the Quran that root is only ever used for month, and it comes in four shapes: <em>shahr</em> (month), the dual <em>shahrayn</em> (two months), and the plurals <em>ashhur</em> and <em>shuhūr</em> (months).</p>
+      <p>The revelation order sorts whole surahs by the traditional sequence Tanzil lists. Verses inside each surah keep their usual order.</p>
+    </div>
+    <div>
+      <h2>Checks</h2>
+      <ul>
+        <li>A plain spelling search of the Tanzil text for ش ه ر, plus ش ه و ر for <em>shuhūr</em>, finds the same 21 words in the same 17 verses as the root search.</li>
+        <li>Ramadan, the month of fasting, is named once, in 2:185, which also contains <em>shahr</em> twice.</li>
+        <li>English translations add the word month in brackets in two more verses, 2:196 and 9:37. The Arabic word is not there, so they are not dots.</li>
+      </ul>
+      <h2 style="margin-top:20px">Sources</h2>
+      <ul>
+        <li>Word segmentation and roots: <a href="https://corpus.quran.com" target="_blank" rel="noopener">Quranic Arabic Corpus</a> morphology v0.4 (GPL), via <a href="https://github.com/mustafa0x/quran-morphology" target="_blank" rel="noopener">mustafa0x/quran-morphology</a>.</li>
+        <li>Surahs, pages and the plain-text check: <a href="https://tanzil.net" target="_blank" rel="noopener">Tanzil Project</a> (CC BY 3.0).</li>
+        <li>English: Saheeh International, as published by Tanzil.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<!-- DATA:BEGIN -->
+<script id="quran-data" type="application/json">{"summary":{"root":"شهر","occurrences":21,"verses":17,"surahs":9,"by_form":{"singular":12,"dual":2,"plural":7},"by_word":{"shahr":12,"shahrayn":2,"ashhur":6,"shuhur":1},"total_words":77429,"total_verses":6236,"total_pages":604},"occurrences":[{"n":1,"ref":"2:185","surah":2,"ayah":185,"word":1,"verse_index":191,"word_index":3361,"page":28,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"شَهْرُ"},{"n":2,"ref":"2:185","surah":2,"ayah":185,"word":16,"verse_index":191,"word_index":3376,"page":28,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"ٱلشَّهْرَ"},{"n":3,"ref":"2:194","surah":2,"ayah":194,"word":1,"verse_index":200,"word_index":3590,"page":30,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"ٱلشَّهْرُ"},{"n":4,"ref":"2:194","surah":2,"ayah":194,"word":3,"verse_index":200,"word_index":3592,"page":30,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"بِٱلشَّهْرِ"},{"n":5,"ref":"2:197","surah":2,"ayah":197,"word":2,"verse_index":203,"word_index":3700,"page":31,"key":"ashhur","form":"plural","translit":"ashhur","gloss":"months","arabic":"أَشْهُرٌ"},{"n":6,"ref":"2:217","surah":2,"ayah":217,"word":3,"verse_index":223,"word_index":4103,"page":34,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"ٱلشَّهْرِ"},{"n":7,"ref":"2:226","surah":2,"ayah":226,"word":7,"verse_index":232,"word_index":4342,"page":36,"key":"ashhur","form":"plural","translit":"ashhur","gloss":"months","arabic":"أَشْهُرٍ"},{"n":8,"ref":"2:234","surah":2,"ayah":234,"word":9,"verse_index":240,"word_index":4622,"page":38,"key":"ashhur","form":"plural","translit":"ashhur","gloss":"months","arabic":"أَشْهُرٍ"},{"n":9,"ref":"4:92","surah":4,"ayah":92,"word":52,"verse_index":584,"word_index":11707,"page":93,"key":"shahrayn","form":"dual","translit":"shahrayn","gloss":"two months","arabic":"شَهْرَيْنِ"},{"n":10,"ref":"5:2","surah":5,"ayah":2,"word":9,"verse_index":670,"word_index":13404,"page":106,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"ٱلشَّهْرَ"},{"n":11,"ref":"5:97","surah":5,"ayah":97,"word":8,"verse_index":765,"word_index":15640,"page":124,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"وَٱلشَّهْرَ"},{"n":12,"ref":"9:2","surah":9,"ayah":2,"word":5,"verse_index":1236,"word_index":23793,"page":187,"key":"ashhur","form":"plural","translit":"ashhur","gloss":"months","arabic":"أَشْهُرٍ"},{"n":13,"ref":"9:5","surah":9,"ayah":5,"word":3,"verse_index":1239,"word_index":23859,"page":187,"key":"ashhur","form":"plural","translit":"ashhur","gloss":"months","arabic":"ٱلْأَشْهُرُ"},{"n":14,"ref":"9:36","surah":9,"ayah":36,"word":3,"verse_index":1270,"word_index":24444,"page":192,"key":"shuhur","form":"plural","translit":"shuhūr","gloss":"months","arabic":"ٱلشُّهُورِ"},{"n":15,"ref":"9:36","surah":9,"ayah":36,"word":8,"verse_index":1270,"word_index":24449,"page":192,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"شَهْرًا"},{"n":16,"ref":"34:12","surah":34,"ayah":12,"word":4,"verse_index":3617,"word_index":55209,"page":429,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"شَهْرٌ"},{"n":17,"ref":"34:12","surah":34,"ayah":12,"word":6,"verse_index":3617,"word_index":55211,"page":429,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"شَهْرٌ"},{"n":18,"ref":"46:15","surah":46,"ayah":15,"word":13,"verse_index":4524,"word_index":64936,"page":504,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"شَهْرًا"},{"n":19,"ref":"58:4","surah":58,"ayah":4,"word":5,"verse_index":5107,"word_index":69908,"page":542,"key":"shahrayn","form":"dual","translit":"shahrayn","gloss":"two months","arabic":"شَهْرَيْنِ"},{"n":20,"ref":"65:4","surah":65,"ayah":4,"word":11,"verse_index":5220,"word_index":72026,"page":558,"key":"ashhur","form":"plural","translit":"ashhur","gloss":"months","arabic":"أَشْهُرٍ"},{"n":21,"ref":"97:3","surah":97,"ayah":3,"word":6,"verse_index":6127,"word_index":76932,"page":598,"key":"shahr","form":"singular","translit":"shahr","gloss":"month","arabic":"شَهْرٍ"}],"verses":[{"ref":"2:185","surah":2,"ayah":185,"words":["شَهْرُ","رَمَضَانَ","ٱلَّذِىٓ","أُنزِلَ","فِيهِ","ٱلْقُرْءَانُ","هُدًى","لِّلنَّاسِ","وَبَيِّنَٰتٍ","مِّنَ","ٱلْهُدَىٰ","وَٱلْفُرْقَانِ","فَمَن","شَهِدَ","مِنكُمُ","ٱلشَّهْرَ","فَلْيَصُمْهُ","وَمَن","كَانَ","مَرِيضًا","أَوْ","عَلَىٰ","سَفَرٍ","فَعِدَّةٌ","مِّنْ","أَيَّامٍ","أُخَرَ","يُرِيدُ","ٱللَّهُ","بِكُمُ","ٱلْيُسْرَ","وَلَا","يُرِيدُ","بِكُمُ","ٱلْعُسْرَ","وَلِتُكْمِلُوا۟","ٱلْعِدَّةَ","وَلِتُكَبِّرُوا۟","ٱللَّهَ","عَلَىٰ","مَا","هَدَىٰكُمْ","وَلَعَلَّكُمْ","تَشْكُرُونَ"],"translation":"The month of Ramadhan [is that] in which was revealed the Qur'an, a guidance for the people and clear proofs of guidance and criterion. So whoever sights [the new moon of] the month, let him fast it; and whoever is ill or on a journey - then an equal number of other days. Allah intends for you ease and does not intend for you hardship and [wants] for you to complete the period and to glorify Allah for that [to] which He has guided you; and perhaps you will be grateful."},{"ref":"2:194","surah":2,"ayah":194,"words":["ٱلشَّهْرُ","ٱلْحَرَامُ","بِٱلشَّهْرِ","ٱلْحَرَامِ","وَٱلْحُرُمَٰتُ","قِصَاصٌ","فَمَنِ","ٱعْتَدَىٰ","عَلَيْكُمْ","فَٱعْتَدُوا۟","عَلَيْهِ","بِمِثْلِ","مَا","ٱعْتَدَىٰ","عَلَيْكُمْ","وَٱتَّقُوا۟","ٱللَّهَ","وَٱعْلَمُوٓا۟","أَنَّ","ٱللَّهَ","مَعَ","ٱلْمُتَّقِينَ"],"translation":"[Fighting in] the sacred month is for [aggression committed in] the sacred month, and for [all] violations is legal retribution. So whoever has assaulted you, then assault him in the same way that he has assaulted you. And fear Allah and know that Allah is with those who fear Him."},{"ref":"2:197","surah":2,"ayah":197,"words":["ٱلْحَجُّ","أَشْهُرٌ","مَّعْلُومَٰتٌ","فَمَن","فَرَضَ","فِيهِنَّ","ٱلْحَجَّ","فَلَا","رَفَثَ","وَلَا","فُسُوقَ","وَلَا","جِدَالَ","فِى","ٱلْحَجِّ","وَمَا","تَفْعَلُوا۟","مِنْ","خَيْرٍ","يَعْلَمْهُ","ٱللَّهُ","وَتَزَوَّدُوا۟","فَإِنَّ","خَيْرَ","ٱلزَّادِ","ٱلتَّقْوَىٰ","وَٱتَّقُونِ","يَٰٓأُو۟لِى","ٱلْأَلْبَٰبِ"],"translation":"Hajj is [during] well-known months, so whoever has made Hajj obligatory upon himself therein [by entering the state of ihram], there is [to be for him] no sexual relations and no disobedience and no disputing during Hajj. And whatever good you do - Allah knows it. And take provisions, but indeed, the best provision is fear of Allah. And fear Me, O you of understanding."},{"ref":"2:217","surah":2,"ayah":217,"words":["يَسْـَٔلُونَكَ","عَنِ","ٱلشَّهْرِ","ٱلْحَرَامِ","قِتَالٍ","فِيهِ","قُلْ","قِتَالٌ","فِيهِ","كَبِيرٌ","وَصَدٌّ","عَن","سَبِيلِ","ٱللَّهِ","وَكُفْرٌۢ","بِهِۦ","وَٱلْمَسْجِدِ","ٱلْحَرَامِ","وَإِخْرَاجُ","أَهْلِهِۦ","مِنْهُ","أَكْبَرُ","عِندَ","ٱللَّهِ","وَٱلْفِتْنَةُ","أَكْبَرُ","مِنَ","ٱلْقَتْلِ","وَلَا","يَزَالُونَ","يُقَٰتِلُونَكُمْ","حَتَّىٰ","يَرُدُّوكُمْ","عَن","دِينِكُمْ","إِنِ","ٱسْتَطَٰعُوا۟","وَمَن","يَرْتَدِدْ","مِنكُمْ","عَن","دِينِهِۦ","فَيَمُتْ","وَهُوَ","كَافِرٌ","فَأُو۟لَٰٓئِكَ","حَبِطَتْ","أَعْمَٰلُهُمْ","فِى","ٱلدُّنْيَا","وَٱلْءَاخِرَةِ","وَأُو۟لَٰٓئِكَ","أَصْحَٰبُ","ٱلنَّارِ","هُمْ","فِيهَا","خَٰلِدُونَ"],"translation":"They ask you about the sacred month - about fighting therein. Say, \"Fighting therein is great [sin], but averting [people] from the way of Allah and disbelief in Him and [preventing access to] al-Masjid al-Haram and the expulsion of its people therefrom are greater [evil] in the sight of Allah. And fitnah is greater than killing.\" And they will continue to fight you until they turn you back from your religion if they are able. And whoever of you reverts from his religion [to disbelief] and dies while he is a disbeliever - for those, their deeds have become worthless in this world and the Hereafter, and those are the companions of the Fire, they will abide therein eternally."},{"ref":"2:226","surah":2,"ayah":226,"words":["لِّلَّذِينَ","يُؤْلُونَ","مِن","نِّسَآئِهِمْ","تَرَبُّصُ","أَرْبَعَةِ","أَشْهُرٍ","فَإِن","فَآءُو","فَإِنَّ","ٱللَّهَ","غَفُورٌ","رَّحِيمٌ"],"translation":"For those who swear not to have sexual relations with their wives is a waiting time of four months, but if they return [to normal relations] - then indeed, Allah is Forgiving and Merciful."},{"ref":"2:234","surah":2,"ayah":234,"words":["وَٱلَّذِينَ","يُتَوَفَّوْنَ","مِنكُمْ","وَيَذَرُونَ","أَزْوَٰجًا","يَتَرَبَّصْنَ","بِأَنفُسِهِنَّ","أَرْبَعَةَ","أَشْهُرٍ","وَعَشْرًا","فَإِذَا","بَلَغْنَ","أَجَلَهُنَّ","فَلَا","جُنَاحَ","عَلَيْكُمْ","فِيمَا","فَعَلْنَ","فِىٓ","أَنفُسِهِنَّ","بِٱلْمَعْرُوفِ","وَٱللَّهُ","بِمَا","تَعْمَلُونَ","خَبِيرٌ"],"translation":"And those who are taken in death among you and leave wives behind - they, [the wives, shall] wait four months and ten [days]. And when they have fulfilled their term, then there is no blame upon you for what they do with themselves in an acceptable manner. And Allah is [fully] Acquainted with what you do."},{"ref":"4:92","surah":4,"ayah":92,"words":["وَمَا","كَانَ","لِمُؤْمِنٍ","أَن","يَقْتُلَ","مُؤْمِنًا","إِلَّا","خَطَـًٔا","وَمَن","قَتَلَ","مُؤْمِنًا","خَطَـًٔا","فَتَحْرِيرُ","رَقَبَةٍ","مُّؤْمِنَةٍ","وَدِيَةٌ","مُّسَلَّمَةٌ","إِلَىٰٓ","أَهْلِهِۦٓ","إِلَّآ","أَن","يَصَّدَّقُوا۟","فَإِن","كَانَ","مِن","قَوْمٍ","عَدُوٍّ","لَّكُمْ","وَهُوَ","مُؤْمِنٌ","فَتَحْرِيرُ","رَقَبَةٍ","مُّؤْمِنَةٍ","وَإِن","كَانَ","مِن","قَوْمٍۭ","بَيْنَكُمْ","وَبَيْنَهُم","مِّيثَٰقٌ","فَدِيَةٌ","مُّسَلَّمَةٌ","إِلَىٰٓ","أَهْلِهِۦ","وَتَحْرِيرُ","رَقَبَةٍ","مُّؤْمِنَةٍ","فَمَن","لَّمْ","يَجِدْ","فَصِيَامُ","شَهْرَيْنِ","مُتَتَابِعَيْنِ","تَوْبَةً","مِّنَ","ٱللَّهِ","وَكَانَ","ٱللَّهُ","عَلِيمًا","حَكِيمًا"],"translation":"And never is it for a believer to kill a believer except by mistake. And whoever kills a believer by mistake - then the freeing of a believing slave and a compensation payment presented to the deceased's family [is required] unless they give [up their right as] charity. But if the deceased was from a people at war with you and he was a believer - then [only] the freeing of a believing slave; and if he was from a people with whom you have a treaty - then a compensation payment presented to his family and the freeing of a believing slave. And whoever does not find [one or cannot afford to buy one] - then [instead], a fast for two months consecutively, [seeking] acceptance of repentance from Allah. And Allah is ever Knowing and Wise."},{"ref":"5:2","surah":5,"ayah":2,"words":["يَٰٓأَيُّهَا","ٱلَّذِينَ","ءَامَنُوا۟","لَا","تُحِلُّوا۟","شَعَٰٓئِرَ","ٱللَّهِ","وَلَا","ٱلشَّهْرَ","ٱلْحَرَامَ","وَلَا","ٱلْهَدْىَ","وَلَا","ٱلْقَلَٰٓئِدَ","وَلَآ","ءَآمِّينَ","ٱلْبَيْتَ","ٱلْحَرَامَ","يَبْتَغُونَ","فَضْلًا","مِّن","رَّبِّهِمْ","وَرِضْوَٰنًا","وَإِذَا","حَلَلْتُمْ","فَٱصْطَادُوا۟","وَلَا","يَجْرِمَنَّكُمْ","شَنَـَٔانُ","قَوْمٍ","أَن","صَدُّوكُمْ","عَنِ","ٱلْمَسْجِدِ","ٱلْحَرَامِ","أَن","تَعْتَدُوا۟","وَتَعَاوَنُوا۟","عَلَى","ٱلْبِرِّ","وَٱلتَّقْوَىٰ","وَلَا","تَعَاوَنُوا۟","عَلَى","ٱلْإِثْمِ","وَٱلْعُدْوَٰنِ","وَٱتَّقُوا۟","ٱللَّهَ","إِنَّ","ٱللَّهَ","شَدِيدُ","ٱلْعِقَابِ"],"translation":"O you who have believed, do not violate the rites of Allah or [the sanctity of] the sacred month or [neglect the marking of] the sacrificial animals and garlanding [them] or [violate the safety of] those coming to the Sacred House seeking bounty from their Lord and [His] approval. But when you come out of ihram, then [you may] hunt. And do not let the hatred of a people for having obstructed you from al-Masjid al-Haram lead you to transgress. And cooperate in righteousness and piety, but do not cooperate in sin and aggression. And fear Allah; indeed, Allah is severe in penalty."},{"ref":"5:97","surah":5,"ayah":97,"words":["جَعَلَ","ٱللَّهُ","ٱلْكَعْبَةَ","ٱلْبَيْتَ","ٱلْحَرَامَ","قِيَٰمًا","لِّلنَّاسِ","وَٱلشَّهْرَ","ٱلْحَرَامَ","وَٱلْهَدْىَ","وَٱلْقَلَٰٓئِدَ","ذَٰلِكَ","لِتَعْلَمُوٓا۟","أَنَّ","ٱللَّهَ","يَعْلَمُ","مَا","فِى","ٱلسَّمَٰوَٰتِ","وَمَا","فِى","ٱلْأَرْضِ","وَأَنَّ","ٱللَّهَ","بِكُلِّ","شَىْءٍ","عَلِيمٌ"],"translation":"Allah has made the Ka'bah, the Sacred House, standing for the people and [has sanctified] the sacred months and the sacrificial animals and the garlands [by which they are identified]. That is so you may know that Allah knows what is in the heavens and what is in the earth and that Allah is Knowing of all things."},{"ref":"9:2","surah":9,"ayah":2,"words":["فَسِيحُوا۟","فِى","ٱلْأَرْضِ","أَرْبَعَةَ","أَشْهُرٍ","وَٱعْلَمُوٓا۟","أَنَّكُمْ","غَيْرُ","مُعْجِزِى","ٱللَّهِ","وَأَنَّ","ٱللَّهَ","مُخْزِى","ٱلْكَٰفِرِينَ"],"translation":"So travel freely, [O disbelievers], throughout the land [during] four months but know that you cannot cause failure to Allah and that Allah will disgrace the disbelievers."},{"ref":"9:5","surah":9,"ayah":5,"words":["فَإِذَا","ٱنسَلَخَ","ٱلْأَشْهُرُ","ٱلْحُرُمُ","فَٱقْتُلُوا۟","ٱلْمُشْرِكِينَ","حَيْثُ","وَجَدتُّمُوهُمْ","وَخُذُوهُمْ","وَٱحْصُرُوهُمْ","وَٱقْعُدُوا۟","لَهُمْ","كُلَّ","مَرْصَدٍ","فَإِن","تَابُوا۟","وَأَقَامُوا۟","ٱلصَّلَوٰةَ","وَءَاتَوُا۟","ٱلزَّكَوٰةَ","فَخَلُّوا۟","سَبِيلَهُمْ","إِنَّ","ٱللَّهَ","غَفُورٌ","رَّحِيمٌ"],"translation":"And when the sacred months have passed, then kill the polytheists wherever you find them and capture them and besiege them and sit in wait for them at every place of ambush. But if they should repent, establish prayer, and give zakah, let them [go] on their way. Indeed, Allah is Forgiving and Merciful."},{"ref":"9:36","surah":9,"ayah":36,"words":["إِنَّ","عِدَّةَ","ٱلشُّهُورِ","عِندَ","ٱللَّهِ","ٱثْنَا","عَشَرَ","شَهْرًا","فِى","كِتَٰبِ","ٱللَّهِ","يَوْمَ","خَلَقَ","ٱلسَّمَٰوَٰتِ","وَٱلْأَرْضَ","مِنْهَآ","أَرْبَعَةٌ","حُرُمٌ","ذَٰلِكَ","ٱلدِّينُ","ٱلْقَيِّمُ","فَلَا","تَظْلِمُوا۟","فِيهِنَّ","أَنفُسَكُمْ","وَقَٰتِلُوا۟","ٱلْمُشْرِكِينَ","كَآفَّةً","كَمَا","يُقَٰتِلُونَكُمْ","كَآفَّةً","وَٱعْلَمُوٓا۟","أَنَّ","ٱللَّهَ","مَعَ","ٱلْمُتَّقِينَ"],"translation":"Indeed, the number of months with Allah is twelve [lunar] months in the register of Allah [from] the day He created the heavens and the earth; of these, four are sacred. That is the correct religion, so do not wrong yourselves during them. And fight against the disbelievers collectively as they fight against you collectively. And know that Allah is with the righteous [who fear Him]."},{"ref":"34:12","surah":34,"ayah":12,"words":["وَلِسُلَيْمَٰنَ","ٱلرِّيحَ","غُدُوُّهَا","شَهْرٌ","وَرَوَاحُهَا","شَهْرٌ","وَأَسَلْنَا","لَهُۥ","عَيْنَ","ٱلْقِطْرِ","وَمِنَ","ٱلْجِنِّ","مَن","يَعْمَلُ","بَيْنَ","يَدَيْهِ","بِإِذْنِ","رَبِّهِۦ","وَمَن","يَزِغْ","مِنْهُمْ","عَنْ","أَمْرِنَا","نُذِقْهُ","مِنْ","عَذَابِ","ٱلسَّعِيرِ"],"translation":"And to Solomon [We subjected] the wind - its morning [journey was that of] a month - and its afternoon [journey was that of] a month, and We made flow for him a spring of [liquid] copper. And among the jinn were those who worked for him by the permission of his Lord. And whoever deviated among them from Our command - We will make him taste of the punishment of the Blaze."},{"ref":"46:15","surah":46,"ayah":15,"words":["وَوَصَّيْنَا","ٱلْإِنسَٰنَ","بِوَٰلِدَيْهِ","إِحْسَٰنًا","حَمَلَتْهُ","أُمُّهُۥ","كُرْهًا","وَوَضَعَتْهُ","كُرْهًا","وَحَمْلُهُۥ","وَفِصَٰلُهُۥ","ثَلَٰثُونَ","شَهْرًا","حَتَّىٰٓ","إِذَا","بَلَغَ","أَشُدَّهُۥ","وَبَلَغَ","أَرْبَعِينَ","سَنَةً","قَالَ","رَبِّ","أَوْزِعْنِىٓ","أَنْ","أَشْكُرَ","نِعْمَتَكَ","ٱلَّتِىٓ","أَنْعَمْتَ","عَلَىَّ","وَعَلَىٰ","وَٰلِدَىَّ","وَأَنْ","أَعْمَلَ","صَٰلِحًا","تَرْضَىٰهُ","وَأَصْلِحْ","لِى","فِى","ذُرِّيَّتِىٓ","إِنِّى","تُبْتُ","إِلَيْكَ","وَإِنِّى","مِنَ","ٱلْمُسْلِمِينَ"],"translation":"And We have enjoined upon man, to his parents, good treatment. His mother carried him with hardship and gave birth to him with hardship, and his gestation and weaning [period] is thirty months. [He grows] until, when he reaches maturity and reaches [the age of] forty years, he says, \"My Lord, enable me to be grateful for Your favor which You have bestowed upon me and upon my parents and to work righteousness of which You will approve and make righteous for me my offspring. Indeed, I have repented to You, and indeed, I am of the Muslims.\""},{"ref":"58:4","surah":58,"ayah":4,"words":["فَمَن","لَّمْ","يَجِدْ","فَصِيَامُ","شَهْرَيْنِ","مُتَتَابِعَيْنِ","مِن","قَبْلِ","أَن","يَتَمَآسَّا","فَمَن","لَّمْ","يَسْتَطِعْ","فَإِطْعَامُ","سِتِّينَ","مِسْكِينًا","ذَٰلِكَ","لِتُؤْمِنُوا۟","بِٱللَّهِ","وَرَسُولِهِۦ","وَتِلْكَ","حُدُودُ","ٱللَّهِ","وَلِلْكَٰفِرِينَ","عَذَابٌ","أَلِيمٌ"],"translation":"And he who does not find [a slave] - then a fast for two months consecutively before they touch one another; and he who is unable - then the feeding of sixty poor persons. That is for you to believe [completely] in Allah and His Messenger; and those are the limits [set by] Allah. And for the disbelievers is a painful punishment."},{"ref":"65:4","surah":65,"ayah":4,"words":["وَٱلَّٰٓـِٔى","يَئِسْنَ","مِنَ","ٱلْمَحِيضِ","مِن","نِّسَآئِكُمْ","إِنِ","ٱرْتَبْتُمْ","فَعِدَّتُهُنَّ","ثَلَٰثَةُ","أَشْهُرٍ","وَٱلَّٰٓـِٔى","لَمْ","يَحِضْنَ","وَأُو۟لَٰتُ","ٱلْأَحْمَالِ","أَجَلُهُنَّ","أَن","يَضَعْنَ","حَمْلَهُنَّ","وَمَن","يَتَّقِ","ٱللَّهَ","يَجْعَل","لَّهُۥ","مِنْ","أَمْرِهِۦ","يُسْرًا"],"translation":"And those who no longer expect menstruation among your women - if you doubt, then their period is three months, and [also for] those who have not menstruated. And for those who are pregnant, their term is until they give birth. And whoever fears Allah - He will make for him of his matter ease."},{"ref":"97:3","surah":97,"ayah":3,"words":["لَيْلَةُ","ٱلْقَدْرِ","خَيْرٌ","مِّنْ","أَلْفِ","شَهْرٍ"],"translation":"The Night of Decree is better than a thousand months."}],"surahs":[{"n":1,"name":"Al-Faatiha","name_ar":"الفاتحة","name_en":"The Opening","verses":7,"revelation_order":5,"type":"Meccan"},{"n":2,"name":"Al-Baqara","name_ar":"البقرة","name_en":"The Cow","verses":286,"revelation_order":87,"type":"Medinan"},{"n":3,"name":"Aal-i-Imraan","name_ar":"آل عمران","name_en":"The Family of Imraan","verses":200,"revelation_order":89,"type":"Medinan"},{"n":4,"name":"An-Nisaa","name_ar":"النساء","name_en":"The Women","verses":176,"revelation_order":92,"type":"Medinan"},{"n":5,"name":"Al-Maaida","name_ar":"المائدة","name_en":"The Table","verses":120,"revelation_order":112,"type":"Medinan"},{"n":6,"name":"Al-An'aam","name_ar":"الأنعام","name_en":"The Cattle","verses":165,"revelation_order":55,"type":"Meccan"},{"n":7,"name":"Al-A'raaf","name_ar":"الأعراف","name_en":"The Heights","verses":206,"revelation_order":39,"type":"Meccan"},{"n":8,"name":"Al-Anfaal","name_ar":"الأنفال","name_en":"The Spoils of War","verses":75,"revelation_order":88,"type":"Medinan"},{"n":9,"name":"At-Tawba","name_ar":"التوبة","name_en":"The Repentance","verses":129,"revelation_order":113,"type":"Medinan"},{"n":10,"name":"Yunus","name_ar":"يونس","name_en":"Jonas","verses":109,"revelation_order":51,"type":"Meccan"},{"n":11,"name":"Hud","name_ar":"هود","name_en":"Hud","verses":123,"revelation_order":52,"type":"Meccan"},{"n":12,"name":"Yusuf","name_ar":"يوسف","name_en":"Joseph","verses":111,"revelation_order":53,"type":"Meccan"},{"n":13,"name":"Ar-Ra'd","name_ar":"الرعد","name_en":"The Thunder","verses":43,"revelation_order":96,"type":"Medinan"},{"n":14,"name":"Ibrahim","name_ar":"ابراهيم","name_en":"Abraham","verses":52,"revelation_order":72,"type":"Meccan"},{"n":15,"name":"Al-Hijr","name_ar":"الحجر","name_en":"The Rock","verses":99,"revelation_order":54,"type":"Meccan"},{"n":16,"name":"An-Nahl","name_ar":"النحل","name_en":"The Bee","verses":128,"revelation_order":70,"type":"Meccan"},{"n":17,"name":"Al-Israa","name_ar":"الإسراء","name_en":"The Night Journey","verses":111,"revelation_order":50,"type":"Meccan"},{"n":18,"name":"Al-Kahf","name_ar":"الكهف","name_en":"The Cave","verses":110,"revelation_order":69,"type":"Meccan"},{"n":19,"name":"Maryam","name_ar":"مريم","name_en":"Mary","verses":98,"revelation_order":44,"type":"Meccan"},{"n":20,"name":"Taa-Haa","name_ar":"طه","name_en":"Taa-Haa","verses":135,"revelation_order":45,"type":"Meccan"},{"n":21,"name":"Al-Anbiyaa","name_ar":"الأنبياء","name_en":"The Prophets","verses":112,"revelation_order":73,"type":"Meccan"},{"n":22,"name":"Al-Hajj","name_ar":"الحج","name_en":"The Pilgrimage","verses":78,"revelation_order":103,"type":"Medinan"},{"n":23,"name":"Al-Muminoon","name_ar":"المؤمنون","name_en":"The Believers","verses":118,"revelation_order":74,"type":"Meccan"},{"n":24,"name":"An-Noor","name_ar":"النور","name_en":"The Light","verses":64,"revelation_order":102,"type":"Medinan"},{"n":25,"name":"Al-Furqaan","name_ar":"الفرقان","name_en":"The Criterion","verses":77,"revelation_order":42,"type":"Meccan"},{"n":26,"name":"Ash-Shu'araa","name_ar":"الشعراء","name_en":"The Poets","verses":227,"revelation_order":47,"type":"Meccan"},{"n":27,"name":"An-Naml","name_ar":"النمل","name_en":"The Ant","verses":93,"revelation_order":48,"type":"Meccan"},{"n":28,"name":"Al-Qasas","name_ar":"القصص","name_en":"The Stories","verses":88,"revelation_order":49,"type":"Meccan"},{"n":29,"name":"Al-Ankaboot","name_ar":"العنكبوت","name_en":"The Spider","verses":69,"revelation_order":85,"type":"Meccan"},{"n":30,"name":"Ar-Room","name_ar":"الروم","name_en":"The Romans","verses":60,"revelation_order":84,"type":"Meccan"},{"n":31,"name":"Luqman","name_ar":"لقمان","name_en":"Luqman","verses":34,"revelation_order":57,"type":"Meccan"},{"n":32,"name":"As-Sajda","name_ar":"السجدة","name_en":"The Prostration","verses":30,"revelation_order":75,"type":"Meccan"},{"n":33,"name":"Al-Ahzaab","name_ar":"الأحزاب","name_en":"The Clans","verses":73,"revelation_order":90,"type":"Medinan"},{"n":34,"name":"Saba","name_ar":"سبإ","name_en":"Sheba","verses":54,"revelation_order":58,"type":"Meccan"},{"n":35,"name":"Faatir","name_ar":"فاطر","name_en":"The Originator","verses":45,"revelation_order":43,"type":"Meccan"},{"n":36,"name":"Yaseen","name_ar":"يس","name_en":"Yaseen","verses":83,"revelation_order":41,"type":"Meccan"},{"n":37,"name":"As-Saaffaat","name_ar":"الصافات","name_en":"Those drawn up in Ranks","verses":182,"revelation_order":56,"type":"Meccan"},{"n":38,"name":"Saad","name_ar":"ص","name_en":"The letter Saad","verses":88,"revelation_order":38,"type":"Meccan"},{"n":39,"name":"Az-Zumar","name_ar":"الزمر","name_en":"The Groups","verses":75,"revelation_order":59,"type":"Meccan"},{"n":40,"name":"Al-Ghaafir","name_ar":"غافر","name_en":"The Forgiver","verses":85,"revelation_order":60,"type":"Meccan"},{"n":41,"name":"Fussilat","name_ar":"فصلت","name_en":"Explained in detail","verses":54,"revelation_order":61,"type":"Meccan"},{"n":42,"name":"Ash-Shura","name_ar":"الشورى","name_en":"Consultation","verses":53,"revelation_order":62,"type":"Meccan"},{"n":43,"name":"Az-Zukhruf","name_ar":"الزخرف","name_en":"Ornaments of gold","verses":89,"revelation_order":63,"type":"Meccan"},{"n":44,"name":"Ad-Dukhaan","name_ar":"الدخان","name_en":"The Smoke","verses":59,"revelation_order":64,"type":"Meccan"},{"n":45,"name":"Al-Jaathiya","name_ar":"الجاثية","name_en":"Crouching","verses":37,"revelation_order":65,"type":"Meccan"},{"n":46,"name":"Al-Ahqaf","name_ar":"الأحقاف","name_en":"The Dunes","verses":35,"revelation_order":66,"type":"Meccan"},{"n":47,"name":"Muhammad","name_ar":"محمد","name_en":"Muhammad","verses":38,"revelation_order":95,"type":"Medinan"},{"n":48,"name":"Al-Fath","name_ar":"الفتح","name_en":"The Victory","verses":29,"revelation_order":111,"type":"Medinan"},{"n":49,"name":"Al-Hujuraat","name_ar":"الحجرات","name_en":"The Inner Apartments","verses":18,"revelation_order":106,"type":"Medinan"},{"n":50,"name":"Qaaf","name_ar":"ق","name_en":"The letter Qaaf","verses":45,"revelation_order":34,"type":"Meccan"},{"n":51,"name":"Adh-Dhaariyat","name_ar":"الذاريات","name_en":"The Winnowing Winds","verses":60,"revelation_order":67,"type":"Meccan"},{"n":52,"name":"At-Tur","name_ar":"الطور","name_en":"The Mount","verses":49,"revelation_order":76,"type":"Meccan"},{"n":53,"name":"An-Najm","name_ar":"النجم","name_en":"The Star","verses":62,"revelation_order":23,"type":"Meccan"},{"n":54,"name":"Al-Qamar","name_ar":"القمر","name_en":"The Moon","verses":55,"revelation_order":37,"type":"Meccan"},{"n":55,"name":"Ar-Rahmaan","name_ar":"الرحمن","name_en":"The Beneficent","verses":78,"revelation_order":97,"type":"Medinan"},{"n":56,"name":"Al-Waaqia","name_ar":"الواقعة","name_en":"The Inevitable","verses":96,"revelation_order":46,"type":"Meccan"},{"n":57,"name":"Al-Hadid","name_ar":"الحديد","name_en":"The Iron","verses":29,"revelation_order":94,"type":"Medinan"},{"n":58,"name":"Al-Mujaadila","name_ar":"المجادلة","name_en":"The Pleading Woman","verses":22,"revelation_order":105,"type":"Medinan"},{"n":59,"name":"Al-Hashr","name_ar":"الحشر","name_en":"The Exile","verses":24,"revelation_order":101,"type":"Medinan"},{"n":60,"name":"Al-Mumtahana","name_ar":"الممتحنة","name_en":"She that is to be examined","verses":13,"revelation_order":91,"type":"Medinan"},{"n":61,"name":"As-Saff","name_ar":"الصف","name_en":"The Ranks","verses":14,"revelation_order":109,"type":"Medinan"},{"n":62,"name":"Al-Jumu'a","name_ar":"الجمعة","name_en":"Friday","verses":11,"revelation_order":110,"type":"Medinan"},{"n":63,"name":"Al-Munaafiqoon","name_ar":"المنافقون","name_en":"The Hypocrites","verses":11,"revelation_order":104,"type":"Medinan"},{"n":64,"name":"At-Taghaabun","name_ar":"التغابن","name_en":"Mutual Disillusion","verses":18,"revelation_order":108,"type":"Medinan"},{"n":65,"name":"At-Talaaq","name_ar":"الطلاق","name_en":"Divorce","verses":12,"revelation_order":99,"type":"Medinan"},{"n":66,"name":"At-Tahrim","name_ar":"التحريم","name_en":"The Prohibition","verses":12,"revelation_order":107,"type":"Medinan"},{"n":67,"name":"Al-Mulk","name_ar":"الملك","name_en":"The Sovereignty","verses":30,"revelation_order":77,"type":"Meccan"},{"n":68,"name":"Al-Qalam","name_ar":"القلم","name_en":"The Pen","verses":52,"revelation_order":2,"type":"Meccan"},{"n":69,"name":"Al-Haaqqa","name_ar":"الحاقة","name_en":"The Reality","verses":52,"revelation_order":78,"type":"Meccan"},{"n":70,"name":"Al-Ma'aarij","name_ar":"المعارج","name_en":"The Ascending Stairways","verses":44,"revelation_order":79,"type":"Meccan"},{"n":71,"name":"Nooh","name_ar":"نوح","name_en":"Noah","verses":28,"revelation_order":71,"type":"Meccan"},{"n":72,"name":"Al-Jinn","name_ar":"الجن","name_en":"The Jinn","verses":28,"revelation_order":40,"type":"Meccan"},{"n":73,"name":"Al-Muzzammil","name_ar":"المزمل","name_en":"The Enshrouded One","verses":20,"revelation_order":3,"type":"Meccan"},{"n":74,"name":"Al-Muddaththir","name_ar":"المدثر","name_en":"The Cloaked One","verses":56,"revelation_order":4,"type":"Meccan"},{"n":75,"name":"Al-Qiyaama","name_ar":"القيامة","name_en":"The Resurrection","verses":40,"revelation_order":31,"type":"Meccan"},{"n":76,"name":"Al-Insaan","name_ar":"الانسان","name_en":"Man","verses":31,"revelation_order":98,"type":"Medinan"},{"n":77,"name":"Al-Mursalaat","name_ar":"المرسلات","name_en":"The Emissaries","verses":50,"revelation_order":33,"type":"Meccan"},{"n":78,"name":"An-Naba","name_ar":"النبإ","name_en":"The Announcement","verses":40,"revelation_order":80,"type":"Meccan"},{"n":79,"name":"An-Naazi'aat","name_ar":"النازعات","name_en":"Those who drag forth","verses":46,"revelation_order":81,"type":"Meccan"},{"n":80,"name":"Abasa","name_ar":"عبس","name_en":"He frowned","verses":42,"revelation_order":24,"type":"Meccan"},{"n":81,"name":"At-Takwir","name_ar":"التكوير","name_en":"The Overthrowing","verses":29,"revelation_order":7,"type":"Meccan"},{"n":82,"name":"Al-Infitaar","name_ar":"الإنفطار","name_en":"The Cleaving","verses":19,"revelation_order":82,"type":"Meccan"},{"n":83,"name":"Al-Mutaffifin","name_ar":"المطففين","name_en":"Defrauding","verses":36,"revelation_order":86,"type":"Meccan"},{"n":84,"name":"Al-Inshiqaaq","name_ar":"الإنشقاق","name_en":"The Splitting Open","verses":25,"revelation_order":83,"type":"Meccan"},{"n":85,"name":"Al-Burooj","name_ar":"البروج","name_en":"The Constellations","verses":22,"revelation_order":27,"type":"Meccan"},{"n":86,"name":"At-Taariq","name_ar":"الطارق","name_en":"The Morning Star","verses":17,"revelation_order":36,"type":"Meccan"},{"n":87,"name":"Al-A'laa","name_ar":"الأعلى","name_en":"The Most High","verses":19,"revelation_order":8,"type":"Meccan"},{"n":88,"name":"Al-Ghaashiya","name_ar":"الغاشية","name_en":"The Overwhelming","verses":26,"revelation_order":68,"type":"Meccan"},{"n":89,"name":"Al-Fajr","name_ar":"الفجر","name_en":"The Dawn","verses":30,"revelation_order":10,"type":"Meccan"},{"n":90,"name":"Al-Balad","name_ar":"البلد","name_en":"The City","verses":20,"revelation_order":35,"type":"Meccan"},{"n":91,"name":"Ash-Shams","name_ar":"الشمس","name_en":"The Sun","verses":15,"revelation_order":26,"type":"Meccan"},{"n":92,"name":"Al-Lail","name_ar":"الليل","name_en":"The Night","verses":21,"revelation_order":9,"type":"Meccan"},{"n":93,"name":"Ad-Dhuhaa","name_ar":"الضحى","name_en":"The Morning Hours","verses":11,"revelation_order":11,"type":"Meccan"},{"n":94,"name":"Ash-Sharh","name_ar":"الشرح","name_en":"The Consolation","verses":8,"revelation_order":12,"type":"Meccan"},{"n":95,"name":"At-Tin","name_ar":"التين","name_en":"The Fig","verses":8,"revelation_order":28,"type":"Meccan"},{"n":96,"name":"Al-Alaq","name_ar":"العلق","name_en":"The Clot","verses":19,"revelation_order":1,"type":"Meccan"},{"n":97,"name":"Al-Qadr","name_ar":"القدر","name_en":"The Power, Fate","verses":5,"revelation_order":25,"type":"Meccan"},{"n":98,"name":"Al-Bayyina","name_ar":"البينة","name_en":"The Evidence","verses":8,"revelation_order":100,"type":"Medinan"},{"n":99,"name":"Az-Zalzala","name_ar":"الزلزلة","name_en":"The Earthquake","verses":8,"revelation_order":93,"type":"Medinan"},{"n":100,"name":"Al-Aadiyaat","name_ar":"العاديات","name_en":"The Chargers","verses":11,"revelation_order":14,"type":"Meccan"},{"n":101,"name":"Al-Qaari'a","name_ar":"القارعة","name_en":"The Calamity","verses":11,"revelation_order":30,"type":"Meccan"},{"n":102,"name":"At-Takaathur","name_ar":"التكاثر","name_en":"Competition","verses":8,"revelation_order":16,"type":"Meccan"},{"n":103,"name":"Al-Asr","name_ar":"العصر","name_en":"The Declining Day, Epoch","verses":3,"revelation_order":13,"type":"Meccan"},{"n":104,"name":"Al-Humaza","name_ar":"الهمزة","name_en":"The Traducer","verses":9,"revelation_order":32,"type":"Meccan"},{"n":105,"name":"Al-Fil","name_ar":"الفيل","name_en":"The Elephant","verses":5,"revelation_order":19,"type":"Meccan"},{"n":106,"name":"Quraish","name_ar":"قريش","name_en":"Quraysh","verses":4,"revelation_order":29,"type":"Meccan"},{"n":107,"name":"Al-Maa'un","name_ar":"الماعون","name_en":"Almsgiving","verses":7,"revelation_order":17,"type":"Meccan"},{"n":108,"name":"Al-Kawthar","name_ar":"الكوثر","name_en":"Abundance","verses":3,"revelation_order":15,"type":"Meccan"},{"n":109,"name":"Al-Kaafiroon","name_ar":"الكافرون","name_en":"The Disbelievers","verses":6,"revelation_order":18,"type":"Meccan"},{"n":110,"name":"An-Nasr","name_ar":"النصر","name_en":"Divine Support","verses":3,"revelation_order":114,"type":"Medinan"},{"n":111,"name":"Al-Masad","name_ar":"المسد","name_en":"The Palm Fibre","verses":5,"revelation_order":6,"type":"Meccan"},{"n":112,"name":"Al-Ikhlaas","name_ar":"الإخلاص","name_en":"Sincerity","verses":4,"revelation_order":22,"type":"Meccan"},{"n":113,"name":"Al-Falaq","name_ar":"الفلق","name_en":"The Dawn","verses":5,"revelation_order":20,"type":"Meccan"},{"n":114,"name":"An-Naas","name_ar":"الناس","name_en":"Mankind","verses":6,"revelation_order":21,"type":"Meccan"}],"verse_word_counts":[4,4,2,3,4,3,9,1,7,8,12,8,11,12,11,10,12,11,7,19,16,7,11,17,6,19,25,11,23,20,13,34,39,20,13,19,28,15,12,22,13,18,19,11,17,10,13,18,8,7,10,8,8,11,19,18,10,12,8,7,26,14,7,18,20,18,28,59,24,15,13,12,9,20,23,18,17,24,10,11,37,19,23,9,11,24,23,13,10,29,15,49,13,28,10,26,27,30,11,27,17,9,25,18,12,10,10,22,74,12,12,25,19,17,18,33,17,18,17,31,30,12,14,11,24,10,31,15,11,18,19,22,30,14,17,16,18,9,16,27,15,15,31,19,10,14,30,15,21,45,34,32,14,7,19,17,31,17,6,10,13,12,10,9,24,20,11,13,9,9,43,31,12,23,16,11,22,18,14,25,29,11,14,51,37,8,16,13,16,14,32,44,17,65,17,27,13,25,6,15,22,14,73,29,26,12,24,14,8,25,17,14,12,11,15,12,17,20,20,49,30,22,25,57,16,26,26,39,27,16,14,14,13,7,40,46,30,45,33,64,25,47,25,35,8,15,27,6,7,28,9,16,54,43,30,60,15,27,9,52,21,50,24,24,43,67,39,24,24,11,38,27,35,29,13,16,15,20,28,30,17,45,11,19,13,17,14,15,128,32,28,27,49,1,7,11,18,11,13,46,15,13,16,14,9,29,24,24,11,6,18,26,26,18,11,20,15,15,25,21,27,22,26,14,11,11,7,18,24,34,15,20,17,20,12,7,20,20,7,23,5,45,19,8,20,9,6,30,13,11,7,15,7,25,15,6,31,15,19,14,13,13,8,10,17,32,8,36,9,27,29,28,13,33,7,14,29,13,18,9,9,11,14,24,15,24,11,11,10,25,12,19,14,17,12,34,14,14,17,10,11,11,23,11,35,14,15,9,18,23,30,27,21,11,12,10,13,15,17,9,12,16,12,5,5,11,13,23,15,13,6,9,24,6,13,12,27,24,21,19,10,12,6,19,40,25,75,21,36,14,7,30,18,21,13,8,25,20,9,33,16,13,19,11,15,17,15,11,22,12,17,36,30,22,9,28,12,23,24,21,20,9,11,21,11,20,14,43,7,7,21,30,10,28,16,28,14,16,37,19,13,15,13,71,88,18,13,22,14,20,24,34,17,11,17,54,42,58,14,13,8,23,13,12,27,19,40,22,32,15,18,15,15,12,14,48,14,9,38,28,20,14,10,20,11,10,18,11,20,20,25,28,30,15,16,16,23,19,27,6,3,18,7,10,17,18,21,31,20,48,36,18,12,24,13,30,22,22,15,17,22,28,36,32,60,16,39,33,8,27,12,10,31,23,62,20,22,15,7,14,21,18,13,11,14,33,26,20,20,11,8,21,7,7,21,20,16,17,12,40,29,22,11,32,10,12,14,37,28,20,6,14,33,36,19,16,17,11,18,11,14,14,22,8,17,37,19,22,6,34,8,14,14,14,26,25,14,15,13,11,12,11,23,53,18,26,11,15,50,23,52,61,31,43,61,19,26,10,7,23,45,32,25,23,18,42,30,28,22,14,17,21,16,13,14,24,16,13,9,25,40,34,13,13,24,12,13,14,19,67,26,15,41,31,26,16,51,33,10,22,28,15,37,13,11,23,12,20,27,16,13,13,47,12,24,24,30,20,19,19,33,25,8,25,16,23,17,10,19,15,26,21,16,14,7,17,12,45,15,20,13,24,23,50,20,27,9,11,15,25,9,21,24,19,51,26,22,15,63,13,21,15,22,17,44,29,11,24,11,14,14,12,11,12,31,16,13,9,13,10,25,9,24,9,9,17,7,37,13,14,12,12,10,32,11,16,16,9,19,26,13,14,22,28,10,19,22,17,15,12,11,14,20,9,23,14,15,8,28,17,25,15,27,6,21,22,14,31,22,17,12,17,10,27,9,5,23,12,45,39,8,24,14,9,15,18,17,12,25,22,11,14,21,7,8,9,16,17,16,44,22,49,29,17,12,16,13,44,15,18,16,9,15,8,13,13,25,21,13,22,23,12,23,11,18,11,10,30,12,20,24,15,29,28,9,10,35,8,27,10,9,18,7,18,31,20,26,22,20,31,16,23,40,39,28,13,37,8,27,42,35,17,17,8,14,35,37,19,16,16,9,8,29,21,1,13,14,10,12,6,6,9,11,11,16,17,13,5,4,7,15,12,16,25,5,28,12,12,7,19,30,22,16,16,15,26,29,11,18,11,37,40,14,23,10,15,36,28,10,18,13,14,15,20,19,10,38,32,8,15,29,17,20,9,10,11,13,14,15,14,10,7,27,17,25,13,34,25,23,8,15,6,14,13,11,13,7,8,37,24,19,21,42,12,6,13,15,13,18,18,9,9,10,19,23,9,16,8,18,11,6,6,9,7,7,4,11,5,10,11,11,6,4,3,4,3,19,8,5,16,21,16,22,10,22,12,13,22,11,11,29,23,10,9,18,23,41,14,20,36,13,22,18,39,11,15,14,15,41,30,43,31,8,43,20,17,27,19,18,11,19,14,40,10,19,26,15,5,13,30,9,10,30,14,7,8,5,11,22,10,37,28,29,12,7,7,12,14,26,9,10,12,7,10,12,7,23,8,16,11,18,17,6,11,11,11,23,7,11,18,22,23,13,6,11,20,21,6,24,11,8,10,11,20,13,19,11,10,18,16,17,19,12,21,13,21,18,16,16,10,33,35,20,19,12,13,17,36,18,13,9,17,18,17,10,12,10,14,8,33,12,12,20,8,26,26,20,10,11,24,13,45,13,18,22,9,14,32,22,26,18,23,16,13,10,13,18,20,11,11,24,18,23,24,16,10,8,19,33,23,18,12,27,29,23,23,15,14,28,19,36,31,28,16,43,15,23,13,14,14,15,17,16,15,16,14,22,12,22,17,10,11,16,19,22,26,12,16,17,13,16,19,16,32,26,24,24,11,46,12,9,15,11,20,25,27,8,25,18,16,18,11,14,13,17,26,23,19,30,18,14,16,16,27,25,22,17,16,16,16,12,24,23,27,15,37,16,20,22,18,17,27,31,8,52,18,22,16,18,12,16,21,14,15,5,26,29,28,23,14,15,6,15,14,18,27,17,10,39,18,14,29,17,16,22,41,25,43,11,16,27,18,10,16,27,11,10,17,29,17,22,16,19,12,15,11,11,10,20,15,12,7,22,12,11,13,11,21,16,5,14,10,20,19,42,10,4,15,10,25,15,25,9,13,33,16,17,22,14,10,11,16,6,10,17,7,22,12,10,5,16,29,11,27,7,14,24,22,10,8,8,21,15,14,14,15,10,26,9,16,24,22,11,10,9,25,8,19,16,31,22,11,13,10,27,18,16,14,16,39,23,11,24,9,7,14,11,9,11,29,19,22,9,31,13,10,18,12,17,11,19,10,26,11,19,23,17,15,23,19,18,19,17,13,17,15,16,7,18,21,14,12,17,27,21,22,17,11,18,8,12,15,18,9,12,14,11,5,14,13,26,13,11,29,12,8,26,14,11,20,35,22,9,18,15,19,18,10,6,10,9,9,9,24,12,16,5,10,9,15,18,20,18,10,12,17,14,7,26,8,10,15,17,9,3,16,5,6,16,15,15,25,7,15,14,16,11,8,13,9,17,4,18,18,16,9,32,9,23,19,23,19,10,13,10,18,32,19,17,10,11,27,26,26,9,32,19,18,24,8,11,22,14,15,11,22,29,12,15,14,8,17,7,9,17,10,6,14,16,17,25,24,27,30,16,15,5,12,12,6,11,33,24,15,13,37,17,11,18,12,12,13,20,21,10,23,9,11,12,12,6,20,8,9,14,46,21,14,6,10,11,7,14,17,29,19,23,15,26,24,27,25,20,15,15,5,14,35,9,19,27,11,45,42,27,15,7,13,19,15,7,23,16,19,11,8,28,51,13,39,14,19,25,19,21,8,13,16,18,15,16,14,16,19,21,26,11,13,37,33,29,17,16,10,5,7,16,22,14,5,34,44,17,15,12,13,18,12,4,12,21,25,9,15,13,15,26,18,13,9,8,13,9,26,14,12,11,10,6,6,10,13,6,7,7,8,7,8,8,9,7,7,8,5,7,9,8,7,5,7,11,8,11,12,6,7,7,8,7,12,9,4,7,8,11,5,6,6,4,4,10,4,5,11,4,8,5,3,10,8,6,5,4,9,7,8,7,8,5,6,6,6,5,4,7,4,14,9,4,6,4,5,6,5,3,8,5,3,5,5,5,5,5,6,3,6,14,5,7,15,5,4,4,3,3,6,3,8,7,6,5,9,18,7,8,8,7,14,9,10,13,16,15,13,21,11,4,7,10,6,10,7,11,13,9,15,21,21,19,8,20,15,12,22,10,32,28,14,18,11,10,18,5,15,12,16,7,8,17,14,7,12,11,12,10,6,12,7,9,19,12,23,17,17,14,16,17,15,13,24,20,22,21,15,10,27,29,19,15,18,25,25,6,7,14,11,19,10,13,24,16,20,32,17,19,15,15,18,8,10,9,17,13,16,12,11,24,13,11,7,18,15,24,9,13,22,22,5,15,19,11,7,9,12,17,22,12,14,8,21,12,9,13,17,11,23,11,16,9,8,23,13,7,21,14,13,18,12,12,11,9,25,12,12,10,9,12,13,12,13,8,22,17,11,16,13,7,18,11,10,13,6,21,12,19,19,9,9,5,25,9,16,14,15,13,18,18,21,25,13,15,10,19,9,14,18,15,22,17,15,11,13,9,12,13,11,14,12,14,9,13,12,11,14,13,9,19,14,10,11,12,26,15,14,11,27,14,23,14,18,15,9,14,9,9,18,8,5,22,21,11,15,3,6,16,11,11,6,10,16,7,9,11,19,18,19,34,22,38,13,32,33,7,17,8,23,15,30,28,12,28,14,11,13,12,12,16,8,19,15,8,19,11,9,23,13,11,16,27,26,13,13,10,14,19,18,30,19,8,13,11,12,20,9,12,11,6,8,10,12,15,8,10,16,9,13,24,12,17,10,9,35,9,10,2,24,13,13,3,15,6,3,13,19,12,19,8,15,11,5,11,14,5,11,14,9,10,6,18,24,1,5,5,14,13,8,12,14,14,13,11,7,6,6,9,10,11,8,9,11,15,5,13,10,8,18,10,11,10,8,11,6,9,9,16,8,11,11,12,8,8,15,13,9,11,12,10,14,14,9,10,7,7,11,9,8,3,29,11,12,11,11,9,18,12,8,10,8,10,8,9,8,16,9,25,13,8,7,9,5,8,6,9,7,6,5,9,4,4,9,4,6,10,4,5,9,10,14,1,5,4,6,4,12,7,8,4,18,4,9,5,11,10,10,4,13,3,5,7,11,4,5,5,3,4,2,5,2,3,3,3,2,4,5,5,6,22,34,2,8,5,8,10,7,21,10,4,9,5,11,19,9,8,6,7,14,8,6,15,5,13,10,11,12,5,6,16,8,26,19,14,13,10,12,18,8,5,14,17,9,5,9,9,26,15,12,12,16,9,7,4,18,4,16,28,12,13,8,7,8,6,12,7,3,6,13,12,10,9,11,14,17,11,9,12,7,6,13,15,6,18,12,8,8,12,17,9,20,18,12,13,19,11,7,11,15,10,14,8,14,9,8,8,10,7,10,5,8,7,11,13,13,5,7,13,6,22,15,8,6,15,13,18,13,8,11,10,10,17,8,7,16,10,13,13,14,18,11,11,20,8,8,7,9,11,5,8,7,13,7,8,8,7,8,6,9,7,9,11,9,7,7,5,8,8,15,16,6,12,12,14,14,10,14,12,10,16,7,6,23,8,11,19,11,8,6,12,7,10,19,11,9,7,9,9,11,16,12,6,5,11,13,8,8,10,9,22,12,11,69,13,12,13,15,9,25,14,10,17,22,9,22,37,17,6,4,12,22,9,25,16,14,20,8,24,21,9,11,20,15,27,20,13,10,35,17,9,4,11,14,23,14,11,8,8,8,27,16,21,16,12,8,18,7,16,15,17,15,12,27,10,17,7,9,18,18,29,28,9,11,10,11,44,3,5,5,4,4,10,7,5,5,3,6,7,6,21,5,5,10,13,13,9,15,4,16,26,10,5,32,15,8,7,6,14,25,7,9,4,10,12,5,5,8,6,7,19,8,7,7,4,6,11,11,8,9,5,7,7,7,5,5,10,7,12,14,8,7,9,4,10,7,10,16,9,5,8,11,8,12,10,7,10,6,8,12,8,5,8,5,14,5,5,24,6,6,6,7,9,7,5,8,16,10,6,10,6,8,8,7,5,14,8,8,7,8,9,8,11,18,7,9,26,18,19,11,17,9,11,9,9,28,12,14,15,16,14,9,7,20,9,34,26,13,9,11,16,18,22,17,15,78,17,48,13,48,14,19,14,22,33,21,7,38,10,31,11,15,11,7,16,18,10,17,23,38,8,11,49,19,23,76,39,27,22,9,19,22,16,9,12,16,17,9,17,8,9,9,8,13,10,16,21,15,20,19,10,9,7,7,9,11,6,11,9,11,15,8,11,9,9,13,8,7,16,11,17,9,15,16,5,11,13,10,9,7,7,15,12,14,5,14,13,17,13,11,13,12,5,11,4,11,22,8,16,9,9,10,13,9,5,12,1,4,6,11,11,8,11,8,5,8,4,6,8,6,7,7,5,10,7,6,11,8,5,9,5,5,7,9,8,5,7,6,6,7,8,7,4,5,5,7,12,6,7,9,8,3,4,3,21,7,11,8,5,4,3,3,4,3,4,2,8,6,13,3,5,3,8,5,4,6,6,5,4,6,5,3,6,4,4,4,4,8,6,6,5,6,4,6,6,3,3,6,7,4,3,4,6,4,4,4,3,7,8,5,4,7,4,3,11,3,5,6,7,4,5,8,5,9,6,4,8,5,3,7,4,3,11,5,4,4,3,5,3,2,6,9,5,3,10,5,3,7,4,3,11,5,3,4,5,3,4,6,5,11,9,7,3,10,5,4,7,4,3,11,4,11,8,5,5,3,4,3,6,8,5,4,6,4,3,11,6,3,9,5,5,9,9,5,10,8,5,4,4,5,3,4,9,5,6,5,7,5,4,2,4,5,6,7,4,4,5,4,9,3,6,7,4,4,3,4,6,5,4,3,7,5,19,6,3,9,10,10,7,16,14,6,19,11,19,8,11,15,18,9,19,24,12,9,14,11,17,14,8,7,11,8,8,5,12,12,13,8,16,13,10,16,38,12,14,12,28,13,12,13,10,14,7,9,11,5,8,11,15,7,6,12,27,21,16,20,19,14,14,9,12,9,9,7,9,10,8,10,12,4,8,7,11,14,16,11,13,8,15,18,18,11,13,17,15,11,1,4,9,19,12,12,22,13,18,17,10,16,17,10,38,13,9,16,32,18,10,11,27,15,26,10,29,15,27,19,19,25,9,14,15,17,18,27,12,10,9,10,16,13,18,20,18,26,13,23,6,8,15,12,15,13,25,17,20,15,17,8,18,13,6,7,11,14,7,15,19,21,13,8,17,29,26,28,20,16,17,26,14,18,19,15,16,19,1,10,11,10,12,10,12,21,7,31,6,18,11,16,6,13,27,13,13,19,8,17,13,20,27,12,18,14,23,6,15,16,23,12,7,16,7,16,13,28,19,12,8,10,21,25,19,13,14,16,15,19,12,6,13,8,7,17,5,12,13,14,22,15,16,6,15,17,9,1,2,8,12,8,11,10,22,32,13,8,5,9,5,9,11,6,8,14,11,20,13,14,21,16,8,18,27,16,22,9,11,18,6,10,15,15,16,22,22,15,14,16,9,11,17,18,28,10,19,9,11,14,24,12,20,9,19,8,10,1,4,3,9,8,18,16,8,8,27,14,18,14,17,29,24,17,16,11,30,21,15,15,7,15,10,21,11,25,16,19,22,30,27,1,8,18,24,17,6,10,8,14,14,11,16,16,14,15,11,13,8,12,21,9,13,14,10,11,18,17,7,11,5,13,12,6,28,28,29,17,8,21,16,6,13,25,14,13,15,24,14,35,23,17,18,18,16,16,16,13,15,14,16,14,19,25,14,30,24,48,22,13,17,7,3,13,8,7,6,8,12,22,61,35,25,69,11,30,13,14,12,21,19,6,12,15,7,8,11,8,8,16,8,14,18,15,17,18,32,10,11,16,16,16,29,12,12,27,19,27,20,16,8,17,19,10,21,26,22,17,9,11,12,12,7,10,32,15,34,14,8,13,23,9,20,10,13,18,34,11,14,24,17,7,8,16,10,9,10,15,24,19,21,11,14,13,13,25,17,24,34,28,28,18,10,6,5,34,4,4,4,16,4,12,13,7,22,17,16,8,16,21,13,11,14,18,25,10,24,33,19,19,26,30,25,1,2,3,3,3,7,8,10,12,8,12,14,8,11,15,6,5,12,9,10,7,8,15,5,4,7,7,13,8,11,11,6,10,10,8,13,9,8,7,15,8,6,9,6,11,11,24,7,8,7,10,12,10,11,7,7,6,5,4,13,5,8,5,5,11,9,10,7,12,8,12,6,6,7,7,9,11,11,10,11,14,10,8,2,2,2,3,7,6,5,9,4,7,12,3,4,4,6,7,2,4,7,5,7,7,7,3,4,4,5,6,5,10,6,4,5,4,10,6,5,4,6,4,4,3,3,3,5,3,7,4,3,5,7,4,7,4,5,5,6,3,6,5,4,6,4,6,4,6,7,5,4,4,5,4,5,4,5,5,4,4,5,4,4,3,4,5,6,5,4,4,3,3,6,4,4,3,4,4,7,5,6,5,3,26,4,3,7,5,3,4,3,3,4,5,10,5,5,4,3,3,4,4,4,4,4,5,5,5,3,4,4,3,4,4,4,4,4,3,4,3,4,5,4,4,5,6,4,5,6,4,5,6,5,4,4,4,2,4,5,10,4,4,3,4,5,6,3,3,3,6,4,4,5,3,4,4,3,2,6,4,3,6,3,4,4,6,10,10,8,12,10,15,7,10,6,8,7,7,10,8,11,7,5,6,7,23,15,32,9,30,16,13,9,7,6,11,6,9,15,8,4,4,7,6,11,6,10,14,8,5,5,8,6,5,7,4,5,7,5,4,4,4,10,11,11,10,6,6,11,7,4,3,9,8,9,9,4,6,14,10,5,6,6,4,4,4,4,4,7,10,5,4,6,10,33,16,23,36,31,34,24,21,9,5,9,6,19,16,12,13,10,20,31,20,34,13,10,12,11,7,19,4,7,15,8,8,12,15,12,36,9,8,18,26,14,11,18,17,25,11,22,11,15,15,20,13,16,14,9,12,10,14,11,9,11,7,14,6,17,22,15,9,34,9,20,16,17,1,6,14,13,21,10,27,16,12,15,13,15,14,8,16,15,13,15,6,15,30,13,6,7,19,18,13,39,26,10,14,6,16,30,23,9,23,8,11,23,9,15,22,12,10,13,19,12,13,16,11,10,8,4,12,23,12,13,11,13,20,12,7,21,14,20,30,12,10,9,6,6,7,17,11,8,14,32,9,12,6,25,15,12,17,1,4,7,7,17,16,8,9,14,15,16,19,9,23,25,19,14,5,8,12,18,20,9,11,25,11,10,14,16,19,16,4,13,17,11,11,19,12,22,26,9,13,17,30,18,11,28,12,11,32,13,17,19,12,1,1,10,10,19,12,22,19,16,15,19,13,38,30,34,18,11,22,9,22,22,24,29,22,12,12,17,13,16,10,14,6,15,7,9,17,10,11,6,14,9,15,8,20,27,16,21,27,15,11,22,27,15,1,2,6,7,8,6,8,7,10,11,12,11,20,4,9,7,12,9,12,15,8,11,21,14,7,9,5,7,9,9,10,25,17,5,12,11,7,11,9,11,6,7,8,6,13,12,7,13,11,7,17,11,11,7,6,4,9,14,10,8,10,7,17,9,11,10,7,8,5,5,15,7,6,6,6,6,8,7,5,11,8,8,8,11,13,13,8,7,6,1,2,8,5,6,7,8,10,5,6,5,6,7,6,6,6,8,9,9,6,5,6,5,6,5,3,4,4,8,7,7,6,7,3,8,5,12,7,8,5,10,8,3,2,4,2,5,7,5,6,5,3,5,4,5,10,7,5,3,1,6,6,9,20,12,4,14,11,19,11,14,16,14,11,13,24,13,15,7,17,13,24,21,16,18,10,14,11,13,12,22,11,14,16,8,8,1,6,15,29,18,9,14,25,24,24,19,16,13,9,45,18,28,17,9,27,25,12,13,18,14,32,10,17,18,19,14,18,22,18,27,8,18,18,38,3,4,9,6,8,16,11,22,14,13,44,24,6,15,14,27,12,10,7,7,16,15,7,10,11,12,8,21,10,15,12,13,6,29,5,15,4,19,19,21,8,5,8,25,37,20,9,14,31,28,27,19,7,18,14,12,12,19,40,28,28,14,54,15,22,17,9,12,17,28,7,30,10,39,31,20,27,18,16,19,10,3,11,7,9,9,12,11,5,10,5,8,7,4,9,10,14,8,8,9,6,6,12,6,6,4,10,10,8,8,9,5,6,7,5,6,15,13,13,12,5,7,7,6,9,13,2,2,2,2,3,3,3,4,4,2,5,4,5,7,5,9,6,3,5,4,4,5,9,6,9,6,5,9,9,8,5,6,5,4,6,7,7,8,6,7,7,9,8,8,7,8,5,4,7,8,11,13,6,5,5,6,9,7,9,7,1,2,3,2,2,2,4,4,4,3,3,5,6,6,6,12,5,8,6,7,19,5,8,7,5,7,6,9,8,7,6,8,6,6,8,7,7,9,5,7,5,7,9,9,7,9,10,10,5,3,5,4,5,3,3,3,3,5,5,5,4,4,3,3,5,5,6,3,3,4,4,25,4,3,18,9,16,11,16,16,31,3,3,5,7,3,5,6,4,4,4,4,4,5,4,4,4,4,4,3,9,2,3,4,5,2,6,4,3,2,3,4,7,6,7,5,8,8,8,9,5,5,9,5,6,6,4,7,6,9,6,4,7,3,10,9,5,7,8,4,4,8,7,4,9,7,5,9,5,3,7,5,7,9,5,4,6,5,9,5,6,6,5,4,5,6,1,2,2,2,3,3,4,4,6,3,5,4,4,5,6,4,4,4,3,4,4,4,4,6,4,4,6,4,10,4,4,4,16,4,8,4,6,4,8,4,6,4,6,5,4,5,4,2,4,3,4,5,4,9,4,9,4,3,4,5,4,3,4,1,4,3,4,4,4,3,4,4,4,6,4,6,4,6,3,3,2,4,3,3,3,5,5,2,2,3,3,3,3,3,4,5,5,3,4,2,3,4,6,4,5,3,2,2,2,2,4,2,3,2,2,2,3,3,5,3,3,4,5,5,9,2,4,5,5,5,3,4,3,4,4,3,5,7,9,6,3,5,6,2,3,4,7,6,4,6,5,4,4,5,3,3,4,4,4,4,4,3,7,5,4,5,4,6,5,6,3,2,5,4,9,11,9,36,8,12,15,15,17,37,12,22,27,20,15,28,13,12,20,39,25,21,15,12,28,14,39,21,22,18,23,21,26,18,15,47,38,19,17,30,22,24,19,10,10,15,17,15,8,9,51,11,40,14,12,13,25,37,18,31,23,28,16,12,23,11,17,10,17,10,10,18,13,19,17,48,13,13,52,13,19,15,21,21,55,21,38,19,11,8,9,11,23,31,16,11,14,11,15,17,9,35,12,21,8,10,23,17,9,18,21,15,21,17,12,11,22,14,18,20,17,17,21,11,17,11,9,14,13,16,18,10,27,11,16,11,9,18,8,16,12,5,41,30,21,28,14,32,25,14,7,16,34,25,14,11,29,21,17,22,11,45,11,27,24,17,9,11,18,10,12,7,8,13,18,11,5,9,9,7,14,11,12,8,15,15,12,12,12,8,7,9,13,15,13,10,4,5,5,4,2,2,11,3,4,5,3,4,4,5,7,3,10,2,7,2,2,7,3,6,4,5,3,7,6,5,5,10,8,6,3,4,5,5,12,4,8,9,11,10,5,7,5,11,10,5,12,5,1,2,4,4,4,6,15,5,6,6,7,6,6,6,3,5,9,6,9,5,4,3,2,8,10,4,3,4,3,2,3,7,6,5,5,5,4,4,3,4,7,6,4,5,3,4,6,3,5,4,3,4,4,4,4,11,3,3,2,4,3,4,9,2,3,6,3,2,4,2,4,4,4,2,5,5,2,4,6,5,4,10,7,5,4,5,4,5,5,8,5,7,8,8,9,9,14,6,5,18,7,5,14,4,7,6,4,9,6,3,8,7,5,5,5,4,13,3,13,8,12,10,10,15,13,9,9,7,10,11,9,8,13,13,9,11,14,10,5,7,10,8,10,8,8,12,16,11,11,7,13,13,2,4,5,6,5,8,6,6,9,7,6,4,5,8,11,6,8,6,9,78,2,2,2,2,2,3,2,4,4,4,4,4,2,3,4,5,2,3,3,4,2,3,3,6,5,2,4,4,2,3,57,2,3,3,3,2,7,5,3,3,2,4,5,4,4,4,3,4,5,3,3,9,5,3,3,11,4,4,5,6,5,4,3,2,3,5,3,4,6,5,3,6,4,4,4,4,2,3,3,3,5,4,3,3,3,4,4,3,5,3,4,5,6,5,5,7,11,10,7,6,8,7,7,7,10,7,8,5,10,6,8,5,6,4,9,7,13,8,6,9,5,7,8,9,9,11,10,2,2,2,2,2,3,3,3,3,3,3,3,2,5,3,3,3,3,3,5,4,3,3,3,4,2,7,3,6,6,6,4,3,3,4,4,3,5,5,3,5,3,6,4,3,5,3,6,3,4,2,3,4,2,3,4,2,2,3,3,3,4,3,5,4,2,5,6,4,4,4,2,3,6,3,2,5,3,4,5,3,2,2,2,6,5,10,14,9,15,2,2,2,2,2,3,2,3,2,5,4,5,4,3,4,6,5,6,4,3,2,3,2,4,5,6,6,3,4,4,4,2,3,4,5,4,3,3,4,9,4,5,4,3,5,9,2,3,4,4,3,3,4,4,2,3,3,3,3,2,2,2,4,4,4,3,3,4,5,4,4,4,3,2,2,2,2,3,3,5,2,2,6,3,2,4,2,4,3,3,3,3,3,3,3,3,3,3,3,3,3,4,3,2,3,3,4,6,3,3,4,5,5,2,5,5,8,3,3,3,3,5,6,4,6,4,3,2,3,4,4,3,4,5,6,9,2,6,5,5,2,5,6,4,2,3,4,7,7,8,6,4,7,6,4,2,2,4,3,5,4,6,3,4,8,4,6,6,4,6,3,6,3,3,3,4,3,8,5,4,4,6,3,2,5,5,6,3,3,3,4,4,6,4,4,3,9,3,2,2,3,3,4,6,9,10,14,14,4,4,3,3,3,4,2,5,4,4,3,2,4,2,6,4,4,5,4,3,6,3,3,3,3,3,2,4,4,3,3,3,3,3,9,2,4,3,2,4,6,4,4,4,3,5,3,4,3,2,3,4,6,6,3,2,3,4,3,3,2,2,2,6,4,4,4,4,3,4,4,3,4,1,2,2,3,6,6,3,6,5,3,4,3,5,3,11,10,5,5,4,4,6,5,9,4,5,4,3,5,3,2,4,4,3,5,6,4,5,4,2,2,3,4,2,6,3,4,9,3,6,3,2,3,3,3,3,3,3,3,4,4,3,3,7,7,3,3,3,4,3,4,2,2,4,2,2,6,3,4,3,4,3,2,4,6,5,2,1,3,5,5,4,4,3,3,4,4,4,4,3,3,3,4,4,3,3,2,2,3,6,4,9,4,4,5,4,3,3,5,4,3,4,3,3,5,3,4,5,6,3,2,2,5,5,5,6,9,5,12,6,3,11,16,16,9,21,4,3,4,3,4,6,6,6,2,2,2,3,3,4,4,4,7,4,5,1,2,4,5,4,4,4,4,2,4,2,2,3,3,4,5,2,4,5,1,4,9,4,4,4,4,4,3,4,3,3,7,5,4,4,3,2,4,4,7,4,4,5,2,5,3,2,3,3,4,3,4,5,5,5,4,5,7,7,5,6,4,3,5,4,2,4,5,4,4,5,5,5,4,2,2,4,5,3],"page_start_verse":[0,7,12,23,31,36,44,55,64,68,76,83,90,95,100,108,112,119,126,133,141,148,152,160,170,176,183,188,193,197,203,209,217,222,226,231,237,240,244,252,255,259,263,266,271,276,281,288,289,293,302,308,315,322,330,338,345,354,363,370,376,384,393,401,408,414,425,433,441,446,450,458,466,473,479,487,493,499,504,507,512,516,519,526,530,537,544,552,558,567,572,579,584,587,594,598,606,614,620,627,633,640,647,655,663,668,671,674,678,682,686,692,700,705,710,714,719,726,733,739,745,751,758,764,772,777,782,789,797,807,816,824,833,841,848,857,862,870,879,883,890,899,907,913,920,926,931,935,940,946,954,965,976,984,991,997,1005,1011,1021,1027,1035,1041,1049,1058,1074,1084,1091,1097,1103,1109,1113,1117,1124,1132,1141,1149,1160,1168,1176,1185,1193,1200,1205,1212,1221,1229,1235,1241,1248,1255,1261,1266,1271,1275,1282,1289,1296,1303,1307,1314,1321,1328,1334,1341,1346,1352,1357,1364,1370,1378,1384,1389,1397,1406,1417,1425,1434,1442,1452,1461,1470,1478,1485,1492,1501,1510,1518,1526,1535,1544,1554,1561,1570,1581,1590,1600,1610,1618,1626,1633,1639,1648,1659,1665,1674,1682,1691,1699,1707,1712,1720,1725,1735,1741,1749,1755,1760,1768,1774,1783,1792,1802,1817,1833,1853,1872,1892,1907,1915,1927,1935,1943,1955,1965,1973,1980,1988,1994,2003,2011,2019,2029,2036,2046,2056,2067,2078,2087,2095,2104,2115,2125,2133,2144,2155,2160,2167,2174,2185,2193,2201,2214,2223,2237,2250,2261,2275,2288,2301,2314,2326,2345,2360,2385,2399,2412,2424,2435,2446,2461,2473,2483,2493,2507,2518,2527,2540,2555,2564,2573,2584,2595,2600,2610,2618,2625,2633,2641,2650,2659,2667,2673,2690,2700,2715,2732,2747,2762,2777,2791,2801,2811,2818,2822,2827,2834,2844,2849,2852,2857,2866,2875,2887,2898,2910,2922,2932,2951,2971,2992,3015,3043,3068,3091,3115,3138,3159,3172,3181,3194,3203,3214,3222,3235,3247,3257,3265,3273,3280,3287,3295,3302,3311,3322,3329,3336,3346,3354,3363,3370,3378,3385,3392,3403,3414,3424,3433,3441,3450,3459,3469,3480,3488,3497,3503,3514,3523,3533,3539,3548,3555,3563,3568,3576,3583,3587,3595,3606,3613,3620,3628,3637,3645,3654,3663,3671,3678,3690,3698,3704,3717,3732,3745,3759,3775,3788,3812,3839,3864,3890,3914,3941,3970,3986,3996,4012,4031,4053,4063,4068,4079,4089,4098,4105,4114,4125,4132,4140,4149,4158,4166,4173,4182,4191,4199,4210,4218,4229,4238,4247,4256,4264,4272,4282,4287,4294,4303,4316,4323,4335,4347,4358,4372,4385,4398,4414,4432,4453,4473,4486,4495,4505,4515,4524,4530,4538,4545,4556,4564,4574,4583,4592,4598,4606,4611,4616,4623,4630,4645,4665,4681,4705,4726,4749,4766,4784,4810,4828,4852,4873,4895,4917,4941,4968,4995,5029,5055,5078,5086,5093,5099,5104,5110,5115,5125,5129,5135,5142,5150,5155,5161,5168,5177,5185,5192,5199,5208,5217,5222,5229,5236,5241,5253,5267,5286,5313,5331,5357,5385,5414,5429,5447,5460,5475,5494,5512,5542,5570,5596,5616,5641,5672,5702,5727,5758,5800,5829,5854,5882,5909,5931,5963,5993,6016,6043,6072,6098,6125,6137,6155,6176,6193,6207,6221]}</script>
+<!-- DATA:END -->
+
+<script>
+(() => {
+  "use strict";
+
+  const DATA = JSON.parse(document.getElementById("quran-data").textContent);
+  const SURAHS = DATA.surahs;                 // index 0 is surah 1
+  const OCC = DATA.occurrences;               // mushaf order
+  const VERSES = DATA.verses;                 // one entry per verse with a mention
+  const VWC = DATA.verse_word_counts;         // words per verse, mushaf order
+  const PAGE_START = DATA.page_start_verse;   // first verse index of each page
+
+  const TOTAL_VERSES = VWC.length;
+  const TOTAL_PAGES = PAGE_START.length;
+
+  // Prefix sums: first word of each verse, first verse of each surah.
+  const verseWordStart = new Int32Array(TOTAL_VERSES + 1);
+  for (let i = 0; i < TOTAL_VERSES; i++) verseWordStart[i + 1] = verseWordStart[i] + VWC[i];
+  const TOTAL_WORDS = verseWordStart[TOTAL_VERSES];
+  const surahFirstVerse = new Int32Array(SURAHS.length + 1);
+  SURAHS.forEach((s, i) => { surahFirstVerse[i + 1] = surahFirstVerse[i] + s.verses; });
+  const surahWords = SURAHS.map((s, i) => verseWordStart[surahFirstVerse[i + 1]] - verseWordStart[surahFirstVerse[i]]);
+
+  const fmt = new Intl.NumberFormat("en-US");
+  const FORM_LABEL = { singular: "month", dual: "two months", plural: "months" };
+
+  // First index i with arr[i] > x.
+  function upperBound(arr, x) {
+    let lo = 0, hi = arr.length;
+    while (lo < hi) { const m = (lo + hi) >> 1; if (arr[m] <= x) lo = m + 1; else hi = m; }
+    return lo;
+  }
+
+  function gridShape(n) {
+    const cols = Math.ceil(Math.sqrt(n));
+    return { cols, rows: Math.ceil(n / cols) };
+  }
+
+  // ---------------------------------------------------------------- state
+  const state = { unit: "words", show: "all", dir: "rtl", order: "mushaf", bands: false, connect: false };
+  try {
+    const saved = JSON.parse(localStorage.getItem("quran-month-grid") || "{}");
+    for (const k of Object.keys(state)) if (k in saved && typeof saved[k] === typeof state[k]) state[k] = saved[k];
+  } catch (_) { /* storage unavailable */ }
+  if (state.unit === "pages") state.order = "mushaf";
+
+  function save() {
+    try { localStorage.setItem("quran-month-grid", JSON.stringify(state)); } catch (_) { /* ignore */ }
+  }
+
+  // ---------------------------------------------------------------- sequences
+  // The order surahs are laid out in, with word and verse offsets for each.
+  const seqCache = {};
+  function sequence(order) {
+    if (seqCache[order]) return seqCache[order];
+    const seq = SURAHS.map(s => s.n);
+    if (order === "revelation") seq.sort((a, b) => SURAHS[a - 1].revelation_order - SURAHS[b - 1].revelation_order);
+    const wordStart = [0], verseStart = [0];
+    const rank = new Int32Array(SURAHS.length + 1);
+    seq.forEach((n, k) => {
+      rank[n] = k;
+      wordStart.push(wordStart[k] + surahWords[n - 1]);
+      verseStart.push(verseStart[k] + SURAHS[n - 1].verses);
+    });
+    return (seqCache[order] = { seq, wordStart, verseStart, rank });
+  }
+
+  function unitSize(unit) {
+    return unit === "words" ? TOTAL_WORDS : unit === "verses" ? TOTAL_VERSES : TOTAL_PAGES;
+  }
+
+  // Cell index of an occurrence for the current unit and order.
+  function cellOf(o, unit, seq) {
+    const k = seq.rank[o.surah];
+    if (unit === "words") return seq.wordStart[k] + (o.word_index - verseWordStart[surahFirstVerse[o.surah - 1]]);
+    if (unit === "verses") return seq.verseStart[k] + (o.ayah - 1);
+    return o.page - 1;
+  }
+
+  function verseRef(globalVerse) {
+    const si = upperBound(surahFirstVerse, globalVerse) - 1;
+    return { surah: si + 1, ayah: globalVerse - surahFirstVerse[si] + 1 };
+  }
+
+  // What a cell holds: {surah, ayah, word} | {surah, ayah} | {page, from, to}.
+  function cellInfo(idx, unit, seq) {
+    if (idx < 0 || idx >= unitSize(unit)) return null;
+    if (unit === "words") {
+      const k = upperBound(seq.wordStart, idx) - 1;
+      const s = seq.seq[k];
+      const gw = verseWordStart[surahFirstVerse[s - 1]] + (idx - seq.wordStart[k]);
+      const gv = upperBound(verseWordStart, gw) - 1;
+      return { surah: s, ayah: gv - surahFirstVerse[s - 1] + 1, word: gw - verseWordStart[gv] + 1 };
+    }
+    if (unit === "verses") {
+      const k = upperBound(seq.verseStart, idx) - 1;
+      const s = seq.seq[k];
+      return { surah: s, ayah: idx - seq.verseStart[k] + 1 };
+    }
+    const first = PAGE_START[idx];
+    const last = (idx + 1 < TOTAL_PAGES ? PAGE_START[idx + 1] : TOTAL_VERSES) - 1;
+    return { page: idx + 1, from: verseRef(first), to: verseRef(last) };
+  }
+
+  // Which surah (position in the sequence) a cell belongs to, for shading.
+  function surahParityArray(unit, seq) {
+    const n = unitSize(unit);
+    const out = new Uint8Array(n);
+    if (unit === "pages") {
+      for (let p = 0; p < n; p++) out[p] = (upperBound(surahFirstVerse, PAGE_START[p]) - 1) % 2;
+      return out;
+    }
+    const starts = unit === "words" ? seq.wordStart : seq.verseStart;
+    for (let k = 0; k < seq.seq.length; k++) out.fill(k % 2, starts[k], starts[k + 1]);
+    return out;
+  }
+
+  // ---------------------------------------------------------------- view model
+  let view = null;
+
+  function visible(o) { return state.show === "all" || o.form === state.show; }
+
+  function buildView() {
+    const unit = state.unit;
+    const seq = sequence(unit === "pages" ? "mushaf" : state.order);
+    const n = unitSize(unit);
+    const { cols, rows } = gridShape(n);
+
+    // Occurrences in reading order for this view.
+    const placed = OCC.map(o => ({ o, idx: cellOf(o, unit, seq), wordPos: cellOf(o, "words", seq) }))
+      .sort((a, b) => a.idx - b.idx || a.wordPos - b.wordPos);
+    placed.forEach((p, i) => { p.rank = i + 1; });
+
+    const cells = new Map();     // cell index -> [placed...] (visible only)
+    for (const p of placed) {
+      if (!visible(p.o)) continue;
+      if (!cells.has(p.idx)) cells.set(p.idx, []);
+      cells.get(p.idx).push(p);
+    }
+    view = { unit, seq, n, cols, rows, placed, cells, parity: surahParityArray(unit, seq) };
+  }
+
+  // ---------------------------------------------------------------- drawing
+  const canvas = document.getElementById("grid");
+  const ctx = canvas.getContext("2d");
+  const box = document.getElementById("grid-box");
+  const tooltip = document.getElementById("tooltip");
+  const strip = document.getElementById("strip");
+  const sctx = strip.getContext("2d");
+  const css = getComputedStyle(document.documentElement);
+  const COLORS = {
+    bg: css.getPropertyValue("--bg").trim() || "#000",
+    field: css.getPropertyValue("--field").trim() || "#141412",
+    band: css.getPropertyValue("--band").trim() || "#23221f",
+    rule: css.getPropertyValue("--rule").trim() || "#262522",
+    ink3: css.getPropertyValue("--ink-3").trim() || "#75716a",
+  };
+
+  let geo = null;               // pixel geometry of the current render
+  let hover = null;             // {type: 'dot'|'cell', idx}
+  let focusVerse = null;        // "s:a" highlighted from the list
+
+  function hexToRgb(hex) {
+    const h = hex.replace("#", "");
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+
+  let fieldCache = { key: "", canvas: null };
+  function fieldImage() {
+    // One pixel per cell; scaled up without smoothing for the dense word grid.
+    const key = [view.unit, view.seq === seqCache.revelation ? "rev" : "mus", state.dir, state.bands].join("|");
+    if (fieldCache.key === key) return fieldCache.canvas;
+    const { cols, rows, n, parity } = view;
+    const off = document.createElement("canvas");
+    off.width = cols; off.height = rows;
+    const octx = off.getContext("2d");
+    const img = octx.createImageData(cols, rows);
+    const f = hexToRgb(COLORS.field), b = hexToRgb(COLORS.band);
+    for (let i = 0; i < n; i++) {
+      const row = (i / cols) | 0;
+      let col = i - row * cols;
+      if (state.dir === "rtl") col = cols - 1 - col;
+      const c = state.bands && parity[i] ? b : f;
+      const p = (row * cols + col) * 4;
+      img.data[p] = c[0]; img.data[p + 1] = c[1]; img.data[p + 2] = c[2]; img.data[p + 3] = 255;
+    }
+    octx.putImageData(img, 0, 0);
+    fieldCache = { key, canvas: off };
+    return off;
+  }
+
+  function cellCenter(idx) {
+    const row = Math.floor(idx / geo.cols);
+    let col = idx - row * geo.cols;
+    if (state.dir === "rtl") col = geo.cols - 1 - col;
+    return { x: (col + 0.5) * geo.cell, y: (row + 0.5) * geo.cell, row, col };
+  }
+
+  function resize() {
+    const width = Math.max(200, Math.floor(box.clientWidth));
+    const cell = width / view.cols;
+    const height = Math.ceil(cell * view.rows);
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.height = height + "px";
+    geo = { width, height, cell, dpr, cols: view.cols, rows: view.rows, r: Math.min(11, Math.max(3.5, cell * 0.38)) };
+    draw();
+    drawStrip();
+  }
+
+  function draw() {
+    const { width, height, cell, dpr, r } = geo;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = COLORS.bg;
+    ctx.fillRect(0, 0, width, height);
+
+    // Field of cells.
+    if (cell >= 6) {
+      const gap = Math.max(1, cell * 0.1);
+      const f = COLORS.field, b = COLORS.band;
+      for (let i = 0; i < view.n; i++) {
+        const c = cellCenter(i);
+        ctx.fillStyle = state.bands && view.parity[i] ? b : f;
+        ctx.fillRect(c.col * cell + gap / 2, c.row * cell + gap / 2, cell - gap, cell - gap);
+      }
+    } else {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(fieldImage(), 0, 0, view.cols * cell, view.rows * cell);
+    }
+
+    const dots = [...view.cells.keys()].sort((a, b) => a - b).map(idx => ({ idx, ...cellCenter(idx), items: view.cells.get(idx) }));
+
+    // Connecting line, in reading order.
+    if (state.connect && dots.length > 1) {
+      ctx.strokeStyle = "rgba(255,255,255,0.5)";
+      ctx.lineWidth = 1;
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      dots.forEach((d, i) => (i ? ctx.lineTo(d.x, d.y) : ctx.moveTo(d.x, d.y)));
+      ctx.stroke();
+    }
+
+    // Glow, then dots.
+    for (const d of dots) {
+      const g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, r * 3.4);
+      g.addColorStop(0, "rgba(255,255,255,0.32)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(d.x, d.y, r * 3.4, 0, Math.PI * 2); ctx.fill();
+    }
+    for (const d of dots) {
+      ctx.fillStyle = "#fff";
+      ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, Math.PI * 2); ctx.fill();
+      if (d.items.length > 1) {
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.arc(d.x, d.y, r + 3.5, 0, Math.PI * 2); ctx.stroke();
+      }
+    }
+
+    // Highlights: hovered dot or cell, and dots of a verse focused in the list.
+    const ring = (x, y, rad, alpha) => {
+      ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.stroke();
+    };
+    if (focusVerse) {
+      for (const d of dots) if (d.items.some(p => p.o.ref === focusVerse)) ring(d.x, d.y, r + 9, 0.9);
+    }
+    if (hover && hover.type === "dot") {
+      const c = cellCenter(hover.idx);
+      ring(c.x, c.y, r + 7, 0.95);
+    } else if (hover && hover.type === "cell") {
+      const c = cellCenter(hover.idx);
+      const s = Math.max(cell, 6);
+      ctx.strokeStyle = "rgba(255,255,255,0.85)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(c.x - s / 2 + 0.5, c.y - s / 2 + 0.5, s - 1, s - 1);
+    }
+    geo.dots = dots;
+  }
+
+  function drawStrip() {
+    const width = Math.max(200, Math.floor(strip.clientWidth));
+    const height = 48;
+    const dpr = geo.dpr;
+    strip.width = Math.round(width * dpr);
+    strip.height = Math.round(height * dpr);
+    sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    sctx.fillStyle = COLORS.bg;
+    sctx.fillRect(0, 0, width, height);
+    const pad = 8, y = 24;
+    const x = frac => state.dir === "rtl" ? width - pad - frac * (width - 2 * pad) : pad + frac * (width - 2 * pad);
+
+    // Surah starts as faint ticks, then the base line.
+    const starts = view.unit === "words" ? view.seq.wordStart : view.unit === "verses" ? view.seq.verseStart : null;
+    sctx.fillStyle = COLORS.rule;
+    if (starts) for (let k = 1; k < starts.length - 1; k++) sctx.fillRect(Math.round(x(starts[k] / view.n)), y - 6, 1, 12);
+    sctx.fillStyle = COLORS.ink3;
+    sctx.fillRect(pad, y, width - 2 * pad, 1);
+
+    for (const [idx, items] of view.cells) {
+      const cx = x((idx + 0.5) / view.n);
+      const g = sctx.createRadialGradient(cx, y, 0, cx, y, 11);
+      g.addColorStop(0, "rgba(255,255,255,0.3)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      sctx.fillStyle = g;
+      sctx.beginPath(); sctx.arc(cx, y + 0.5, 11, 0, Math.PI * 2); sctx.fill();
+      sctx.fillStyle = "#fff";
+      sctx.beginPath(); sctx.arc(cx, y + 0.5, 3.5, 0, Math.PI * 2); sctx.fill();
+      if (items.length > 1) {
+        sctx.strokeStyle = "#fff"; sctx.lineWidth = 1.2;
+        sctx.beginPath(); sctx.arc(cx, y + 0.5, 6.5, 0, Math.PI * 2); sctx.stroke();
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------- text
+  function surahName(n) { return SURAHS[n - 1].name; }
+  function describeCell(info) {
+    if (!info) return "";
+    if (info.page) {
+      const a = info.from, b = info.to;
+      return `Page ${info.page} · ${a.surah}:${a.ayah} to ${b.surah}:${b.ayah}`;
+    }
+    if (info.word) return `${surahName(info.surah)} ${info.surah}:${info.ayah}, word ${info.word}`;
+    return `${surahName(info.surah)} ${info.surah}:${info.ayah}`;
+  }
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function endsText() {
+    const first = cellInfo(0, view.unit, view.seq);
+    const last = cellInfo(view.n - 1, view.unit, view.seq);
+    const short = info => info.page ? `page ${info.page}` : `${info.surah}:${info.ayah}`;
+    return { start: `Start · ${short(first)} ${first.page ? "" : surahName(first.surah)}`.trim(), end: `End · ${short(last)} ${last.page ? "" : surahName(last.surah)}`.trim() };
+  }
+
+  function renderEnds() {
+    const { start, end } = endsText();
+    const { cols, rows, n } = view;
+    const empty = cols * rows - n;
+    const rtl = state.dir === "rtl";
+    const top = document.getElementById("ends-top");
+    const bottom = document.getElementById("ends-bottom");
+    const stripEnds = document.getElementById("strip-ends");
+    // The start label sits over the corner reading begins from, with an arrow
+    // pointing the way the rows run.
+    const size = el("span", "", `${cols} columns × ${rows} rows`);
+    const begin = el("span", "mark", rtl ? `${start} ←` : `${start} →`);
+    top.replaceChildren(...(rtl ? [size, begin] : [begin, size]));
+    const finish = el("span", "", `${end}, in the bottom row${empty ? `, then ${empty} empty square${empty === 1 ? "" : "s"}` : ""}`);
+    bottom.replaceChildren(...(rtl ? [el("span"), finish] : [finish, el("span")]));
+    const s1 = el("span", "", start), s2 = el("span", "", end);
+    stripEnds.replaceChildren(...(rtl ? [s2, s1] : [s1, s2]));
+  }
+
+  function renderText() {
+    const unitWord = { words: "word", verses: "verse", pages: "page" }[view.unit];
+    const { cols, rows, n } = view;
+    const shown = OCC.filter(visible);
+    const verses = new Set(shown.map(o => o.ref));
+    const surahs = new Set(shown.map(o => o.surah));
+    const lbl = state.show === "all" ? "mentions of month" : `mentions of “${FORM_LABEL[state.show]}”`;
+
+    document.getElementById("big-count").textContent = shown.length;
+    document.getElementById("big-label").textContent =
+      `${lbl} in ${verses.size} verse${verses.size === 1 ? "" : "s"}, across ${surahs.size} surah${surahs.size === 1 ? "" : "s"}`;
+    document.querySelectorAll("#forms li").forEach(li => li.classList.toggle("off", state.show !== "all" && li.dataset.form !== state.show));
+    document.getElementById("key-cell").textContent = `One ${unitWord} of the Quran`;
+
+    const lede = document.getElementById("lede");
+    const total = fmt.format(n);
+    const read = state.dir === "rtl" ? "read like an Arabic page: right to left, top to bottom" : "read left to right, top to bottom";
+    const orderNote = view.unit !== "pages" && state.order === "revelation" ? " The surahs are laid out in revelation order." : "";
+    lede.replaceChildren(
+      `Each square below is one ${unitWord} of the Quran. All `, el("strong", "", total),
+      ` ${unitWord}s fill a `, el("strong", "", `${cols} × ${rows}`), ` grid, ${read}. The white dots mark the `,
+      el("strong", "", String(OCC.length)), " places where the Arabic word for month, ", el("em", "", "shahr"), ", appears." + orderNote
+    );
+
+    const cap = document.getElementById("caption");
+    const how = view.unit === "pages" ? "the 604 pages of the Madani mushaf" : state.order === "revelation" ? "surahs in revelation order" : "surahs in their standard order";
+    cap.textContent = `1 square = 1 ${unitWord} · ${how}. Hover or tap a square to see where you are; tap a dot to open its verse.`;
+
+    // Live readout of the shape.
+    const readout = document.getElementById("readout");
+    readout.replaceChildren();
+    if (!shown.length) { readout.textContent = "No dots for this filter."; return; }
+    const pos = view.placed.filter(p => visible(p.o)).map(p => ({ p, f: p.wordPos / TOTAL_WORDS, row: Math.floor(p.idx / cols) }));
+    const third = pos.filter(x => x.f < 1 / 3).length;
+    let gap = { size: 0 };
+    for (let i = 1; i < pos.length; i++) {
+      const size = pos[i].f - pos[i - 1].f;
+      if (size > gap.size) gap = { size, a: pos[i - 1].p.o, b: pos[i].p.o };
+    }
+    const rowsUsed = new Set(pos.map(x => x.row)).size;
+    readout.append(
+      el("b", "", `${third} of ${pos.length}`), " dots fall in the first third of the text. ",
+      "They touch ", el("b", "", `${rowsUsed} of ${rows}`), " rows. "
+    );
+    if (gap.size > 0) {
+      readout.append(
+        "The longest stretch without one runs from ", el("b", "", gap.a.ref), " to ", el("b", "", gap.b.ref),
+        `, about ${Math.round(gap.size * 100)}% of the Quran.`
+      );
+    }
+  }
+
+  // ---------------------------------------------------------------- catalog
+  const entriesEl = document.getElementById("entries");
+  const entryByRef = new Map();
+
+  function buildCatalog() {
+    for (const v of VERSES) {
+      const li = el("li", "entry");
+      li.id = `v-${v.surah}-${v.ayah}`;
+      li.tabIndex = 0;
+      li.dataset.ref = v.ref;
+      const meta = el("div", "meta");
+      const s = SURAHS[v.surah - 1];
+      meta.append(el("div", "ref", v.ref));
+      const sn = el("div", "surah");
+      sn.append(`${s.name} · `, el("span", "ar", s.name_ar), ` · ${s.name_en}`);
+      meta.append(sn, el("div", "where"), el("div", "chips"));
+      const body = el("div", "body");
+      const ar = el("p", "verse-ar");
+      ar.lang = "ar";
+      v.words.forEach((w, i) => {
+        const isMonth = OCC.find(o => o.ref === v.ref && o.word === i + 1);
+        if (isMonth) { const m = el("mark", "", w); m.dataset.form = isMonth.form; ar.append(m); }
+        else ar.append(w);
+        if (i < v.words.length - 1) ar.append(" ");
+      });
+      const en = el("p", "verse-en");
+      en.append(v.translation, " ", el("span", "src", "(Saheeh International)"));
+      body.append(ar, en);
+      li.append(meta, body);
+      li.addEventListener("pointerenter", () => setFocusVerse(v.ref));
+      li.addEventListener("pointerleave", () => setFocusVerse(null));
+      li.addEventListener("focus", () => setFocusVerse(v.ref));
+      li.addEventListener("blur", () => setFocusVerse(null));
+      entryByRef.set(v.ref, li);
+    }
+  }
+
+  function renderCatalog() {
+    const firstIdx = new Map();
+    for (const p of view.placed) if (!firstIdx.has(p.o.ref)) firstIdx.set(p.o.ref, p);
+    const ordered = [...VERSES].sort((a, b) => firstIdx.get(a.ref).idx - firstIdx.get(b.ref).idx || firstIdx.get(a.ref).wordPos - firstIdx.get(b.ref).wordPos);
+    let shownVerses = 0;
+    for (const v of ordered) {
+      const li = entryByRef.get(v.ref);
+      const mine = view.placed.filter(p => p.o.ref === v.ref);
+      const anyVisible = mine.some(p => visible(p.o));
+      li.hidden = !anyVisible;
+      if (anyVisible) shownVerses++;
+      const first = mine[0];
+      const where = li.querySelector(".where");
+      const pct = (first.wordPos / TOTAL_WORDS) * 100;
+      where.textContent = `${pct < 10 ? pct.toFixed(1) : Math.round(pct)}% through · page ${first.o.page}`;
+      const chips = li.querySelector(".chips");
+      chips.replaceChildren();
+      for (const p of mine) {
+        if (!visible(p.o)) continue;
+        const c = el("span", "chip");
+        c.append(el("span", "k", `${p.rank}/${OCC.length}`), ` ${p.o.translit}`);
+        c.title = `Mention ${p.rank} of ${OCC.length} in this order: ${p.o.translit}, ${p.o.gloss}`;
+        chips.append(c);
+      }
+      li.querySelectorAll("mark").forEach(m => {
+        const on = state.show === "all" || m.dataset.form === state.show;
+        m.style.color = on ? "" : "inherit";
+        m.style.textShadow = on ? "" : "none";
+      });
+      entriesEl.append(li);
+    }
+    document.getElementById("catalog-title").textContent = `The ${shownVerses} verse${shownVerses === 1 ? "" : "s"}`;
+  }
+
+  function setFocusVerse(ref) {
+    if (focusVerse === ref) return;
+    focusVerse = ref;
+    draw();
+  }
+
+  // ---------------------------------------------------------------- tooltip
+  function hitTest(x, y) {
+    const { r, dots, cell } = geo;
+    let best = null, bestD = Math.max(14, r + 8);
+    for (const d of dots) {
+      const dist = Math.hypot(d.x - x, d.y - y);
+      if (dist <= bestD) { bestD = dist; best = d; }
+    }
+    if (best) return { type: "dot", idx: best.idx, dot: best };
+    const row = Math.floor(y / cell);
+    let col = Math.floor(x / cell);
+    if (row < 0 || row >= view.rows || col < 0 || col >= view.cols) return null;
+    if (state.dir === "rtl") col = view.cols - 1 - col;
+    const idx = row * view.cols + col;
+    if (idx >= view.n) return null;
+    return { type: "cell", idx };
+  }
+
+  function showTooltip(hit, x, y) {
+    tooltip.replaceChildren();
+    if (hit.type === "dot") {
+      hit.dot.items.forEach(p => {
+        const row = el("div", "t-row");
+        const o = p.o;
+        row.append(el("div", "t-ref", `${o.ref} · ${surahName(o.surah)}`));
+        const ar = el("div", "t-ar", o.arabic); ar.lang = "ar"; row.append(ar);
+        const line = el("div");
+        line.append(el("span", "t-strong", o.translit), `, ${o.gloss}`);
+        row.append(line);
+        row.append(el("div", "t-muted", `Mention ${p.rank} of ${OCC.length} · word ${o.word} of the verse · ${((p.wordPos / TOTAL_WORDS) * 100).toFixed(1)}% through`));
+        tooltip.append(row);
+      });
+      const hint = el("div", "t-muted", lastPointer === "mouse" ? "Click to read the verse" : "Tap again to read the verse");
+      hint.style.marginTop = "6px";
+      tooltip.append(hint);
+    } else {
+      tooltip.append(el("div", "", describeCell(cellInfo(hit.idx, view.unit, view.seq))));
+    }
+    tooltip.hidden = false;
+    const bw = box.clientWidth, tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+    let left = x + 16, top = y + 16;
+    if (left + tw > bw) left = Math.max(0, x - tw - 16);
+    if (top + th > geo.height) top = Math.max(0, y - th - 16);
+    tooltip.style.left = left + "px";
+    tooltip.style.top = top + "px";
+  }
+
+  function pointerXY(e) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: (e.clientX - rect.left) * (geo.width / rect.width), y: (e.clientY - rect.top) * (geo.height / rect.height) };
+  }
+
+  // Mouse: hover shows the tooltip, a click on a dot jumps to its verse.
+  // Touch and pen: the first tap shows the tooltip, a second tap on the same dot jumps.
+  let lastPointer = "mouse", armedDot = -1, jumpOnClick = false;
+
+  function updateHover(hit, x, y) {
+    if (!hit) { hideTooltip(); return; }
+    const same = hover && hit.type === hover.type && hit.idx === hover.idx;
+    if (!same) { hover = { type: hit.type, idx: hit.idx }; draw(); }
+    showTooltip(hit, x, y);
+  }
+
+  canvas.addEventListener("pointermove", e => {
+    lastPointer = e.pointerType || "mouse";
+    if (lastPointer !== "mouse" && e.buttons === 0) return;
+    const { x, y } = pointerXY(e);
+    updateHover(hitTest(x, y), x, y);
+  });
+  canvas.addEventListener("pointerdown", e => {
+    lastPointer = e.pointerType || "mouse";
+    if (lastPointer === "mouse") return;
+    const { x, y } = pointerXY(e);
+    const hit = hitTest(x, y);
+    jumpOnClick = !!hit && hit.type === "dot" && armedDot === hit.idx;
+    armedDot = hit && hit.type === "dot" ? hit.idx : -1;
+    updateHover(hit, x, y);
+  });
+  canvas.addEventListener("pointerleave", e => { if ((e.pointerType || "mouse") === "mouse") hideTooltip(); });
+  document.addEventListener("pointerdown", e => {
+    if (e.target !== canvas && !tooltip.hidden) { armedDot = -1; hideTooltip(); }
+  });
+  canvas.addEventListener("click", e => {
+    const { x, y } = pointerXY(e);
+    const hit = hitTest(x, y);
+    if (!hit || hit.type !== "dot") return;
+    if (lastPointer !== "mouse" && !jumpOnClick) return;
+    armedDot = -1;
+    hideTooltip();
+    const li = entryByRef.get(hit.dot.items[0].o.ref);
+    if (!li) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    li.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    li.classList.add("flash");
+    setTimeout(() => li.classList.remove("flash"), 1400);
+    li.focus({ preventScroll: true });
+  });
+  function hideTooltip() {
+    tooltip.hidden = true;
+    if (hover) { hover = null; draw(); }
+  }
+
+  // ---------------------------------------------------------------- controls
+  const form = document.getElementById("controls");
+  function syncControls() {
+    form.querySelector(`#unit-${state.unit}`).checked = true;
+    form.querySelector(`#show-${state.show}`).checked = true;
+    form.querySelector(`#dir-${state.dir}`).checked = true;
+    form.querySelector(`#order-${state.order}`).checked = true;
+    form.querySelector("#opt-bands").checked = state.bands;
+    form.querySelector("#opt-connect").checked = state.connect;
+    const pages = state.unit === "pages";
+    form.querySelector("#order-revelation").disabled = pages;
+    form.querySelector("label[for=order-revelation]").title = pages ? "Pages follow the printed mushaf, so they can only be shown in standard order." : "";
+  }
+  form.addEventListener("submit", e => e.preventDefault());
+  form.addEventListener("change", e => {
+    const t = e.target;
+    if (t.name === "unit") state.unit = t.value;
+    else if (t.name === "show") state.show = t.value;
+    else if (t.name === "dir") state.dir = t.value;
+    else if (t.name === "order") state.order = t.value;
+    else if (t.id === "opt-bands") state.bands = t.checked;
+    else if (t.id === "opt-connect") state.connect = t.checked;
+    if (state.unit === "pages") state.order = "mushaf";
+    save();
+    render();
+  });
+
+  function render() {
+    syncControls();
+    buildView();
+    hover = null;
+    tooltip.hidden = true;
+    resize();
+    renderEnds();
+    renderText();
+    renderCatalog();
+  }
+
+  // Exposed for checks and for anyone poking at the page from the console.
+  window.quranMonthGrid = {
+    get state() { return { ...state }; },
+    get view() { return view && { unit: view.unit, n: view.n, cols: view.cols, rows: view.rows, dots: [...view.cells.entries()].map(([idx, items]) => ({ idx, refs: items.map(p => `${p.o.ref}#${p.o.word}`) })) }; },
+    cellInfo: idx => cellInfo(idx, view.unit, view.seq),
+    cellCenter: idx => cellCenter(idx),
+  };
+
+  buildCatalog();
+  render();
+  new ResizeObserver(() => { if (geo && Math.floor(box.clientWidth) !== geo.width) resize(); }).observe(box);
+})();
+</script>
+</body>
+</html>
