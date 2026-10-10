@@ -16,6 +16,7 @@ Sources
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 import urllib.request
@@ -29,7 +30,7 @@ DERIVED = ROOT / "data" / "derived"
 MORPHOLOGY_COMMIT = "8f38b39016824284f9ed16ae15069ff9102c4acf"
 SOURCES = {
     "morphology": (
-        "quran-morphology.txt",
+        f"quran-morphology-{MORPHOLOGY_COMMIT[:12]}.txt",
         "https://raw.githubusercontent.com/mustafa0x/quran-morphology/"
         f"{MORPHOLOGY_COMMIT}/quran-morphology.txt",
     ),
@@ -45,14 +46,24 @@ QURAN_COM = (
     "&word_fields=text_uthmani,text_imlaei_simple,location&per_page=50&page={page}"
 )
 
-ARABIC_MARKS = re.compile(r"[ؐ-ًؚ-ٰٟۖ-ۭـ࣓-ࣿ]")
+# Vowel marks, Quranic annotation signs, tatweel, and invisible bidi/format characters.
+ARABIC_MARKS = re.compile(
+    r"[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u08D3-\u08FF"
+    r"\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]"
+)
 # Letter variants folded together for searching, so a reader can type plain Arabic.
 FOLD = str.maketrans({"أ": "ا", "إ": "ا", "آ": "ا", "ٱ": "ا", "ى": "ي", "ة": "ه", "ؤ": "و", "ئ": "ي"})
 
 
+# Section (۞) and prostration (۩) signs printed inside some plain spellings, plus
+# invisible format characters.
+PRINT_SIGNS = re.compile(r"[\u06DE\u06E9\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]")
+
+
 def normalize_ar(text: str) -> str:
-    """Strip vowel marks and Quranic annotation signs, fold letter variants."""
-    return ARABIC_MARKS.sub("", text).translate(FOLD).replace(" ", "")
+    """Strip marks, fold letter variants, and spell the Uthmani hamza-alif (ءا) as ا,
+    so a reader can type plain modern Arabic."""
+    return ARABIC_MARKS.sub("", text).translate(FOLD).replace(" ", "").replace("ءا", "ا")
 
 
 def _get(url: str) -> bytes:
@@ -61,13 +72,30 @@ def _get(url: str) -> bytes:
         return resp.read()
 
 
+def _save(path: Path, data: bytes, check) -> None:
+    """Write a download only if it looks right, atomically, so a bad response is never cached."""
+    try:
+        check(data)
+    except Exception as e:  # noqa: BLE001 - any parse failure means a bad download
+        raise SystemExit(f"unexpected download for {path.name}: {e}")
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_bytes(data)
+    os.replace(tmp, path)
+
+
+def _check_text(data: bytes) -> None:
+    text = data.decode("utf8")
+    if not re.search(r"^1\|1\|", text, re.M) and not re.search(r"^1:1:1:1\t", text, re.M) and "QuranData" not in text:
+        raise ValueError("does not look like a Quran text, morphology or metadata file")
+
+
 def fetch(name: str) -> Path:
     filename, url = SOURCES[name]
     path = RAW / filename
     if not path.exists():
         RAW.mkdir(parents=True, exist_ok=True)
         print(f"downloading {url}", file=sys.stderr)
-        path.write_bytes(_get(url))
+        _save(path, _get(url), _check_text)
     return path
 
 
@@ -82,8 +110,13 @@ def fetch_quran_com() -> dict[tuple[int, int], dict]:
             path = folder / f"ch{n}_p{page}.json"
             if not path.exists() or path.stat().st_size == 0:
                 print(f"downloading quran.com chapter {n} page {page}", file=sys.stderr)
-                path.write_bytes(_get(QURAN_COM.format(chapter=n, page=page)))
-            data = json.loads(path.read_text(encoding="utf8"))
+                _save(path, _get(QURAN_COM.format(chapter=n, page=page)),
+                      lambda b: json.loads(b)["verses"] and json.loads(b)["pagination"])
+            try:
+                data = json.loads(path.read_text(encoding="utf8"))
+                data["verses"], data["pagination"]
+            except (ValueError, KeyError):
+                raise SystemExit(f"{path} is not a quran.com verses page; delete it and build again")
             verses += data["verses"]
             page = data["pagination"]["next_page"]
         return verses
@@ -243,8 +276,7 @@ def load() -> dict:
                     "word": i,
                     "verse": vi,
                     "ar": mw["text"],
-                    # Drop the section (۞) and prostration (۩) signs printed inside some words.
-                    "plain": re.sub(r"[\u06DE\u06E9]", "", qw["text_imlaei_simple"]).strip(),
+                    "plain": PRINT_SIGNS.sub("", qw["text_imlaei_simple"]).strip(),
                     "translit": (qw.get("transliteration") or {}).get("text") or "",
                     "gloss": (qw.get("translation") or {}).get("text") or "",
                     **rec,

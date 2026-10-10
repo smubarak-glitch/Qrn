@@ -36,21 +36,56 @@
   const plural = (n, word, many) => `${fmt.format(n)} ${n === 1 ? word : (many || word + "s")}`;
   const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
 
-  // Same folding as quran_data.normalize_ar.
-  const MARKS = /[ؐ-ًؚ-ٰٟۖ-ۭـ࣓-ࣿ]/g;
+  // Same folding as quran_data.normalize_ar: marks, tatweel and invisible format
+  // characters go; letter variants fold; the Uthmani hamza-alif (ءا) reads as ا.
+  const MARKS = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u08D3-\u08FF\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g;
+  const FORMAT = /[\u0640\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g;
   const FOLD = { "أ": "ا", "إ": "ا", "آ": "ا", "ٱ": "ا", "ى": "ي", "ة": "ه", "ؤ": "و", "ئ": "ي" };
-  const normalizeAr = s => s.replace(MARKS, "").replace(/[أإآٱىةؤئ]/g, c => FOLD[c]).replace(/ /g, "");
+  const normalizeAr = s => s.replace(MARKS, "").replace(/[أإآٱىةؤئ]/g, c => FOLD[c]).replace(/ /g, "").replace(/ءا/g, "ا");
   const cleanEnglish = s => s.toLowerCase().replace(/[()[\]]/g, "");
-  const ARABIC = /[؀-ۿ]/;
+  const ARABIC = /[\u0600-\u06FF]/;
   const spaced = s => [...normalizeAr(s)].join(" ");
-  // Wrap Arabic runs in bidi isolates so numbers and brackets beside them stay in place.
+  // Wrap Arabic runs in bidi isolates (for aria labels and other plain-text places).
   const iso = s => String(s).replace(/[\u0600-\u06FF][\u0600-\u06FF\s]*[\u0600-\u06FF]|[\u0600-\u06FF]/g, m => "\u2068" + m + "\u2069");
 
+  // Visible text with each Arabic run in <bdi lang="ar">, so numbers and brackets
+  // beside Arabic keep their place and screen readers switch language.
+  const ARABIC_RUN = /[\u0600-\u06FF][\u0600-\u06FF\s]*[\u0600-\u06FF]|[\u0600-\u06FF]/g;
+  function bidi(text) {
+    text = String(text);
+    const out = [];
+    let last = 0;
+    for (const m of text.matchAll(ARABIC_RUN)) {
+      if (m.index > last) out.push(text.slice(last, m.index));
+      const b = document.createElement("bdi");
+      b.lang = "ar";
+      b.textContent = m[0];
+      out.push(b);
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) out.push(text.slice(last));
+    return out;
+  }
+  function elB(tag, cls, text) {
+    const e = el(tag, cls);
+    e.append(...bidi(text));
+    return e;
+  }
+  function arSpan(text, cls) {
+    const s = el("span", cls || "ar", text);
+    s.lang = "ar";
+    s.dir = "rtl";
+    return s;
+  }
+
+  const WORDCHAR = "[A-Za-z0-9_]";
+  const MAX_WILDCARDS = 4;
   function phraseRegex(value, flags) {
-    const parts = value.toLowerCase().split(/\s+/).filter(Boolean)
-      .map(p => p.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "\\w*"));
-    if (!parts.length) throw new QueryError("empty English phrase");
-    return new RegExp("\\b" + parts.join("\\s+") + "\\b", flags || "");
+    const words = cleanEnglish(value).split(" ").filter(Boolean).map(w => w.replace(/\*+/g, "*"));
+    if (!words.length) throw new QueryError("empty English phrase");
+    if (words.reduce((a, w) => a + (w.split("*").length - 1), 0) > MAX_WILDCARDS) throw new QueryError(`use at most ${MAX_WILDCARDS} * wildcards in one phrase`);
+    const parts = words.map(w => w.replace(/[.+?^${}()|[\]\\/-]/g, "\\$&").replace(/\*/g, WORDCHAR + "*"));
+    return new RegExp(`(?<!${WORDCHAR})` + parts.join(" +") + `(?!${WORDCHAR})`, flags || "");
   }
 
   class QueryError extends Error {}
@@ -103,6 +138,7 @@
     D.translit = raw.w_translit;
     D.gloss = raw.w_gloss;
     D.plainN = raw.w_plain.map(normalizeAr);
+    D.uthN = raw.w_ar.map(normalizeAr);
     D.glossC = raw.w_gloss.map(cleanEnglish);
     D.pos = raw.w_pos;
     D.roots = raw.roots;
@@ -110,6 +146,7 @@
     D.rootSetN = new Set(D.rootsN);
     D.lemmas = raw.lemmas;
     D.lemmasN = raw.lemmas.map(normalizeAr);
+    D.lemmasExact = raw.lemmas.map(x => x.replace(FORMAT, ""));
     D.wRoot = Int32Array.from(raw.w_root);
     D.wLemma = Int32Array.from(raw.w_lemma);
     D.extraRoots = new Map();
@@ -178,11 +215,16 @@
   // Mirrors scripts/query.py. Change both together.
   const WORD_KEYS = new Set(["root", "lemma", "ar", "en", "pos", "tag", "at"]);
   const VERSE_KEYS = new Set(["tr", "surah", "juz", "page", "ref", "type", "sajdah", "has"]);
-  const REF = /^\d+:\d+(-\d+)?$/;
+  const REF = /^[0-9]+:[0-9]+(-[0-9]+)?$/;
+
+  // One kind of space, ASCII digits (same as query.canonical).
+  const canonical = q => q.replace(/[\s\x1c-\x1f\x85]/g, " ")
+    .replace(/[\u0660-\u0669]/g, d => String(d.charCodeAt(0) - 0x660))
+    .replace(/[\u06F0-\u06F9]/g, d => String(d.charCodeAt(0) - 0x6F0));
 
   function parse(query) {
     const groups = [];
-    for (const raw of query.split("|")) {
+    for (const raw of canonical(query).split("|")) {
       if (!raw.trim()) continue;
       const terms = [];
       const token = /(-?)(?:(\w+):"([^"]*)"|(\w+):(\S+)|"([^"]*)"|(\S+))/g;
@@ -191,7 +233,7 @@
         const neg = m[1] === "-";
         let key, value;
         if (m[2] !== undefined) { key = m[2].toLowerCase(); value = m[3]; }
-        else if (m[4] !== undefined && /^\d+$/.test(m[4])) { key = "ref"; value = `${m[4]}:${m[5]}`; }
+        else if (m[4] !== undefined && /^[0-9]+$/.test(m[4])) { key = "ref"; value = `${m[4]}:${m[5]}`; }
         else if (m[4] !== undefined) { key = m[4].toLowerCase(); value = m[5]; }
         else if (m[6] !== undefined) { key = "en"; value = m[6]; }
         else { key = bareKey(m[7]); value = m[7]; }
@@ -226,15 +268,26 @@
   function wordTest(key, value) {
     const alts = alternatives(key, value);
     if (key === "root" || key === "lemma") {
-      const mask = idMask(key === "root" ? D.rootsN : D.lemmasN, alts);
+      let mask;
+      if (key === "root") mask = idMask(D.rootsN, alts);
+      else {
+        // lemma:=x is the vowelled dictionary form exactly; plain lemma: ignores marks.
+        mask = idMask(D.lemmasN, alts.filter(v => !v.startsWith("=")));
+        const exact = new Set(alts.filter(v => v.startsWith("=")).map(v => v.slice(1).replace(FORMAT, "")));
+        D.lemmasExact.forEach((x, i) => { if (exact.has(x)) mask[i] = 1; });
+      }
       const main = key === "root" ? D.wRoot : D.wLemma;
       const extra = key === "root" ? D.extraRoots : D.extraLemmas;
       return i => (main[i] >= 0 && mask[main[i]] === 1) || (extra.has(i) && extra.get(i).some(r => mask[r] === 1));
     }
     if (key === "ar") {
+      // Both the plain and the Uthmani spelling of each word.
       const exact = new Set(alts.filter(v => v.startsWith("=")).map(v => normalizeAr(v.slice(1))));
       const contains = alts.filter(v => !v.startsWith("=")).map(normalizeAr).filter(Boolean);
-      return i => exact.has(D.plainN[i]) || contains.some(c => D.plainN[i].includes(c));
+      return i => {
+        const p = D.plainN[i], u = D.uthN[i];
+        return exact.has(p) || exact.has(u) || contains.some(c => p.includes(c) || u.includes(c));
+      };
     }
     if (key === "en") {
       const rxs = alts.map(a => phraseRegex(a));
@@ -242,6 +295,7 @@
     }
     if (key === "pos") {
       const want = new Set(alts.map(v => v.toUpperCase()));
+      for (const w of want) if (!["N", "V", "P"].includes(w)) throw new QueryError("pos: expects N, V or P");
       return i => want.has(D.pos[i]);
     }
     if (key === "tag") {
@@ -259,43 +313,43 @@
     throw new QueryError(key);
   }
 
-  function numberSet(value, key) {
-    const out = new Set();
-    for (const part of value.split(",")) {
-      const m = /^(\d+)(?:-(\d+))?$/.exec(part.trim());
+  function numberRanges(value, key) {
+    return value.split(",").map(part => {
+      const m = /^([0-9]{1,6})(?:-([0-9]{1,6}))?$/.exec(part.trim());
       if (!m) throw new QueryError(`${key}: expects numbers or ranges like 1-10, got “${part}”`);
-      const lo = +m[1], hi = +(m[2] || m[1]);
-      for (let x = lo; x <= hi && x - lo < 100000; x++) out.add(x);
-    }
-    return out;
+      return [+m[1], +(m[2] || m[1])];
+    });
   }
 
   const hasCache = new Map();
   function verseTest(key, value) {
     if (key === "tr") {
-      const rxs = value.split(",").filter(x => x.trim()).map(x => phraseRegex(x));
-      if (!rxs.length) throw new QueryError("tr: is empty");
+      const rxs = alternatives(key, value).map(x => phraseRegex(x));
       return v => rxs.some(rx => rx.test(D.verseEnC[v]));
     }
     if (key === "surah" || key === "juz" || key === "page") {
-      const want = numberSet(value, key);
+      const ranges = numberRanges(value, key);
       const field = key === "surah" ? D.verseSurah : key === "juz" ? D.verseJuz : D.versePage;
-      return v => want.has(field[v]);
+      return v => ranges.some(([lo, hi]) => field[v] >= lo && field[v] <= hi);
     }
     if (key === "ref") {
-      const want = new Set();
-      for (const part of value.split(",")) {
-        const m = /^(\d+):(\d+)(?:-(\d+))?$/.exec(part.trim());
+      const want = value.split(",").map(part => {
+        const m = /^([0-9]{1,6}):([0-9]{1,6})(?:-([0-9]{1,6}))?$/.exec(part.trim());
         if (!m) throw new QueryError(`ref: expects 2:255 or 2:255-257, got “${part}”`);
-        for (let a = +m[2]; a <= +(m[3] || m[2]) && a - +m[2] < 1000; a++) want.add(`${+m[1]}:${a}`);
-      }
-      return v => want.has(`${D.verseSurah[v]}:${D.verseAyah[v]}`);
+        return [+m[1], +m[2], +(m[3] || m[2])];
+      });
+      return v => want.some(([s, lo, hi]) => D.verseSurah[v] === s && D.verseAyah[v] >= lo && D.verseAyah[v] <= hi);
     }
     if (key === "type") {
-      const want = new Set(value.split(",").map(x => x.toLowerCase()));
+      const want = new Set(alternatives(key, value).map(x => x.toLowerCase()));
+      for (const w of want) if (w !== "meccan" && w !== "medinan") throw new QueryError("type: expects meccan or medinan");
       return v => want.has(D.surahs[D.verseSurah[v] - 1].type);
     }
-    if (key === "sajdah") return v => D.sajdah.has(v);
+    if (key === "sajdah") {
+      const want = value.trim().toLowerCase();
+      if (want !== "yes" && want !== "no") throw new QueryError("sajdah: expects yes or no");
+      return v => D.sajdah.has(v) === (want === "yes");
+    }
     if (key === "has") {
       if (!hasCache.has(value)) {
         const inner = parse(value);
@@ -357,31 +411,32 @@
   };
   const POS_NAMES = { N: "nouns", V: "verbs", P: "particles" };
 
+  const list = v => v.split(",").map(x => x.trim()).filter(Boolean);
   function describeTerm(t) {
     const v = t.value;
     let s;
     switch (t.key) {
       case "root": s = `words from the root ${v.split(",").map(spaced).join(" or ")}`; break;
-      case "lemma": s = `forms of ${v.split(",").join(" or ")}`; break;
-      case "ar": s = v.startsWith("=") ? `the word ${v.slice(1)}` : `words spelled with ${v}`; break;
-      case "en": s = `words meaning “${v}”`; break;
-      case "tr": s = `verses whose translation says “${v}”`; break;
+      case "ar": s = list(v).map(x => (x.startsWith("=") ? `the word ${x.slice(1)}` : `words spelled with ${x}`)).join(" or "); break;
+      case "en": s = `words meaning ${list(v).map(x => `“${x}”`).join(" or ")}`; break;
+      case "tr": s = `verses whose translation says ${list(v).map(x => `“${x}”`).join(" or ")}`; break;
+      case "lemma": s = `forms of ${list(v).map(x => x.replace(/^=/, "")).join(" or ")}`; break;
       case "pos": s = v.split(",").map(x => POS_NAMES[x.toUpperCase()] || x).join(" or "); break;
       case "tag": s = v.split(",").map(x => TAG_NAMES[x.toUpperCase()] || `words tagged ${x.toUpperCase()}`).join(" or "); break;
       case "at": s = `the ${v} word of each verse`; break;
-      case "surah": s = /^\d+$/.test(v) && D.surahs[+v - 1] ? `in Surah ${v} ${D.surahs[+v - 1].name}` : `in surahs ${v}`; break;
-      case "juz": s = `in juz ${v}`; break;
-      case "page": s = `on page ${v}`; break;
-      case "ref": s = `verse ${v}`; break;
+      case "surah": s = /^[0-9]+$/.test(v) && D.surahs[+v - 1] ? `in Surah ${v} ${D.surahs[+v - 1].name}` : `in surahs ${list(v).join(", ")}`; break;
+      case "juz": s = `in juz ${list(v).join(", ")}`; break;
+      case "page": s = `on page ${list(v).join(", ")}`; break;
+      case "ref": s = `${list(v).length > 1 ? "verses" : "verse"} ${list(v).join(", ")}`; break;
       case "type": s = `in ${v.split(",").map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(" or ")} surahs`; break;
-      case "sajdah": s = "the verses of prostration"; break;
+      case "sajdah": s = /^\s*no\s*$/i.test(v) ? "verses without a prostration" : "the verses of prostration"; break;
       case "has": s = `verses containing ${(() => { try { return describeTerm(parse(v)[0][0]); } catch (_) { return v; } })()}`; break;
       default: s = `${t.key}:${v}`;
     }
     return (t.neg ? "not " : "") + s;
   }
   function describe(groups) {
-    return iso(groups.map(terms => terms.map(describeTerm).join(", ")).join(" or "));
+    return groups.map(terms => terms.map(describeTerm).join(", ")).join(" or ");
   }
 
   // ------------------------------------------------------------------ state
@@ -405,7 +460,6 @@
       view[k] = saved[k];
     }
   } catch (_) { /* storage unavailable */ }
-  if (view.unit === "pages") view.order = "mushaf";
   function saveView() {
     try { localStorage.setItem("quran-grid-view", JSON.stringify(view)); } catch (_) { /* ignore */ }
   }
@@ -495,7 +549,7 @@
 
   function verseShade(v, seq) {
     switch (view.shade) {
-      case "surahs": return seq.rank[D.verseSurah[v]] % 2 ? SHADE.band : SHADE.field;
+      case "surahs": return D.verseSurah[v] % 2 ? SHADE.field : SHADE.band;
       case "juz": return D.verseJuz[v] % 2 ? SHADE.field : SHADE.band;
       case "type": return D.surahs[D.verseSurah[v] - 1].type === "medinan" ? SHADE.medinan : SHADE.meccan;
       case "length": return mix(SHADE.rampLo, SHADE.rampHi, Math.log(D.verseLen[v]) / Math.log(128));
@@ -512,8 +566,8 @@
     const item = (c, text) => { const s = el("span"); s.append(sw(c), text); return s; };
     const ramp = (lo, hi) => { const s = el("span", "ramp"); s.style.background = `linear-gradient(90deg, ${rgb(lo)}, ${rgb(hi)})`; return s; };
     switch (view.shade) {
-      case "surahs": lg.append(item(SHADE.field, "odd surahs"), item(SHADE.band, "even surahs")); break;
-      case "juz": lg.append(item(SHADE.band, "odd juz"), item(SHADE.field, "even juz")); break;
+      case "surahs": lg.append(item(SHADE.field, "odd-numbered surahs"), item(SHADE.band, "even-numbered surahs")); break;
+      case "juz": lg.append(item(SHADE.field, "odd-numbered juz"), item(SHADE.band, "even-numbered juz")); break;
       case "type": lg.append(item(SHADE.meccan, `Meccan surahs (${D.surahs.filter(s => s.type === "meccan").length})`), item(SHADE.medinan, `Medinan surahs (${D.surahs.filter(s => s.type === "medinan").length})`)); break;
       case "length": { const s = el("span"); s.append("1 word", ramp(SHADE.rampLo, SHADE.rampHi), "128 words per verse (log scale)"); lg.append(s); break; }
       case "revelation": { const s = el("span"); s.append("revealed first", ramp(SHADE.rampLo, SHADE.rampHi), "revealed last (by surah)"); lg.append(s); break; }
@@ -522,7 +576,7 @@
         for (const r of D.verseRhyme) counts.set(r, (counts.get(r) || 0) + 1);
         for (const [l, tr, c] of RHYME) {
           const s = el("span");
-          s.append(sw(c), el("span", "ar", l), ` ${tr} · ${fmt.format(counts.get(l) || 0)}`);
+          s.append(sw(c), arSpan(l), ` ${tr} · ${fmt.format(counts.get(l) || 0)}`);
           lg.append(s);
         }
         const others = D.V - RHYME.reduce((a, [l]) => a + (counts.get(l) || 0), 0);
@@ -567,11 +621,13 @@
   let focusVerse = null;     // verse index highlighted from the list
   let fieldCache = { key: "", canvas: null };
 
+  // Canvas position of a cell. The grid sits inside a margin of geo.pad so dots
+  // in the outer rows and columns are not cut off.
   function cellXY(idx) {
     const row = Math.floor(idx / geo.cols);
     let col = idx - row * geo.cols;
     if (view.dir === "rtl") col = geo.cols - 1 - col;
-    return { x: (col + 0.5) * geo.cell, y: (row + 0.5) * geo.cell, row, col };
+    return { x: geo.pad + (col + 0.5) * geo.cell, y: geo.pad + (row + 0.5) * geo.cell, row, col };
   }
 
   function fieldImage() {
@@ -628,38 +684,48 @@
     });
   }
 
+  function markRadius(cell) {
+    return model.dense ? Math.max(1.3, Math.min(cell * 0.62, 6)) : Math.min(11, Math.max(3.5, cell * 0.38));
+  }
+
   function resize() {
     if (!model) return;
     const width = Math.max(200, Math.floor(box.clientWidth));
-    const cell = width / model.cols;
-    const height = Math.ceil(cell * model.rows);
+    const pad = Math.ceil(markRadius(width / model.cols) * 1.3) + 2;
+    const cell = (width - 2 * pad) / model.cols;
+    const height = Math.ceil(cell * model.rows + 2 * pad);
     const dpr = Math.min(window.devicePixelRatio || 1, 3);
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     canvas.style.height = height + "px";
-    const r = model.dense ? Math.max(1.3, Math.min(cell * 0.62, 6)) : Math.min(11, Math.max(3.5, cell * 0.38));
-    geo = { width, height, cell, dpr, cols: model.cols, rows: model.rows, r };
+    geo = { width, height, cell, pad, dpr, cols: model.cols, rows: model.rows, r: markRadius(cell) };
+    drawBase();
     draw();
     drawStrip();
   }
 
-  function draw() {
-    if (!geo) return;
-    const { width, height, cell, dpr, r } = geo;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, width, height);
+  // Everything that does not change on hover: the field, lines, dots and rings.
+  // Drawn once per render into an offscreen canvas; hover only adds highlights.
+  function drawBase() {
+    const { width, height, cell, pad, dpr, r } = geo;
+    const base = document.createElement("canvas");
+    base.width = canvas.width;
+    base.height = canvas.height;
+    const c = base.getContext("2d");
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.fillStyle = "#000";
+    c.fillRect(0, 0, width, height);
 
     if (cell >= 6) {
       const gap = Math.max(1, cell * 0.1);
       for (let i = 0; i < model.n; i++) {
-        const c = cellXY(i);
-        ctx.fillStyle = rgb(verseShade(cellVerse(cellInfo(i, model.unit, model.seq)), model.seq));
-        ctx.fillRect(c.col * cell + gap / 2, c.row * cell + gap / 2, cell - gap, cell - gap);
+        const p = cellXY(i);
+        c.fillStyle = rgb(verseShade(cellVerse(cellInfo(i, model.unit, model.seq)), model.seq));
+        c.fillRect(pad + p.col * cell + gap / 2, pad + p.row * cell + gap / 2, cell - gap, cell - gap);
       }
     } else {
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(fieldImage(), 0, 0, model.cols * cell, model.rows * cell);
+      c.imageSmoothingEnabled = false;
+      c.drawImage(fieldImage(), pad, pad, model.cols * cell, model.rows * cell);
     }
 
     const marks = [];
@@ -669,42 +735,59 @@
       const list = [...layer.cells.keys()].sort((a, b) => a - b).map(idx => ({ idx, ...cellXY(idx), hits: layer.cells.get(idx), k }));
       if (!list.length) continue;
       if (view.connect && list.length > 1) {
-        ctx.strokeStyle = st.color;
-        ctx.globalAlpha = 0.45;
-        ctx.lineWidth = 1;
-        ctx.lineJoin = "round";
-        ctx.beginPath();
-        list.forEach((m, i) => (i ? ctx.lineTo(m.x, m.y) : ctx.moveTo(m.x, m.y)));
-        ctx.stroke();
-        ctx.globalAlpha = 1;
+        c.strokeStyle = st.color;
+        c.globalAlpha = 0.45;
+        c.lineWidth = 1;
+        c.lineJoin = "round";
+        c.beginPath();
+        list.forEach((m, i) => (i ? c.lineTo(m.x, m.y) : c.moveTo(m.x, m.y)));
+        c.stroke();
+        c.globalAlpha = 1;
       }
       if (!model.dense) {
         for (const m of list) {
-          const g = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, r * 3.2);
+          const g = c.createRadialGradient(m.x, m.y, 0, m.x, m.y, r * 3.2);
           g.addColorStop(0, k === 0 ? "rgba(255,255,255,0.3)" : hexAlpha(st.color, 0.35));
           g.addColorStop(1, "rgba(0,0,0,0)");
-          ctx.fillStyle = g;
-          ctx.beginPath(); ctx.arc(m.x, m.y, r * 3.2, 0, Math.PI * 2); ctx.fill();
+          c.fillStyle = g;
+          c.beginPath(); c.arc(m.x, m.y, r * 3.2, 0, Math.PI * 2); c.fill();
         }
       }
-      ctx.fillStyle = st.color;
-      for (const m of list) { drawShape(ctx, st.shape, m.x, m.y, r); ctx.fill(); }
+      c.fillStyle = st.color;
+      // Coloured markers get a thin black keyline so they keep their contrast on light shading.
+      const keyline = k > 0 && !model.dense;
+      c.strokeStyle = "#000";
+      c.lineWidth = 1;
+      for (const m of list) {
+        drawShape(c, st.shape, m.x, m.y, r);
+        c.fill();
+        if (keyline) c.stroke();
+      }
       if (!model.dense) {
-        ctx.strokeStyle = st.color;
-        ctx.lineWidth = 1.3;
+        c.strokeStyle = st.color;
+        c.lineWidth = 1.3;
         for (const g of groupMarks(list, r)) {
           if (g.count < 2) continue;
-          ctx.beginPath(); ctx.arc(g.x, g.y, g.spread + r + 3.5, 0, Math.PI * 2); ctx.stroke();
+          c.beginPath(); c.arc(g.x, g.y, g.spread + r + 3.5, 0, Math.PI * 2); c.stroke();
         }
       }
       marks.push(...list);
     }
     geo.marks = marks;
+    geo.base = base;
+  }
+
+  function draw() {
+    if (!geo || !geo.base) return;
+    const { cell, r } = geo;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(geo.base, 0, 0);
+    ctx.setTransform(geo.dpr, 0, 0, geo.dpr, 0, 0);
 
     // Highlights: the verse focused in the list, then the square under the pointer.
     if (focusVerse != null) {
       const seen = new Set();
-      for (const m of marks) {
+      for (const m of geo.marks) {
         if (seen.has(m.idx)) continue;
         const info = cellInfo(m.idx, model.unit, model.seq);
         const covers = info.page ? (focusVerse >= info.from && focusVerse <= info.to) : cellVerse(info) === focusVerse;
@@ -712,13 +795,13 @@
       }
     }
     if (hover) {
-      const c = cellXY(hover.idx);
-      if (hover.mark) ring(c.x, c.y, r + 6, 0.95);
+      const p = cellXY(hover.idx);
+      if (hover.mark) ring(p.x, p.y, r + 6, 0.95);
       else {
-        const s = Math.max(cell, 6);
+        const sz = Math.max(cell, 6);
         ctx.strokeStyle = "rgba(255,255,255,0.85)";
         ctx.lineWidth = 1;
-        ctx.strokeRect(c.x - s / 2 + 0.5, c.y - s / 2 + 0.5, s - 1, s - 1);
+        ctx.strokeRect(p.x - sz / 2 + 0.5, p.y - sz / 2 + 0.5, sz - 1, sz - 1);
       }
     }
   }
@@ -780,16 +863,19 @@
     const rtl = view.dir === "rtl";
     const size = el("span", "", `${cols} columns × ${rows} rows`);
     const begin = el("span", "mark", rtl ? `Start · ${start} ←` : `Start · ${start} →`);
-    $("ends-top").replaceChildren(...(rtl ? [size, begin] : [begin, size]));
+    $("ends-top").replaceChildren(begin, size);
+    $("ends-top").style.flexDirection = rtl ? "row-reverse" : "row";
     const finish = el("span", "", `End · ${end}${empty ? `, then ${empty} empty square${empty === 1 ? "" : "s"}` : ""}`);
-    $("ends-bottom").replaceChildren(...(rtl ? [el("span"), finish] : [finish, el("span")]));
+    $("ends-bottom").replaceChildren(finish, el("span"));
+    $("ends-bottom").style.flexDirection = rtl ? "row-reverse" : "row";
     const s1 = el("span", "", `Start · ${start}`), s2 = el("span", "", `End · ${end}`);
-    $("strip-ends").replaceChildren(...(rtl ? [s2, s1] : [s1, s2]));
+    $("strip-ends").replaceChildren(s1, s2);
+    $("strip-ends").style.flexDirection = rtl ? "row-reverse" : "row";
     const unitWord = { words: "word", verses: "verse", pages: "page" }[model.unit];
     const how = model.unit === "pages" ? "the 604 pages of the Madani mushaf" : view.order === "revelation" ? "surahs in revelation order" : "surahs in their standard order";
     $("caption").textContent = `1 square = 1 ${unitWord} · ${how}. Hover or tap any square to see what it holds; tap a dot to open its verse.`;
     const total = results.reduce((a, r) => a + (r && !r.error ? r.hits.length : 0), 0);
-    canvas.setAttribute("aria-label", `Grid of ${fmt.format(n)} ${unitWord}s with ${fmt.format(total)} matches marked. The verse list below has every match.`);
+    canvas.setAttribute("aria-label", `Grid of ${fmt.format(n)} ${unitWord}s with ${fmt.format(total)} matches marked. Use the arrow keys to step through the matches and Enter to open a verse. The verse list below has every match.`);
   }
 
   function markerSvg(k, size) {
@@ -804,8 +890,10 @@
     return svg;
   }
 
+  // The label as it was when the search ran, not what is being typed now.
   function seriesLabel(k) {
-    return iso(series[k].label || series[k].q);
+    const r = results[k];
+    return (r && r.label) || (series[k] && (series[k].label || series[k].q)) || "";
   }
 
   function renderNotes() {
@@ -815,7 +903,7 @@
       if (!r) return;
       const box = el("div", "s-note");
       const head = el("div", "s-head");
-      head.append(markerSvg(k, 18), el("span", "lbl", seriesLabel(k)));
+      head.append(markerSvg(k, 18), elB("span", "lbl", seriesLabel(k)));
       box.append(head);
       if (!r || r.error) { box.append(el("p", "empty-note", r ? r.error : "")); notes.append(box); return; }
       const n = r.hits.length;
@@ -865,11 +953,11 @@
         const sp = el("div", "spellings");
         for (const [w, c] of [...counts.entries()].sort((x, y) => y[1] - x[1]).slice(0, 8)) {
           const s = el("span");
-          const ar = el("span", "ar", w); ar.lang = "ar";
-          s.append(ar, el("span", "k", fmt.format(c)));
+          const ar = arSpan(w);
+          s.append(ar, " ", el("span", "k", fmt.format(c)));
           sp.append(s);
         }
-        const lbl = el("h2", "mono-label", "Most common spellings");
+        const lbl = el("p", "mono-label", "Most common spellings");
         lbl.style.margin = "0 0 -4px";
         box.append(lbl, sp);
       }
@@ -883,8 +971,11 @@
     wrap.replaceChildren();
     const seq = model.seq;
     const head = $("dist-note");
+    const hadFocus = head.contains(document.activeElement);
     head.replaceChildren();
     const seg = el("span", "seg");
+    seg.setAttribute("role", "radiogroup");
+    seg.setAttribute("aria-label", "Bar height");
     for (const [val, text] of [["count", "count"], ["rate", "per 1,000 words"]]) {
       const id = `dist-${val}`;
       const input = el("input"); input.type = "radio"; input.name = "dist"; input.id = id; input.value = val; input.checked = distMode === val;
@@ -893,6 +984,7 @@
     }
     seg.addEventListener("change", e => { distMode = e.target.value; renderDist(); });
     head.append(`Each bar is one surah, in ${seq.order === "revelation" ? "revelation" : "standard"} order. `, seg);
+    if (hadFocus) $(`dist-${distMode}`).focus();
 
     results.forEach((r, k) => {
       if (!r || r.error) return;
@@ -902,11 +994,11 @@
       const max = Math.max(...vals);
       const row = el("div", "dist-row");
       const lbl = el("div", "d-lbl");
-      lbl.append(markerSvg(k, 14), el("span", "", seriesLabel(k)));
+      lbl.append(markerSvg(k, 14), elB("span", "", seriesLabel(k)));
       // Bars only in the stretched SVG; labels live in HTML so text never distorts.
       const W = 1140, H = 70;
       const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H + 1}`, preserveAspectRatio: "none", role: "img",
-        "aria-label": `${seriesLabel(k)}: matches in each surah, highest ${distMode === "rate" ? max.toFixed(1) + " per 1,000 words" : fmt.format(max)}` });
+        "aria-label": `${iso(seriesLabel(k))}: matches in each surah, highest ${distMode === "rate" ? max.toFixed(1) + " per 1,000 words" : fmt.format(max)}` });
       svg.style.height = "72px";
       svg.append(svgEl("rect", { x: 0, y: H, width: W, height: 1, fill: "#3a3935" }));
       const bw = W / 114;
@@ -928,7 +1020,8 @@
       const labels = el("div", "ends axis");
       labels.style.marginTop = "4px";
       const a = el("span", "", `Surah ${first}`), b = el("span", "", `Surah ${last}`);
-      labels.append(...(view.dir === "rtl" ? [b, a] : [a, b]));
+      labels.append(a, b);
+      labels.style.flexDirection = view.dir === "rtl" ? "row-reverse" : "row";
       holder.append(maxLbl, svg, labels);
       row.append(lbl, holder);
       wrap.append(row);
@@ -997,7 +1090,12 @@
       more.append(`Showing ${fmt.format(catalogLimit)} of ${fmt.format(verses.length)}.`);
       const btn = el("button", "btn", `Show ${fmt.format(Math.min(100, verses.length - catalogLimit))} more`);
       btn.type = "button";
-      btn.addEventListener("click", () => { catalogLimit += 100; renderCatalog(); });
+      btn.addEventListener("click", () => {
+        const first = catalogLimit;
+        catalogLimit += 100;
+        renderCatalog();
+        if (entriesEl.children[first]) entriesEl.children[first].focus();
+      });
       more.append(btn);
     }
     model.catalogOrder = verses;
@@ -1011,7 +1109,7 @@
     const meta = el("div", "meta");
     meta.append(el("div", "ref", verseRef(v)));
     const sn = el("div", "surah");
-    const ar = el("span", "ar", s.name_ar); ar.lang = "ar";
+    const ar = arSpan(s.name_ar);
     sn.append(`${s.name} · `, ar, ` · ${s.name_en}`);
     meta.append(sn);
     const f = (wordCell(D.verseFirst[v], model.seq) / D.N) * 100;
@@ -1061,8 +1159,8 @@
       if (d <= bestD) { bestD = d; best = m; }
     }
     if (best) return { idx: best.idx, mark: true };
-    const row = Math.floor(y / cell);
-    let col = Math.floor(x / cell);
+    const row = Math.floor((y - geo.pad) / cell);
+    let col = Math.floor((x - geo.pad) / cell);
     if (row < 0 || row >= model.rows || col < 0 || col >= model.cols) return null;
     if (view.dir === "rtl") col = model.cols - 1 - col;
     const idx = row * model.cols + col;
@@ -1096,7 +1194,7 @@
       any = true;
       const row = el("div", "t-row");
       const ser = el("div", "t-series");
-      ser.append(markerSvg(k, 12), seriesLabel(k));
+      ser.append(markerSvg(k, 12), ...bidi(seriesLabel(k)));
       row.append(ser);
       if (layer.level === "word" && info.word == null) {
         const words = hits.slice(0, 3).map(h => D.ar[h]).join(" · ");
@@ -1110,7 +1208,8 @@
       tooltip.append(row);
     });
     if (any) {
-      const hint = el("div", "t-muted", lastPointer === "mouse" ? "Click to read the verse" : "Tap again to read the verse");
+      const hint = el("div", "t-muted", lastPointer === "mouse" ? "Click to read the verse"
+        : lastPointer === "keyboard" ? "Press Enter to read the verse" : "Tap again to read the verse");
       hint.style.marginTop = "6px";
       tooltip.append(hint);
     }
@@ -1164,10 +1263,37 @@
     if (lastPointer !== "mouse" && !jumpOnClick) return;
     armed = -1;
     hideTooltip();
-    const info = cellInfo(hit.idx, model.unit, model.seq);
+    openCell(hit.idx);
+  });
+  function openCell(idx) {
+    const info = cellInfo(idx, model.unit, model.seq);
     const target = info.page ? model.catalogOrder.find(v => v >= info.from && v <= info.to) : cellVerse(info);
     jumpToVerse(target);
+  }
+
+  // Keyboard: arrows step through the dots in reading order, Enter opens the verse.
+  canvas.addEventListener("keydown", e => {
+    if (!model || !geo || !geo.marks || !geo.marks.length) return;
+    const cells = [...new Set(geo.marks.map(m => m.idx))].sort((a, b) => a - b);
+    const cur = hover && hover.mark ? cells.indexOf(hover.idx) : -1;
+    const forward = view.dir === "rtl" ? "ArrowLeft" : "ArrowRight";
+    const back = view.dir === "rtl" ? "ArrowRight" : "ArrowLeft";
+    let next = null;
+    if (e.key === forward || e.key === "ArrowDown") next = cur < 0 ? 0 : Math.min(cells.length - 1, cur + 1);
+    else if (e.key === back || e.key === "ArrowUp") next = cur < 0 ? 0 : Math.max(0, cur - 1);
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = cells.length - 1;
+    else if (e.key === "Enter" && cur >= 0) { e.preventDefault(); hideTooltip(); openCell(cells[cur]); return; }
+    else if (e.key === "Escape") { hideTooltip(); return; }
+    if (next == null) return;
+    e.preventDefault();
+    lastPointer = "keyboard";
+    hover = { idx: cells[next], mark: true };
+    draw();
+    const p = cellXY(cells[next]);
+    showTooltip(hover, p.x, p.y);
   });
+  canvas.addEventListener("blur", () => { if (lastPointer === "keyboard") hideTooltip(); });
   function jumpToVerse(v) {
     if (v == null) return;
     const pos = model.catalogOrder.indexOf(v);
@@ -1188,6 +1314,7 @@
   let suggestState = { k: -1, items: [], sel: -1 };
 
   function renderRows() {
+    const focused = document.activeElement && document.activeElement.id;
     rowsEl.replaceChildren();
     series.forEach((s, k) => {
       const row = el("div", "series-row");
@@ -1196,33 +1323,47 @@
       input.type = "text";
       input.id = `q-${k}`;
       input.value = s.q;
-      input.placeholder = k === 0 ? "Try month, شمس, root:رحم, Musa, tr:\"sacred month\"…" : "Compare with… (sun, قمر, en:bee*)";
+      input.placeholder = k === 0 ? "Try month, شمس, root:رحم, Musa, tr:\"sacred month\"…" : "Compare with… (sun, قمر, en:star*)";
       input.setAttribute("aria-label", k === 0 ? "Search the Quran" : `Comparison ${k}`);
       input.setAttribute("role", "combobox");
       input.setAttribute("aria-autocomplete", "list");
       input.setAttribute("aria-expanded", "false");
       input.setAttribute("aria-controls", `suggest-${k}`);
       input.spellcheck = false;
-      input.addEventListener("input", () => { series[k].q = input.value; series[k].label = ""; scheduleSuggest(k); });
+      input.addEventListener("input", () => {
+        if (!series[k]) return;
+        series[k].q = input.value;
+        series[k].label = "";
+        scheduleSuggest(k);
+      });
       input.addEventListener("keydown", e => onKey(e, k));
-      input.addEventListener("blur", () => setTimeout(() => closeSuggest(), 150));
+      input.addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== input) closeList(k); }, 150));
       input.addEventListener("focus", () => scheduleSuggest(k));
       row.append(mk, input);
       if (k > 0) {
         const rm = el("button", "icon-btn", "Remove");
         rm.type = "button";
         rm.setAttribute("aria-label", `Remove comparison ${k}`);
-        rm.addEventListener("click", () => { series.splice(k, 1); activeDiscovery = null; renderRows(); search(); });
+        rm.addEventListener("click", () => {
+          series.splice(k, 1);
+          activeDiscovery = null;
+          renderRows();
+          search();
+          const prev = $(`q-${k - 1}`);
+          if (prev) prev.focus();
+        });
         row.append(rm);
       } else row.append(el("span"));
       const sug = el("div", "suggest");
       sug.id = `suggest-${k}`;
       sug.setAttribute("role", "listbox");
+      sug.setAttribute("aria-label", "Suggestions");
       sug.hidden = true;
       row.append(sug);
       rowsEl.append(row);
     });
     $("add-series").disabled = series.length >= 3;
+    if (focused && /^q-\d$/.test(focused) && $(focused)) $(focused).focus();
   }
 
   let suggestTimer = 0;
@@ -1230,46 +1371,60 @@
     clearTimeout(suggestTimer);
     suggestTimer = setTimeout(() => buildSuggest(k), 120);
   }
+  function closeList(k) {
+    const list = $(`suggest-${k}`), input = $(`q-${k}`);
+    if (list) list.hidden = true;
+    if (input) { input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant"); }
+    if (suggestState.k === k) suggestState = { k: -1, items: [], sel: -1 };
+  }
   function closeSuggest() {
-    document.querySelectorAll(".suggest").forEach(s => { s.hidden = true; });
-    document.querySelectorAll(".q-input").forEach(i => i.setAttribute("aria-expanded", "false"));
+    clearTimeout(suggestTimer);
+    series.forEach((_, k) => closeList(k));
     suggestState = { k: -1, items: [], sel: -1 };
   }
   function buildSuggest(k) {
     if (!D.N) return;
     const input = $(`q-${k}`);
     if (!input || document.activeElement !== input) return;
+    input.removeAttribute("aria-activedescendant");
     const text = input.value.trim();
     const items = [];
     if (text.length >= 1 && !/[:|"]/.test(text)) {
       if (ARABIC.test(text)) {
         const t = normalizeAr(text);
         const roots = D.rootsN.map((r, i) => [r, i]).filter(([r]) => r.startsWith(t)).sort((a, b) => D.rootCount[b[1]] - D.rootCount[a[1]]).slice(0, 5);
-        for (const [, i] of roots) items.push({ main: [el("span", "ar", D.roots[i]), ` root · ${D.rootGloss[i] || ""}`], n: D.rootCount[i], q: `root:${D.roots[i]}` });
-        const lem = D.lemmasN.map((x, i) => [x, i]).filter(([x]) => x.startsWith(t)).sort((a, b) => D.lemmaCount[b[1]] - D.lemmaCount[a[1]]).slice(0, 5);
-        for (const [, i] of lem) items.push({ main: [el("span", "ar", D.lemmas[i]), ` · ${D.lemmaGloss[i] || ""}`], n: D.lemmaCount[i], q: `lemma:${D.lemmas[i]}` });
-        items.push({ main: [`Any word spelled with `, el("span", "ar", text)], q: `ar:${text}` });
+        for (const [, i] of roots) items.push({ main: [arSpan(D.roots[i]), ` root · ${D.rootGloss[i] || ""}`], q: `root:${D.roots[i]}` });
+        const lem = D.lemmasN.map((x, i) => [x, i]).filter(([x]) => x.startsWith(t)).sort((a, b) => D.lemmaCount[b[1]] - D.lemmaCount[a[1]]).slice(0, 6);
+        for (const [, i] of lem) items.push({ main: [arSpan(D.lemmas[i]), ` · ${D.lemmaGloss[i] || ""}`], q: `lemma:=${D.lemmas[i]}` });
+        items.push({ main: ["Any word spelled with ", arSpan(text)], q: `ar:${text}` });
       } else if (text.length >= 2) {
         const t = text.toLowerCase();
-        let rx;
-        try { rx = new RegExp("\\b" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")); } catch (_) { rx = null; }
+        const rx = new RegExp("(?<![A-Za-z0-9_])" + t.replace(/[.*+?^${}()|[\]\\/-]/g, "\\$&"));
         items.push({ main: [`Words meaning “${text}”`], q: /\s/.test(text) ? `en:"${text}"` : `en:${text}` });
         if (!/[\s*]/.test(text)) items.push({ main: [`Words whose meaning starts with “${text}”`], q: `en:${text}*` });
-        if (rx) {
-          const lem = [];
-          D.lemmaGloss.forEach((g, i) => { if (g && rx.test(g)) lem.push(i); });
-          lem.sort((a, b) => D.lemmaCount[b] - D.lemmaCount[a]);
-          for (const i of lem.slice(0, 6)) items.push({ main: [el("span", "ar", D.lemmas[i]), ` · ${D.lemmaGloss[i]}`], n: D.lemmaCount[i], q: `lemma:${D.lemmas[i]}` });
-        }
+        const lem = [];
+        D.lemmaGloss.forEach((g, i) => { if (g && rx.test(g)) lem.push(i); });
+        lem.sort((a, b) => D.lemmaCount[b] - D.lemmaCount[a]);
+        for (const i of lem.slice(0, 6)) items.push({ main: [arSpan(D.lemmas[i]), ` · ${D.lemmaGloss[i]}`], q: `lemma:=${D.lemmas[i]}` });
         items.push({ main: [`Verses whose translation says “${text}”`], q: `tr:"${text}"` });
       }
     }
+    // Every count is what the search will really return; searches that come out the
+    // same are listed once.
+    const seen = new Set();
+    const shown = [];
     for (const it of items) {
-      if (it.n == null) { try { it.n = run(it.q).hits.length; } catch (_) { it.n = 0; } }
+      let r;
+      try { r = run(it.q); } catch (_) { continue; }
+      if (!r.hits.length) continue;
+      const sig = `${r.level}:${r.hits.length}:${r.hits[0]}:${r.hits[r.hits.length - 1]}`;
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      it.n = r.hits.length;
+      shown.push(it);
     }
     const list = $(`suggest-${k}`);
     list.replaceChildren();
-    const shown = items.filter(it => it.n > 0);
     suggestState = { k, items: shown, sel: -1 };
     if (!shown.length) { list.hidden = true; input.setAttribute("aria-expanded", "false"); return; }
     shown.forEach((it, i) => {
@@ -1278,7 +1433,7 @@
       opt.setAttribute("role", "option");
       opt.setAttribute("aria-selected", "false");
       const main = el("span", "s-main"); main.append(...it.main);
-      opt.append(main, el("span", "s-n", fmt.format(it.n)), el("span", "s-q", it.q));
+      opt.append(main, el("span", "s-n", fmt.format(it.n)), elB("span", "s-q", it.q));
       opt.addEventListener("mousedown", e => { e.preventDefault(); pickSuggest(i); });
       list.append(opt);
     });
@@ -1287,7 +1442,7 @@
   }
   function pickSuggest(i) {
     const { k, items } = suggestState;
-    if (k < 0 || !items[i]) return;
+    if (k < 0 || !items[i] || !series[k]) return;
     series[k].q = items[i].q;
     series[k].label = "";
     $(`q-${k}`).value = items[i].q;
@@ -1296,6 +1451,7 @@
     search();
   }
   function onKey(e, k) {
+    if (!series[k]) return;
     const st = suggestState;
     if (st.k === k && st.items.length && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
       e.preventDefault();
@@ -1303,6 +1459,9 @@
       st.items.forEach((_, i) => $(`sug-${k}-${i}`).setAttribute("aria-selected", String(i === st.sel)));
       $(`q-${k}`).setAttribute("aria-activedescendant", `sug-${k}-${st.sel}`);
       $(`sug-${k}-${st.sel}`).scrollIntoView({ block: "nearest" });
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      buildSuggest(k);
     } else if (e.key === "Enter" && st.k === k && st.sel >= 0) {
       e.preventDefault();
       pickSuggest(st.sel);
@@ -1329,19 +1488,21 @@
     e.currentTarget.setAttribute("aria-expanded", String(!help.hidden));
   });
 
-  const EXAMPLES = ["month", "شمس", "root:رحم", "Musa", "tr:\"sacred month\"", "en:bee*", "tag:INL", "sajdah:yes", "at:last surah:55"];
+  const EXAMPLES = ["month", "شمس", "root:رحم", "Musa", "tr:\"sacred month\"", "en:star*", "tag:INL", "sajdah:yes", "at:last surah:55"];
   function renderExamples() {
     const ex = $("examples");
     for (const q of EXAMPLES) {
       const b = el("button", "chip-btn");
       b.type = "button";
-      if (ARABIC.test(q)) { const parts = q.split(/([؀-ۿ]+)/); for (const p of parts) if (p) b.append(ARABIC.test(p) ? el("span", "ar", p) : p); }
-      else b.textContent = q;
+      b.append(...bidi(q));
       b.addEventListener("click", () => { series = [{ q, label: "" }]; activeDiscovery = null; renderRows(); search(); });
       ex.append(b);
     }
   }
 
+  function interpText(r) {
+    return r.error ? r.error : `${capital(describe(r.groups))}: ${plural(r.hits.length, r.level)}`;
+  }
   function renderInterp() {
     const ul = $("interp");
     ul.replaceChildren();
@@ -1351,12 +1512,11 @@
       const li = el("li");
       li.append(markerSvg(k, 12));
       if (r.error) {
-        li.append(el("span", "err", r.error));
+        li.append(elB("span", "err", r.error));
         if (input) input.setAttribute("aria-invalid", "true");
       } else {
         if (input) input.removeAttribute("aria-invalid");
-        const n = r.hits.length;
-        li.append(el("span", "", `${capital(describe(r.groups))}: ${plural(n, r.level)}`));
+        li.append(elB("span", "", interpText(r)));
       }
       ul.append(li);
     });
@@ -1364,17 +1524,26 @@
   const capital = s => s.charAt(0).toUpperCase() + s.slice(1);
 
   function search(opts) {
+    const before = series.length;
     series = series.filter((s, k) => k === 0 || s.q.trim());
     if (!series.length) series = [{ q: "", label: "" }];
+    if (series.length !== before || rowsEl.children.length !== series.length) renderRows();
     results = series.map(s => {
       if (!s.q.trim()) return null;
-      try { return run(s.q); } catch (e) { return { error: e instanceof QueryError ? e.message : `Could not run this search: ${e.message}`, hits: [] }; }
+      const label = s.label || s.q;
+      try { return { ...run(s.q), label }; } catch (e) {
+        return { error: e instanceof QueryError ? e.message : `Could not run this search: ${e.message}`, hits: [], label };
+      }
     });
     if (!activeDiscovery && !(opts && opts.keepHash)) {
       try { history.replaceState(null, "", location.pathname + location.search); } catch (_) { /* ignore */ }
     }
     catalogLimit = 25;
     renderAll();
+    renderInterp();
+    renderStory();
+    // One short announcement per search; view changes stay silent.
+    $("search-status").textContent = results.filter(Boolean).map(interpText).join(". ");
   }
 
   // ------------------------------------------------------------------ discoveries
@@ -1384,6 +1553,7 @@
 
   function renderCats() {
     const cats = $("cats");
+    const hadFocus = cats.contains(document.activeElement);
     cats.replaceChildren();
     const counts = new Map();
     for (const d of D.discoveries) counts.set(d.category, (counts.get(d.category) || 0) + 1);
@@ -1392,10 +1562,13 @@
       const b = el("button", "cat", c);
       b.type = "button";
       b.setAttribute("aria-pressed", String(c === catFilter));
-      b.append(el("span", "n", String(c === "All" ? D.discoveries.length : counts.get(c))));
+      const n = c === "All" ? D.discoveries.length : counts.get(c);
+      b.append(" ", el("span", "n", String(n)));
+      b.setAttribute("aria-label", `${c}, ${plural(n, "discovery", "discoveries")}`);
       b.addEventListener("click", () => { catFilter = c; cardsExpanded = false; renderCats(); renderCards(); });
       cats.append(b);
     }
+    if (hadFocus) { const on = cats.querySelector('[aria-pressed="true"]'); if (on) on.focus(); }
     $("discover-count").textContent = String(D.discoveries.length);
   }
 
@@ -1423,7 +1596,7 @@
       b.type = "button";
       b.dataset.id = d.id;
       if (activeDiscovery && activeDiscovery.id === d.id) b.setAttribute("aria-current", "true");
-      b.append(el("span", "c-cat", d.category), el("span", "c-title", iso(d.title)));
+      b.append(el("span", "c-cat", d.category), elB("span", "c-title", d.title));
       const cv = el("canvas");
       cv.setAttribute("aria-hidden", "true");
       b.append(cv);
@@ -1432,7 +1605,7 @@
       d.series.forEach((s, k) => {
         const m = el("span");
         m.style.display = "inline-flex"; m.style.gap = "4px"; m.style.alignItems = "center";
-        m.append(markerSvg(k, 10), `${fmt.format(s.count)} ${iso(s.label.replace(/\s*\(.*\)$/, ""))}`);
+        m.append(markerSvg(k, 10), ...bidi(`${fmt.format(s.count)} ${s.label.replace(/\s*\(.*\)$/, "")}`));
         meta.append(m);
       });
       b.append(meta);
@@ -1483,26 +1656,28 @@
     c.globalAlpha = 1;
   }
 
-  function loadDiscovery(id, scroll) {
+  // byUser: a click (scroll to the story and move focus there); otherwise the first load,
+  // which keeps the viewer's saved shading.
+  function loadDiscovery(id, byUser) {
     const d = D.discoveries.find(x => x.id === id);
     if (!d) return false;
     activeDiscovery = d;
     series = d.series.map(s => ({ q: s.q, label: s.label }));
-    if (d.view) {
-      if (d.view.unit && ALLOWED.unit.includes(d.view.unit)) view.unit = d.view.unit;
-      if (d.view.order && ALLOWED.order.includes(d.view.order)) view.order = d.view.order;
-      view.shade = d.view.shade && ALLOWED.shade.includes(d.view.shade) ? d.view.shade : "none";
-    } else {
-      view.shade = "none";
-    }
-    if (view.unit === "pages") view.order = "mushaf";
+    const v = d.view || {};
+    if (ALLOWED.unit.includes(v.unit)) view.unit = v.unit;
+    if (ALLOWED.order.includes(v.order)) view.order = v.order;
+    if (ALLOWED.shade.includes(v.shade)) view.shade = v.shade;
+    else if (byUser) view.shade = "none";
+    if (byUser) saveView();
     try { history.replaceState(null, "", "#" + d.id); } catch (_) { /* ignore */ }
     renderRows();
     search({ keepHash: true });
     renderCards();
-    if (scroll) {
+    if (byUser) {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       $("story").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      const h = $("story").querySelector("h2");
+      if (h) h.focus({ preventScroll: true });
     }
     return true;
   }
@@ -1510,9 +1685,15 @@
     const pool = D.discoveries.filter(d => !activeDiscovery || d.id !== activeDiscovery.id);
     if (pool.length) loadDiscovery(pool[Math.floor(Math.random() * pool.length)].id, true);
   });
+  const hashId = () => { try { return decodeURIComponent(location.hash.slice(1)); } catch (_) { return ""; } };
   window.addEventListener("hashchange", () => {
-    const id = decodeURIComponent(location.hash.slice(1));
-    if (id && (!activeDiscovery || activeDiscovery.id !== id)) loadDiscovery(id, true);
+    if (!D.N) return;
+    const id = hashId();
+    if (!id) {
+      if (activeDiscovery) { activeDiscovery = null; renderCards(); search({ keepHash: true }); }
+      return;
+    }
+    if (!activeDiscovery || activeDiscovery.id !== id) loadDiscovery(id, true);
   });
 
   function renderStory() {
@@ -1522,23 +1703,25 @@
     const actions = el("div", "story-actions");
     if (activeDiscovery) {
       const d = activeDiscovery;
-      main.append(el("p", "s-eyebrow", d.category), el("h2", "", iso(d.title)), el("p", "s-blurb", iso(d.blurb)));
+      const h = elB("h2", "", d.title);
+      h.tabIndex = -1;
+      main.append(el("p", "s-eyebrow", d.category), h, elB("p", "s-blurb", d.blurb));
       if (d.verdict) {
         const v = el("div", "s-verdict");
         const c = el("div", "claim");
-        c.append(verdictPill(d.verdict), " ", `The claim: ${iso(d.verdict.claim)}`);
-        v.append(c, el("div", "note", iso(d.verdict.note)));
+        c.append(verdictPill(d.verdict), " ", ...bidi(`The claim: ${d.verdict.claim}`));
+        v.append(c, elB("div", "note", d.verdict.note));
         main.append(v);
       }
       const det = el("details");
       det.append(el("summary", "", "How this was counted"));
-      if (d.method) det.append(el("p", "", iso(d.method)));
+      if (d.method) det.append(elB("p", "", d.method));
       const ul = el("ul", "s-queries");
       d.series.forEach((s, k) => {
         const li = el("li");
         const code = el("code", "", s.q);
         const right = el("span");
-        right.append(code, ` · ${iso(s.label)} · ${fmt.format(s.count)}`);
+        right.append(code, ...bidi(` · ${s.label} · ${fmt.format(s.count)}`));
         li.append(markerSvg(k, 14), right);
         ul.append(li);
       });
@@ -1560,11 +1743,14 @@
     } else {
       const ok = results.filter(r => r && !r.error);
       main.append(el("p", "s-eyebrow", "Your search"));
-      if (!ok.length) {
+      const err = results.find(r => r && r.error);
+      if (!ok.length && err) {
+        main.append(el("h2", "", "This search has a problem"), elB("p", "s-blurb", err.error));
+      } else if (!ok.length) {
         main.append(el("h2", "", "Type something to search"), el("p", "s-blurb", "Search in English or Arabic, or open a discovery above."));
       } else {
-        main.append(el("h2", "", ok.map(r => capital(describe(r.groups))).join(" · ")));
-        main.append(el("p", "s-blurb", results.map((r, k) => r && !r.error ? `${seriesLabel(k)}: ${plural(r.hits.length, r.level)}` : null).filter(Boolean).join(". ") + "."));
+        main.append(elB("h2", "", ok.map(r => capital(describe(r.groups))).join(" · ")));
+        main.append(elB("p", "s-blurb", results.map((r, k) => r && !r.error ? `${seriesLabel(k)}: ${plural(r.hits.length, r.level)}` : null).filter(Boolean).join(". ") + "."));
       }
     }
     story.append(main, actions);
@@ -1580,6 +1766,7 @@
     $("shade").value = view.shade;
     $("opt-connect").checked = view.connect;
     const pages = view.unit === "pages";
+    if (pages) $("order-mushaf").checked = true;
     $("order-revelation").disabled = pages;
     controls.querySelector("label[for=order-revelation]").title = pages ? "Pages follow the printed mushaf, so they can only be shown in standard order." : "";
   }
@@ -1591,9 +1778,9 @@
     else if (t.name === "order") view.order = t.value;
     else if (t.id === "shade") view.shade = t.value;
     else if (t.id === "opt-connect") view.connect = t.checked;
-    if (view.unit === "pages") view.order = "mushaf";
     saveView();
     renderAll();
+    if (t.name === "dir") renderCards();
   });
 
   // ------------------------------------------------------------------ render all
@@ -1608,8 +1795,6 @@
     renderEnds();
     renderLegend();
     renderNotes();
-    renderInterp();
-    renderStory();
     renderDist();
     renderCatalog();
     document.querySelectorAll(".card").forEach(c => {
@@ -1648,7 +1833,7 @@
     buildIndex(raw);
     renderCats();
     renderCards();
-    const id = decodeURIComponent(location.hash.slice(1));
+    const id = hashId();
     if (!(id && loadDiscovery(id, false))) {
       if (!loadDiscovery("month", false)) { series = [{ q: "root:شهر", label: "Month (ش ه ر)" }]; renderRows(); search(); }
     }

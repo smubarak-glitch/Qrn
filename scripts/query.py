@@ -1,26 +1,33 @@
 #!/usr/bin/env python3
 """Reference search engine for the Quran grid explorer.
 
-The page (index.html) implements the same query language in JavaScript; this
-module is the specification and is used to check every preset's numbers.
+The page (src/explorer.js) implements the same query language in JavaScript;
+this module is the specification and is used to check every discovery's
+numbers. Change the two together.
 
 Query language
-  A query is one or more groups separated by " | " (OR). A group is terms
+  A query is one or more groups separated by "|" (OR). A group is terms
   separated by spaces (AND). A term is key:value; values may be quoted
   (en:"the sun") and may list alternatives with commas (root:شمس,قمر).
-  A leading "-" negates a term (-tag:PN).
+  A leading "-" negates a term (-tag:PN). Arabic-Indic digits work like 0-9.
 
-  Word keys    root:  lemma:  ar: (plain spelling contains; ar:=x exact)
+  Word keys    root:  lemma: (diacritics ignored; lemma:=x matches the vowelled
+               dictionary form exactly)  ar: (spelling contains; ar:=x exact)
                en: (word-by-word English, whole words, * wildcard)
                pos: N|V|P   tag: corpus tag (PN, ADJ, DET, MP, INL, NEG, ...)
                at: first|last (position of the word in its verse)
   Verse keys   tr: (Saheeh International translation)   surah:  juz:  page:
-               ref: (2:255, 2:255-257)   type: meccan|medinan   sajdah:yes
+               ref: (2:255, 2:255-257)   type: meccan|medinan   sajdah:yes|no
                has:"<word term>" (the verse contains such a word, e.g.
                has:"root:شمس" has:"root:قمر" = verses with both sun and moon)
 
   A bare Arabic word is a root if it is one, else ar:. Bare Latin text is en:.
   A bare reference like 2:255 is ref:.
+
+  Arabic is compared without vowel marks, with أ إ آ ٱ as ا, ى and ئ as ي,
+  ؤ as و, ة as ه, and the Uthmani ءا as ا. ar: matches both the plain spelling
+  and the Uthmani spelling of each word. English is compared in lower case with
+  the translators' brackets removed.
 
   A group with any word key returns words; a group with only verse keys
   returns verses. When groups of both kinds are OR-ed, words become verses.
@@ -43,9 +50,15 @@ from quran_data import load_derived, normalize_ar  # noqa: E402
 
 WORD_KEYS = {"root", "lemma", "ar", "en", "pos", "tag", "at"}
 VERSE_KEYS = {"tr", "surah", "juz", "page", "ref", "type", "sajdah", "has"}
-TOKEN = re.compile(r'(-?)(?:(\w+):"([^"]*)"|(\w+):(\S+)|"([^"]*)"|(\S+))')
-ARABIC = re.compile(r"[؀-ۿ]")
-REF = re.compile(r"^\d+:\d+(-\d+)?$")
+# ASCII classes throughout, so Python and JavaScript read a query the same way.
+TOKEN = re.compile(r'(-?)(?:(\w+):"([^"]*)"|(\w+):(\S+)|"([^"]*)"|(\S+))', re.ASCII)
+ARABIC = re.compile("[\u0600-\u06FF]")
+REF = re.compile(r"^[0-9]+:[0-9]+(-[0-9]+)?$")
+SPACE = re.compile("[\\s\uFEFF]")
+DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "0123456789" * 2)
+FORMAT = re.compile("[\u0640\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]")
+WORDCHAR = "[A-Za-z0-9_]"
+MAX_WILDCARDS = 4
 
 
 class QueryError(ValueError):
@@ -61,7 +74,9 @@ def dataset() -> dict:
     words = d["words"]
     d["_word_roots"] = [[normalize_ar(r) for r in w["roots"]] for w in words]
     d["_word_lemmas"] = [[normalize_ar(x) for x in w["lemmas"]] for w in words]
+    d["_word_lemmas_exact"] = [[FORMAT.sub("", x) for x in w["lemmas"]] for w in words]
     d["_word_plain"] = [normalize_ar(w["plain"]) for w in words]
+    d["_word_uthmani"] = [normalize_ar(w["ar"]) for w in words]
     d["_word_gloss"] = [clean_english(w["gloss"]) for w in words]
     d["_verse_en"] = [clean_english(v["en"]) for v in d["verses"]]
     d["_roots"] = {r for rs in d["_word_roots"] for r in rs}
@@ -75,30 +90,38 @@ def clean_english(text: str) -> str:
 
 
 def phrase_regex(value: str) -> re.Pattern:
-    parts = [re.escape(p).replace(r"\*", r"\w*") for p in value.lower().split()]
-    if not parts:
+    words = clean_english(value).split(" ")
+    words = [re.sub(r"\*+", "*", w) for w in words if w]
+    if not words:
         raise QueryError("empty English phrase")
-    return re.compile(r"\b" + r"\s+".join(parts) + r"\b", re.ASCII)
+    if sum(w.count("*") for w in words) > MAX_WILDCARDS:
+        raise QueryError(f"use at most {MAX_WILDCARDS} * wildcards in one phrase")
+    parts = [re.escape(w).replace(r"\*", WORDCHAR + "*") for w in words]
+    return re.compile(f"(?<!{WORDCHAR})" + " +".join(parts) + f"(?!{WORDCHAR})")
 
 
-def number_set(value: str, key: str) -> set[int]:
-    out: set[int] = set()
+def number_ranges(value: str, key: str) -> list[tuple[int, int]]:
+    out = []
     for part in value.split(","):
-        m = re.fullmatch(r"(\d+)(?:-(\d+))?", part.strip())
+        m = re.fullmatch(r"([0-9]{1,6})(?:-([0-9]{1,6}))?", part.strip())
         if not m:
             raise QueryError(f"{key}: expects numbers or ranges like 1-10, got {part!r}")
-        lo, hi = int(m.group(1)), int(m.group(2) or m.group(1))
-        out.update(range(lo, hi + 1))
+        out.append((int(m.group(1)), int(m.group(2) or m.group(1))))
     return out
 
 
 # --------------------------------------------------------------------------- parsing
 
 
+def canonical(query: str) -> str:
+    """One kind of space, ASCII digits."""
+    return SPACE.sub(" ", query).translate(DIGITS)
+
+
 def parse(query: str) -> list[list[tuple[bool, str, str]]]:
     """[[(negated, key, value), ...], ...] — OR of AND-groups."""
     groups = []
-    for raw in query.split("|"):
+    for raw in canonical(query).split("|"):
         if not raw.strip():
             continue
         terms = []
@@ -106,7 +129,7 @@ def parse(query: str) -> list[list[tuple[bool, str, str]]]:
             neg = m.group(1) == "-"
             if m.group(2):
                 key, value = m.group(2).lower(), m.group(3)
-            elif m.group(4) and m.group(4).isdigit():
+            elif m.group(4) and re.fullmatch(r"[0-9]+", m.group(4)):
                 key, value = "ref", f"{m.group(4)}:{m.group(5)}"
             elif m.group(4):
                 key, value = m.group(4).lower(), m.group(5)
@@ -135,27 +158,41 @@ def bare_key(token: str) -> str:
 # --------------------------------------------------------------------------- matching
 
 
-def word_test(key: str, value: str):
-    d = dataset()
-    words = d["words"]
+def alternatives(key: str, value: str) -> list[str]:
     alts = [v.strip() for v in value.split(",") if v.strip()]
     if not alts:
         raise QueryError(f"{key}: empty value")
+    return alts
+
+
+def word_test(key: str, value: str):
+    d = dataset()
+    words = d["words"]
+    alts = alternatives(key, value)
     if key == "root":
         want = {normalize_ar(v) for v in alts}
         return lambda i: any(r in want for r in d["_word_roots"][i])
     if key == "lemma":
-        want = {normalize_ar(v) for v in alts}
-        return lambda i: any(x in want for x in d["_word_lemmas"][i])
+        exact = {FORMAT.sub("", v[1:]) for v in alts if v.startswith("=")}
+        loose = {normalize_ar(v) for v in alts if not v.startswith("=")}
+        return lambda i: (any(x in exact for x in d["_word_lemmas_exact"][i])
+                          or any(x in loose for x in d["_word_lemmas"][i]))
     if key == "ar":
-        exact = [normalize_ar(v[1:]) for v in alts if v.startswith("=")]
-        contains = [normalize_ar(v) for v in alts if not v.startswith("=")]
-        return lambda i: d["_word_plain"][i] in exact or any(c and c in d["_word_plain"][i] for c in contains)
+        exact = {normalize_ar(v[1:]) for v in alts if v.startswith("=")}
+        contains = [c for c in (normalize_ar(v) for v in alts if not v.startswith("=")) if c]
+
+        def ar(i):
+            p, u = d["_word_plain"][i], d["_word_uthmani"][i]
+            return p in exact or u in exact or any(c in p or c in u for c in contains)
+
+        return ar
     if key == "en":
         rxs = [phrase_regex(v) for v in alts]
         return lambda i: any(rx.search(d["_word_gloss"][i]) for rx in rxs)
     if key == "pos":
         want = {v.upper() for v in alts}
+        if not want <= {"N", "V", "P"}:
+            raise QueryError("pos: expects N, V or P")
         return lambda i: words[i]["pos"] in want
     if key == "tag":
         want = {v.upper() for v in alts}
@@ -179,28 +216,29 @@ def verse_test(key: str, value: str):
     d = dataset()
     verses = d["verses"]
     if key == "tr":
-        rxs = [phrase_regex(x) for x in value.split(",") if x.strip()]
-        if not rxs:
-            raise QueryError("tr: empty value")
+        rxs = [phrase_regex(x) for x in alternatives(key, value)]
         return lambda v: any(rx.search(d["_verse_en"][v]) for rx in rxs)
     if key in ("surah", "juz", "page"):
-        want = number_set(value, key)
-        field = {"surah": "surah", "juz": "juz", "page": "page"}[key]
-        return lambda v: verses[v][field] in want
+        ranges = number_ranges(value, key)
+        return lambda v: any(lo <= verses[v][key] <= hi for lo, hi in ranges)
     if key == "ref":
-        want = set()
+        want = []
         for part in value.split(","):
-            m = re.fullmatch(r"(\d+):(\d+)(?:-(\d+))?", part.strip())
+            m = re.fullmatch(r"([0-9]{1,6}):([0-9]{1,6})(?:-([0-9]{1,6}))?", part.strip())
             if not m:
                 raise QueryError(f"ref: expects 2:255 or 2:255-257, got {part!r}")
-            s, lo, hi = int(m.group(1)), int(m.group(2)), int(m.group(3) or m.group(2))
-            want.update((s, a) for a in range(lo, hi + 1))
-        return lambda v: (verses[v]["surah"], verses[v]["ayah"]) in want
+            want.append((int(m.group(1)), int(m.group(2)), int(m.group(3) or m.group(2))))
+        return lambda v: any(verses[v]["surah"] == s and lo <= verses[v]["ayah"] <= hi for s, lo, hi in want)
     if key == "type":
-        want = {x.lower() for x in value.split(",")}
+        want = {x.lower() for x in alternatives(key, value)}
+        if not want <= {"meccan", "medinan"}:
+            raise QueryError("type: expects meccan or medinan")
         return lambda v: d["_surah_type"][verses[v]["surah"]] in want
     if key == "sajdah":
-        return lambda v: verses[v]["sajdah"] is not None
+        want = value.strip().lower()
+        if want not in ("yes", "no"):
+            raise QueryError("sajdah: expects yes or no")
+        return lambda v: (verses[v]["sajdah"] is not None) == (want == "yes")
     if key == "has":
         inner = parse(value)
         if len(inner) != 1 or len(inner[0]) != 1 or inner[0][0][1] not in WORD_KEYS:
@@ -240,7 +278,7 @@ def run(query: str) -> dict:
     return {"level": "verse", "hits": sorted(verse_hits)}
 
 
-def summarize(query: str, limit: int = 30) -> dict:
+def summarize(query: str, limit: int | None = 30) -> dict:
     d = dataset()
     res = run(query)
     verses = d["verses"]

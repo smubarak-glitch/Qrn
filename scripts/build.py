@@ -248,8 +248,48 @@ def write_month_outputs(month: dict) -> None:
 # --------------------------------------------------------------------------- discoveries
 
 
+VIEW_OPTIONS = {
+    "unit": {"words", "verses", "pages"},
+    "order": {"mushaf", "revelation"},
+    "shade": {"none", "surahs", "type", "length", "revelation", "juz", "rhyme"},
+}
+
+
+def discovery_shape_problems(item: dict) -> list[str]:
+    """Everything the page relies on when it shows a discovery."""
+    name = item.get("id", "?")
+    out = []
+    for key in ("id", "category", "title", "blurb"):
+        if not isinstance(item.get(key), str) or not item.get(key).strip():
+            out.append(f"{name}: needs a non-empty {key}")
+    series = item.get("series")
+    if not isinstance(series, list) or not 1 <= len(series) <= 3:
+        out.append(f"{name}: needs 1 to 3 series")
+        series = []
+    for s in series:
+        if not (isinstance(s, dict) and isinstance(s.get("q"), str) and isinstance(s.get("label"), str)
+                and isinstance(s.get("count"), int)):
+            out.append(f"{name}: each series needs q, label and an integer count")
+    verdict = item.get("verdict")
+    if verdict is not None and not (
+        isinstance(verdict, dict) and verdict.get("result") in ("holds", "partly", "fails")
+        and isinstance(verdict.get("claim"), str) and isinstance(verdict.get("note"), str)
+    ):
+        out.append(f"{name}: verdict needs claim, note and a result of holds, partly or fails")
+    view = item.get("view")
+    if view is not None:
+        if not isinstance(view, dict):
+            out.append(f"{name}: view must be an object")
+        else:
+            for k, v in view.items():
+                if k not in VIEW_OPTIONS or v not in VIEW_OPTIONS[k]:
+                    out.append(f"{name}: view {k}={v!r} is not an option the page has")
+    return out
+
+
 def check_discoveries() -> list[dict]:
-    """Every discovery's stated counts must match the reference engine."""
+    """Every discovery must have the shape the page expects, and its stated counts
+    must match the reference engine."""
     path = ROOT / "data" / "discoveries.json"
     if not path.exists():
         return []
@@ -260,6 +300,10 @@ def check_discoveries() -> list[dict]:
     ids = set()
     problems = []
     for item in items:
+        shape = discovery_shape_problems(item)
+        if shape:
+            problems += shape
+            continue
         if item["id"] in ids:
             problems.append(f"{item['id']}: duplicate id")
         ids.add(item["id"])
@@ -271,7 +315,7 @@ def check_discoveries() -> list[dict]:
             except query.QueryError as e:
                 problems.append(f"{item['id']}: {series['q']}: {e}")
                 continue
-            if "count" in series and series["count"] != got["count"]:
+            if series["count"] != got["count"]:
                 problems.append(f"{item['id']}: {series['q']} states {series['count']}, engine finds {got['count']}")
     if problems:
         raise SystemExit("discoveries.json does not match the data:\n  " + "\n  ".join(problems))
