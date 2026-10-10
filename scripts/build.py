@@ -203,7 +203,8 @@ def grid_shape(n: int) -> tuple[int, int]:
 
 def render_svg(path: Path, n: int, positions: list[int], label: str, rtl: bool = True) -> None:
     """Black square grid, one white dot per occupied cell (reading order: top-right
-    start for rtl). Counts > 1 in the same cell get a ring."""
+    start for rtl). Dots that share a cell or touch are grouped, and a group with
+    more than one mention gets a ring."""
     cols, rows = grid_shape(n)
     size = 1000
     pad = 40
@@ -232,19 +233,44 @@ def render_svg(path: Path, n: int, positions: list[int], label: str, rtl: bool =
         f'<rect x="{last_x:.1f}" y="{pad + (rows - 1) * cell:.1f}" width="{last * cell:.1f}" '
         f'height="{cell:.1f}" fill="#141412"/>'
     )
+
+    dots = []
     for p, c in sorted(counts.items()):
         row, col = divmod(p, cols)
         if rtl:
             col = cols - 1 - col
-        cx = pad + (col + 0.5) * cell
-        cy = pad + (row + 0.5) * cell
+        dots.append((pad + (col + 0.5) * cell, pad + (row + 0.5) * cell, c))
+
+    # Group dots closer than their own width (same rule as index.html).
+    parent = list(range(len(dots)))
+
+    def find(i: int) -> int:
+        while parent[i] != i:
+            i = parent[i]
+        return i
+
+    for i in range(len(dots)):
+        for j in range(i + 1, len(dots)):
+            if math.dist(dots[i][:2], dots[j][:2]) < 2 * r + 1:
+                parent[find(j)] = find(i)
+    groups: dict[int, list[tuple[float, float, int]]] = {}
+    for i, d in enumerate(dots):
+        groups.setdefault(find(i), []).append(d)
+
+    for cx, cy, _ in dots:
         parts.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r * 3:.1f}" fill="url(#g)"/>')
+    for cx, cy, _ in dots:
         parts.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:.1f}" fill="#fff"/>')
-        if c > 1:
-            parts.append(
-                f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r + 3.5:.1f}" fill="none" '
-                'stroke="#fff" stroke-width="1.5"/>'
-            )
+    for members in groups.values():
+        if sum(c for _, _, c in members) < 2:
+            continue
+        gx = sum(x for x, _, _ in members) / len(members)
+        gy = sum(y for _, y, _ in members) / len(members)
+        spread = max(math.dist((gx, gy), (x, y)) for x, y, _ in members)
+        parts.append(
+            f'<circle cx="{gx:.1f}" cy="{gy:.1f}" r="{spread + r + 3.5:.1f}" fill="none" '
+            'stroke="#fff" stroke-width="1.5"/>'
+        )
     parts.append(
         f'<text x="{pad}" y="{height - 22:.0f}" fill="#8c8a86" '
         f'font-family="IBM Plex Mono, ui-monospace, monospace" font-size="15">{label}</text>'

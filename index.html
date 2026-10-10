@@ -19,7 +19,7 @@
   --rule: #262522;
   --ink: #f3f1ec;
   --ink-2: #aaa69e;
-  --ink-3: #75716a;
+  --ink-3: #85817a;
   --dot: #ffffff;
   --font-ui: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
   --font-ar: "IBM Plex Sans Arabic", "Geeza Pro", "Noto Sans Arabic", Tahoma, sans-serif;
@@ -33,8 +33,10 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { background: var(--bg); }
 body {
+  margin: 0;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-ui);
@@ -453,7 +455,7 @@ figcaption {
         <h2>Key</h2>
         <ul class="key">
           <li><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9" fill="#fff" opacity=".15"/><circle cx="11" cy="11" r="4.5" fill="#fff"/></svg><span>A mention of month</span></li>
-          <li><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="4.5" fill="#fff"/><circle cx="11" cy="11" r="8" fill="none" stroke="#fff" stroke-width="1.4"/></svg><span>Two mentions in the same square</span></li>
+          <li><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="4.5" fill="#fff"/><circle cx="11" cy="11" r="8" fill="none" stroke="#fff" stroke-width="1.4"/></svg><span>More than one mention in the same spot</span></li>
           <li><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="5" y="5" width="12" height="12" fill="#141412" stroke="#262522"/></svg><span id="key-cell">One word of the Quran</span></li>
         </ul>
       </div>
@@ -480,7 +482,7 @@ figcaption {
       <ul>
         <li>A plain spelling search of the Tanzil text for ش ه ر, plus ش ه و ر for <em>shuhūr</em>, finds the same 21 words in the same 17 verses as the root search.</li>
         <li>Ramadan, the month of fasting, is named once, in 2:185, which also contains <em>shahr</em> twice.</li>
-        <li>English translations add the word month in brackets in two more verses, 2:196 and 9:37. The Arabic word is not there, so they are not dots.</li>
+        <li>Saheeh International, the translation shown here, adds the word month in brackets in two more verses, 2:196 and 9:37. Other translations add it in other places. The Arabic word is not there, so those verses get no dot.</li>
       </ul>
       <h2 style="margin-top:20px">Sources</h2>
       <ul>
@@ -520,6 +522,7 @@ figcaption {
 
   const fmt = new Intl.NumberFormat("en-US");
   const FORM_LABEL = { singular: "month", dual: "two months", plural: "months" };
+  const FORM_WORDS = { singular: "shahr", dual: "shahrayn", plural: "ashhur or shuhūr" };
 
   // First index i with arr[i] > x.
   function upperBound(arr, x) {
@@ -535,10 +538,20 @@ figcaption {
 
   // ---------------------------------------------------------------- state
   const state = { unit: "words", show: "all", dir: "rtl", order: "mushaf", bands: false, connect: false };
+  const ALLOWED = {
+    unit: ["words", "verses", "pages"],
+    show: ["all", "singular", "dual", "plural"],
+    dir: ["rtl", "ltr"],
+    order: ["mushaf", "revelation"],
+  };
   try {
     const saved = JSON.parse(localStorage.getItem("quran-month-grid") || "{}");
-    for (const k of Object.keys(state)) if (k in saved && typeof saved[k] === typeof state[k]) state[k] = saved[k];
-  } catch (_) { /* storage unavailable */ }
+    for (const k of Object.keys(state)) {
+      if (!(k in saved) || typeof saved[k] !== typeof state[k]) continue;
+      if (ALLOWED[k] && !ALLOWED[k].includes(saved[k])) continue;
+      state[k] = saved[k];
+    }
+  } catch (_) { /* storage unavailable or unreadable */ }
   if (state.unit === "pages") state.order = "mushaf";
 
   function save() {
@@ -693,6 +706,30 @@ figcaption {
     return { x: (col + 0.5) * geo.cell, y: (row + 0.5) * geo.cell, row, col };
   }
 
+  // Dots closer than their own width read as one, so they are grouped: a group
+  // holding more than one mention gets a ring and one shared tooltip.
+  function groupDots(dots, r) {
+    const parent = dots.map((_, i) => i);
+    const find = i => (parent[i] === i ? i : (parent[i] = find(parent[i])));
+    for (let i = 0; i < dots.length; i++) {
+      for (let j = i + 1; j < dots.length; j++) {
+        if (Math.hypot(dots[i].x - dots[j].x, dots[i].y - dots[j].y) < 2 * r + 1) parent[find(j)] = find(i);
+      }
+    }
+    const byRoot = new Map();
+    dots.forEach((d, i) => {
+      const k = find(i);
+      if (!byRoot.has(k)) byRoot.set(k, []);
+      byRoot.get(k).push(d);
+    });
+    return [...byRoot.values()].map(members => {
+      const x = members.reduce((sum, d) => sum + d.x, 0) / members.length;
+      const y = members.reduce((sum, d) => sum + d.y, 0) / members.length;
+      const spread = Math.max(...members.map(d => Math.hypot(d.x - x, d.y - y)));
+      return { key: members[0].idx, x, y, spread, members, items: members.flatMap(d => d.items) };
+    });
+  }
+
   function resize() {
     const width = Math.max(200, Math.floor(box.clientWidth));
     const cell = width / view.cols;
@@ -704,6 +741,7 @@ figcaption {
     geo = { width, height, cell, dpr, cols: view.cols, rows: view.rows, r: Math.min(11, Math.max(3.5, cell * 0.38)) };
     draw();
     drawStrip();
+    renderText();   // the ring note depends on which dots touch at this size
   }
 
   function draw() {
@@ -746,14 +784,16 @@ figcaption {
       ctx.fillStyle = g;
       ctx.beginPath(); ctx.arc(d.x, d.y, r * 3.4, 0, Math.PI * 2); ctx.fill();
     }
+    ctx.fillStyle = "#fff";
     for (const d of dots) {
-      ctx.fillStyle = "#fff";
       ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, Math.PI * 2); ctx.fill();
-      if (d.items.length > 1) {
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 1.4;
-        ctx.beginPath(); ctx.arc(d.x, d.y, r + 3.5, 0, Math.PI * 2); ctx.stroke();
-      }
+    }
+    const groups = groupDots(dots, r);
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 1.4;
+    for (const g of groups) {
+      if (g.items.length < 2) continue;
+      ctx.beginPath(); ctx.arc(g.x, g.y, g.spread + r + 3.5, 0, Math.PI * 2); ctx.stroke();
     }
 
     // Highlights: hovered dot or cell, and dots of a verse focused in the list.
@@ -763,11 +803,11 @@ figcaption {
       ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.stroke();
     };
     if (focusVerse) {
-      for (const d of dots) if (d.items.some(p => p.o.ref === focusVerse)) ring(d.x, d.y, r + 9, 0.9);
+      for (const g of groups) if (g.items.some(p => p.o.ref === focusVerse)) ring(g.x, g.y, g.spread + r + 9, 0.9);
     }
-    if (hover && hover.type === "dot") {
-      const c = cellCenter(hover.idx);
-      ring(c.x, c.y, r + 7, 0.95);
+    const hovered = hover && hover.type === "dot" && groups.find(g => g.key === hover.idx);
+    if (hovered) {
+      ring(hovered.x, hovered.y, hovered.spread + r + 7, 0.95);
     } else if (hover && hover.type === "cell") {
       const c = cellCenter(hover.idx);
       const s = Math.max(cell, 6);
@@ -775,7 +815,7 @@ figcaption {
       ctx.lineWidth = 1;
       ctx.strokeRect(c.x - s / 2 + 0.5, c.y - s / 2 + 0.5, s - 1, s - 1);
     }
-    geo.dots = dots;
+    geo.groups = groups;
   }
 
   function drawStrip() {
@@ -876,10 +916,16 @@ figcaption {
     const total = fmt.format(n);
     const read = state.dir === "rtl" ? "read like an Arabic page: right to left, top to bottom" : "read left to right, top to bottom";
     const orderNote = view.unit !== "pages" && state.order === "revelation" ? " The surahs are laid out in revelation order." : "";
+    const dots = state.show === "all"
+      ? [el("strong", "", String(shown.length)), " places where the Arabic word for month, ", el("em", "", "shahr"), ", appears."]
+      : [el("strong", "", String(shown.length)), " places where ", el("em", "", FORM_WORDS[state.show]),
+         `, “${FORM_LABEL[state.show]}”, appears, out of ${OCC.length} mentions of month in all.`];
+    const rings = geo && geo.groups.some(g => g.items.length > 1);
+    const shared = rings ? " A ring marks more than one mention in the same spot." : "";
     lede.replaceChildren(
       `Each square below is one ${unitWord} of the Quran. All `, el("strong", "", total),
       ` ${unitWord}s fill a `, el("strong", "", `${cols} × ${rows}`), ` grid, ${read}. The white dots mark the `,
-      el("strong", "", String(OCC.length)), " places where the Arabic word for month, ", el("em", "", "shahr"), ", appears." + orderNote
+      ...dots, shared + orderNote
     );
 
     const cap = document.getElementById("caption");
@@ -889,7 +935,7 @@ figcaption {
     // Live readout of the shape.
     const readout = document.getElementById("readout");
     readout.replaceChildren();
-    if (!shown.length) { readout.textContent = "No dots for this filter."; return; }
+    if (!shown.length) { readout.textContent = "No mentions for this filter."; return; }
     const pos = view.placed.filter(p => visible(p.o)).map(p => ({ p, f: p.wordPos / TOTAL_WORDS, row: Math.floor(p.idx / cols) }));
     const third = pos.filter(x => x.f < 1 / 3).length;
     let gap = { size: 0 };
@@ -899,7 +945,7 @@ figcaption {
     }
     const rowsUsed = new Set(pos.map(x => x.row)).size;
     readout.append(
-      el("b", "", `${third} of ${pos.length}`), " dots fall in the first third of the text. ",
+      el("b", "", `${third} of ${pos.length}`), ` mention${pos.length === 1 ? "" : "s"} fall in the first third of the text. `,
       "They touch ", el("b", "", `${rowsUsed} of ${rows}`), " rows. "
     );
     if (gap.size > 0) {
@@ -989,13 +1035,15 @@ figcaption {
 
   // ---------------------------------------------------------------- tooltip
   function hitTest(x, y) {
-    const { r, dots, cell } = geo;
+    const { r, groups, cell } = geo;
     let best = null, bestD = Math.max(14, r + 8);
-    for (const d of dots) {
-      const dist = Math.hypot(d.x - x, d.y - y);
-      if (dist <= bestD) { bestD = dist; best = d; }
+    for (const g of groups) {
+      for (const d of g.members) {
+        const dist = Math.hypot(d.x - x, d.y - y);
+        if (dist <= bestD) { bestD = dist; best = g; }
+      }
     }
-    if (best) return { type: "dot", idx: best.idx, dot: best };
+    if (best) return { type: "dot", idx: best.key, dot: best };
     const row = Math.floor(y / cell);
     let col = Math.floor(x / cell);
     if (row < 0 || row >= view.rows || col < 0 || col >= view.cols) return null;
@@ -1066,6 +1114,7 @@ figcaption {
     updateHover(hit, x, y);
   });
   canvas.addEventListener("pointerleave", e => { if ((e.pointerType || "mouse") === "mouse") hideTooltip(); });
+  canvas.addEventListener("pointercancel", () => { armedDot = -1; jumpOnClick = false; hideTooltip(); });
   document.addEventListener("pointerdown", e => {
     if (e.target !== canvas && !tooltip.hidden) { armedDot = -1; hideTooltip(); }
   });
@@ -1092,10 +1141,10 @@ figcaption {
   // ---------------------------------------------------------------- controls
   const form = document.getElementById("controls");
   function syncControls() {
-    form.querySelector(`#unit-${state.unit}`).checked = true;
-    form.querySelector(`#show-${state.show}`).checked = true;
-    form.querySelector(`#dir-${state.dir}`).checked = true;
-    form.querySelector(`#order-${state.order}`).checked = true;
+    for (const k of ["unit", "show", "dir", "order"]) {
+      const input = form.querySelector(`#${k}-${state[k]}`);
+      if (input) input.checked = true;
+    }
     form.querySelector("#opt-bands").checked = state.bands;
     form.querySelector("#opt-connect").checked = state.connect;
     const pages = state.unit === "pages";
@@ -1123,7 +1172,6 @@ figcaption {
     tooltip.hidden = true;
     resize();
     renderEnds();
-    renderText();
     renderCatalog();
   }
 
@@ -1131,13 +1179,22 @@ figcaption {
   window.quranMonthGrid = {
     get state() { return { ...state }; },
     get view() { return view && { unit: view.unit, n: view.n, cols: view.cols, rows: view.rows, dots: [...view.cells.entries()].map(([idx, items]) => ({ idx, refs: items.map(p => `${p.o.ref}#${p.o.word}`) })) }; },
+    get groups() { return geo && geo.groups.map(g => ({ key: g.key, refs: g.items.map(p => `${p.o.ref}#${p.o.word}`) })); },
     cellInfo: idx => cellInfo(idx, view.unit, view.seq),
     cellCenter: idx => cellCenter(idx),
   };
 
   buildCatalog();
   render();
-  new ResizeObserver(() => { if (geo && Math.floor(box.clientWidth) !== geo.width) resize(); }).observe(box);
+  const currentDpr = () => Math.min(window.devicePixelRatio || 1, 3);
+  new ResizeObserver(() => {
+    if (geo && (Math.floor(box.clientWidth) !== geo.width || currentDpr() !== geo.dpr)) resize();
+  }).observe(box);
+  (function watchDpr() {
+    const mq = window.matchMedia(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+    const onChange = () => { if (geo && currentDpr() !== geo.dpr) resize(); watchDpr(); };
+    if (mq.addEventListener) mq.addEventListener("change", onChange, { once: true });
+  })();
 })();
 </script>
 </body>

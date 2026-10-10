@@ -23,8 +23,9 @@ lay the surahs out in revelation order, or connect the dots.
 | شُهُور *shuhūr* | months | 1 |
 
 - 15 of the 21 sit in the first third of the text: eight in Al-Baqara (2:185 to
-  2:234, on fasting, pilgrimage and waiting periods), three in An-Nisa and
-  Al-Ma'ida, and four in At-Tawba (9:2, 9:5 and 9:36 twice).
+  2:234, on fasting, fighting in the sacred month, pilgrimage and waiting
+  periods), three in An-Nisa and Al-Ma'ida, and four in At-Tawba (9:2, 9:5 and
+  9:36 twice).
 - Then nothing for about 40% of the Quran, from 9:36 to 34:12.
 - The last six are scattered through the lower part: 34:12 (twice), 46:15,
   58:4, 65:4 and 97:3, "better than a thousand months", which is 99.4% of the
@@ -63,8 +64,13 @@ A grid with *n* squares has `ceil(sqrt(n))` columns and as many rows as it
 needs, which is the closest to a perfect square. Leftover squares at the end
 stay empty.
 
-Some English translations add "month" in brackets in 2:196 and 9:37. The Arabic
+Saheeh International, the translation quoted on the page, adds "month" in
+brackets in 2:196 and 9:37, and other translations add it elsewhere. The Arabic
 word is not in those verses, so they are not counted.
+
+In the word grid a few mentions sit only a couple of words apart (2:194, 34:12,
+and 2:226 next to 2:234 one row below), so their dots touch. Touching dots get a
+ring, the same as two mentions sharing one square in the verse and page grids.
 
 ## Sources
 
